@@ -5,6 +5,7 @@ import {
   generateFallbackEdgesForGoal,
 } from "../diagnostics";
 import { deriveModelContractForGoal } from "../inference";
+import { PYTHON_TRACK_CONCEPTS } from "../templates/pythonTrack";
 import { useSessionStore } from "../store";
 
 describe("Domain-Grounded Diagnostics & Roadmaps", () => {
@@ -116,6 +117,45 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(solarContract.output.type).toBe("regression");
     expect(solarContract.features.length).toBeGreaterThanOrEqual(4);
   });
+
+  it("provides comprehensive Python Foundation track from scratch to vector math", () => {
+    expect(PYTHON_TRACK_CONCEPTS.length).toBe(6);
+    expect(PYTHON_TRACK_CONCEPTS[0].id).toBe("python-vars");
+    expect(PYTHON_TRACK_CONCEPTS[1].id).toBe("python-collections");
+    expect(PYTHON_TRACK_CONCEPTS[2].id).toBe("python-conditions");
+    expect(PYTHON_TRACK_CONCEPTS[3].id).toBe("python-functions");
+    expect(PYTHON_TRACK_CONCEPTS[4].id).toBe("python-loops");
+    expect(PYTHON_TRACK_CONCEPTS[5].id).toBe("python-math-ai");
+
+    // Check that vector math and sigmoid are covered in concept 6
+    expect(PYTHON_TRACK_CONCEPTS[5].starterCode).toContain("sigmoid");
+    expect(PYTHON_TRACK_CONCEPTS[5].solutionCode).toContain("math.exp");
+  });
+
+  it("manages 2-phase learning journey (theory vs building) and track toggling in store", () => {
+    const store = useSessionStore.getState();
+
+    // Default phase is theory
+    store.setLearningPhase("theory");
+    expect(useSessionStore.getState().learningPhase).toBe("theory");
+
+    // Switch to building
+    store.setLearningPhase("building");
+    expect(useSessionStore.getState().learningPhase).toBe("building");
+
+    // Toggle track to Python Foundation
+    store.setLearningTrack("python_foundation");
+    const pyState = useSessionStore.getState();
+    expect(pyState.learningTrack).toBe("python_foundation");
+    expect(pyState.concepts[0].id).toBe("python-vars");
+
+    // Toggle back to Project
+    store.setLearningTrack("project");
+    const projState = useSessionStore.getState();
+    expect(projState.learningTrack).toBe("project");
+    expect(projState.concepts[0].id).not.toBe("python-vars");
+  });
 });
+
 
 

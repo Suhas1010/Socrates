@@ -51,6 +51,10 @@ export const LessonView: React.FC = () => {
     background,
     projectParts,
     templateId,
+    learningPhase,
+    learningTrack,
+    setLearningPhase,
+    setLearningTrack,
   } = useSessionStore();
 
   const safeGoal = goal?.trim() || "Your AI Project";
@@ -449,6 +453,68 @@ export const LessonView: React.FC = () => {
         </div>
       </div>
 
+      {/* 2-Phase Learning Journey Bar & Python Track Toggle */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 px-4 py-2 rounded-2xl bg-zinc-950/80 border border-white/10 mb-2.5 shadow-md flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center p-1 rounded-xl bg-zinc-900 border border-white/10">
+            <button
+              type="button"
+              onClick={() => setLearningPhase("theory")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                learningPhase === "theory"
+                  ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/20"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Brain className="w-3.5 h-3.5" />
+              <span>Phase 1: ML/DL Theory</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setLearningPhase("building")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                learningPhase === "building"
+                  ? "bg-amber-400 text-black shadow-md shadow-amber-400/20"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Code2 className="w-3.5 h-3.5" />
+              <span>Phase 2: Project Building</span>
+            </button>
+          </div>
+
+          <span className="text-[11px] text-zinc-400 hidden lg:inline">
+            {learningPhase === "theory"
+              ? "Master mathematical and intuitive foundations before writing code."
+              : "Implement the pipeline in Python, fill blanks, and test live."}
+          </span>
+        </div>
+
+        {/* Python Track Switcher */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              setLearningTrack(
+                learningTrack === "python_foundation" ? "project" : "python_foundation"
+              )
+            }
+            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 border ${
+              learningTrack === "python_foundation"
+                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-md shadow-emerald-500/10"
+                : "bg-zinc-900/90 text-zinc-300 hover:text-white border-white/10"
+            }`}
+          >
+            <span>🐍</span>
+            <span>
+              {learningTrack === "python_foundation"
+                ? "Return to AI Project"
+                : "Need Python Basics?"}
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* Main Workspace */}
       {activeTab === "test" ? (
         <div className="flex-1 overflow-y-auto">
@@ -586,14 +652,196 @@ export const LessonView: React.FC = () => {
               isMapCollapsed ? "lg:col-span-11" : "lg:col-span-9"
             }`}
           >
-            {/* 1. One-Line Hook (1-2 sentences max) */}
-            <div className="p-3 rounded-xl bg-[#14130F] border border-gold/15 flex items-center gap-2.5 flex-shrink-0">
-              <Lightbulb className="w-4 h-4 text-amber-300 animate-pulse flex-shrink-0" />
-              <p className="text-xs font-medium text-zinc-200">
-                <strong className="text-amber-300 mr-1.5 font-bold">Ponder This:</strong>
-                {currentConcept.hook}
-              </p>
-            </div>
+            {learningPhase === "theory" ? (
+              /* ========================================================================= */
+              /* PHASE 1: ML / DEEP LEARNING THEORY & CONCEPTUAL FOUNDATIONS               */
+              /* ========================================================================= */
+              <div className="space-y-4 pb-6">
+                {/* 1. Curiosity Inquiry (Hook) */}
+                <div className="p-4 rounded-2xl bg-[#14130F] border border-cyan-500/30 flex items-start gap-3 shadow-lg">
+                  <Lightbulb className="w-5 h-5 text-cyan-400 animate-pulse flex-shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-xs font-mono uppercase text-cyan-400 font-bold block mb-1">
+                      Curiosity Inquiry (Hook):
+                    </span>
+                    <p className="text-sm font-medium text-zinc-100 leading-relaxed">
+                      {currentConcept.hook}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. Core Mathematical & Algorithmic Principle */}
+                <div className="p-5 rounded-2xl bg-zinc-950/80 border border-white/10 space-y-3">
+                  <div className="flex items-center gap-2 text-cyan-400">
+                    <Brain className="w-4 h-4" />
+                    <span className="text-xs font-mono uppercase font-bold tracking-wider">
+                      Core Mathematical &amp; Algorithmic Principle:
+                    </span>
+                  </div>
+                  <p className="text-sm text-zinc-200 leading-relaxed font-sans">
+                    {currentConcept.corePrinciple ||
+                      currentConcept.explanationSummary ||
+                      "In machine learning, we learn a parameter matrix to map input tensors to output probability distributions."}
+                  </p>
+                  {currentConcept.explanationSummary && (
+                    <div className="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-xs text-cyan-100 leading-relaxed">
+                      <strong className="text-cyan-300 font-bold block mb-0.5">
+                        Conceptual Foundation:
+                      </strong>
+                      {currentConcept.explanationSummary}
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Step-by-Step Worked Numerical Example */}
+                {currentConcept.workedExample && (
+                  <div className="p-5 rounded-2xl bg-[#12110D] border border-amber-500/20 space-y-3">
+                    <div className="flex items-center gap-2 text-amber-400">
+                      <Calculator className="w-4 h-4" />
+                      <span className="text-xs font-mono uppercase font-bold tracking-wider">
+                        Step-by-Step Worked Numerical Example:
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-300 italic">
+                      {currentConcept.workedExample.scenario}
+                    </p>
+                    <div className="space-y-1.5 pl-2 border-l-2 border-amber-500/40 font-mono text-xs text-amber-200/90">
+                      {currentConcept.workedExample.calculationSteps.map((step, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span className="text-amber-400/60 font-bold">{i + 1}.</span>
+                          <span>{step}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 font-medium">
+                      💡 {currentConcept.workedExample.takeaway}
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Why It Matters in Real Production Systems */}
+                {currentConcept.whyItMatters && (
+                  <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5 space-y-1.5">
+                    <span className="text-[11px] font-mono uppercase text-zinc-400 font-bold tracking-wider block">
+                      Why It Matters In Real-World Machine Learning:
+                    </span>
+                    <p className="text-xs text-zinc-300 leading-relaxed">
+                      {currentConcept.whyItMatters}
+                    </p>
+                  </div>
+                )}
+
+                {/* 5. Conceptual Predict Check (Ponder & Predict) */}
+                {currentConcept.predictQuestion && (
+                  <div className="p-5 rounded-2xl bg-[#13120E] border border-gold/30 shadow-xl space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono uppercase text-amber-400 font-bold tracking-wider flex items-center gap-1.5">
+                        <Zap className="w-4 h-4 text-amber-400" />
+                        <span>Interactive Theory Mastery Check:</span>
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                        Mastery Assessment
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold text-white">
+                      {currentConcept.predictQuestion.prompt}
+                    </p>
+                    <div className="space-y-2">
+                      {currentConcept.predictQuestion.options.map((opt, optIdx) => {
+                        const isSelected = selectedPredictOption === optIdx;
+                        const isCorrect =
+                          optIdx === currentConcept.predictQuestion?.correctIndex;
+                        const hasChecked = selectedPredictOption !== null;
+
+                        return (
+                          <button
+                            key={optIdx}
+                            type="button"
+                            onClick={() => setSelectedPredictOption(optIdx)}
+                            className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-start gap-2.5 ${
+                              hasChecked
+                                ? isCorrect
+                                  ? "bg-emerald-950/40 border-emerald-500 text-emerald-200"
+                                  : isSelected
+                                  ? "bg-red-950/40 border-red-500 text-red-200"
+                                  : "bg-zinc-900/40 border-white/5 text-zinc-400"
+                                : isSelected
+                                ? "bg-amber-400/20 border-amber-400 text-white"
+                                : "bg-zinc-900/60 border-white/10 text-zinc-300 hover:border-amber-400/40"
+                            }`}
+                          >
+                            <span className="font-mono font-bold text-zinc-400 flex-shrink-0">
+                              {String.fromCharCode(65 + optIdx)}.
+                            </span>
+                            <span className="flex-1">{opt}</span>
+                            {hasChecked && isCorrect && (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                            )}
+                            {hasChecked && isSelected && !isCorrect && (
+                              <XCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {selectedPredictOption !== null && (
+                      <div
+                        className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
+                          selectedPredictOption ===
+                          currentConcept.predictQuestion.correctIndex
+                            ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-200"
+                            : "bg-red-950/30 border-red-500/40 text-red-200"
+                        }`}
+                      >
+                        <p>{currentConcept.predictQuestion.explanation}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 6. Graduate to Phase 2: Implementation CTA */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 shadow-md">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-amber-300 block">
+                      Theory Understood? Graduate to Coding:
+                    </span>
+                    <p className="text-[11px] text-zinc-300">
+                      Proceed to Phase 2 to write the Python implementation, fill the blanks, and execute assertions in Pyodide.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLearningPhase("building")}
+                    className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs shadow-lg shadow-amber-400/20 transition-all flex items-center gap-1.5 flex-shrink-0"
+                  >
+                    <span>Graduate to Phase 2: Build in Python</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ========================================================================= */
+              /* PHASE 2: PROJECT ARCHITECTURE & HANDS-ON CODING                           */
+              /* ========================================================================= */
+              <div className="space-y-3 flex-1 flex flex-col min-h-0">
+                {/* Phase 2 Banner with Back to Theory link */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Code2 className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                    <span className="text-xs font-mono font-bold text-amber-300 truncate">
+                      Phase 2 Active: Implement &quot;{currentConcept.title}&quot; in Python
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLearningPhase("theory")}
+                    className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-mono underline ml-2 flex-shrink-0"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Review Theory</span>
+                  </button>
+                </div>
 
             {/* 2. Grounded Prediction Card (Sitting Directly Above Code Editor) */}
             <div className="p-4 rounded-2xl bg-[#12110D] border border-gold/20 shadow-xl space-y-3 flex-shrink-0">
@@ -917,6 +1165,8 @@ export const LessonView: React.FC = () => {
                 onOpenTeachBack={() => setIsTeachBackOpen(true)}
               />
             </div>
+          </div>
+        )}
           </div>
         </div>
       )}

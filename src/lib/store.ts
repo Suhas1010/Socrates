@@ -37,6 +37,10 @@ import {
   REAL_ESTATE_DIAGNOSTIC_QUESTIONS,
 } from "./templates/realEstate";
 import {
+  PYTHON_TRACK_CONCEPTS,
+  PYTHON_TRACK_EDGES,
+} from "./templates/pythonTrack";
+import {
   generateDiagnosticQuestionsForGoal,
   generateFallbackConceptsForGoal,
   generateFallbackEdgesForGoal,
@@ -98,8 +102,17 @@ export interface SessionStoreState {
   isPyodideReady: boolean;
   pyodideError: string | null;
 
+  // Learning Phase & Track
+  learningPhase: "theory" | "building";
+  learningTrack: "project" | "python_foundation";
+  savedProjectConcepts?: Concept[];
+  savedProjectEdges?: ConceptEdge[];
+  savedCurrentConceptId?: string | null;
+
   // Actions
   setApiKey: (apiKey: string) => void;
+  setLearningPhase: (phase: "theory" | "building") => void;
+  setLearningTrack: (track: "project" | "python_foundation") => void;
   setGoalAndInterests: (goal: string, interests: string, background?: CodingBackground) => void;
   generatePlanForGoal: (goal: string, interests: string, background?: CodingBackground) => Promise<void>;
   setBackground: (background: CodingBackground) => void;
@@ -163,8 +176,43 @@ export const useSessionStore = create<SessionStoreState>()(
       isPyodideReady: false,
       pyodideError: null,
 
+      learningPhase: "theory",
+      learningTrack: "project",
+      savedProjectConcepts: undefined,
+      savedProjectEdges: undefined,
+      savedCurrentConceptId: undefined,
+
       setApiKey: (apiKey: string) => {
         set({ apiKey });
+      },
+
+      setLearningPhase: (phase: "theory" | "building") => {
+        set({ learningPhase: phase });
+      },
+
+      setLearningTrack: (track: "project" | "python_foundation") => {
+        const state = get();
+        if (track === "python_foundation" && state.learningTrack !== "python_foundation") {
+          set({
+            learningTrack: "python_foundation",
+            savedProjectConcepts: state.concepts,
+            savedProjectEdges: state.edges,
+            savedCurrentConceptId: state.currentConceptId,
+            concepts: PYTHON_TRACK_CONCEPTS,
+            edges: PYTHON_TRACK_EDGES,
+            currentConceptId: "python-vars",
+            learningPhase: "theory",
+          });
+        } else if (track === "project" && state.learningTrack === "python_foundation") {
+          const restoredConcepts = state.savedProjectConcepts || SPAM_CLASSIFIER_CONCEPTS;
+          const restoredEdges = state.savedProjectEdges || SPAM_CLASSIFIER_EDGES;
+          set({
+            learningTrack: "project",
+            concepts: restoredConcepts,
+            edges: restoredEdges,
+            currentConceptId: state.savedCurrentConceptId || restoredConcepts[0]?.id || null,
+          });
+        }
       },
 
       setGoalAndInterests: (goal, interests, background = "beginner") => {
