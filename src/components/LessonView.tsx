@@ -23,12 +23,14 @@ import {
   Check,
   RotateCcw,
   X,
+  Layers,
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 import { ConceptMap } from "./ConceptMap";
 import { CodeSandbox } from "./CodeSandbox";
 import { TeachBackModal } from "./TeachBackModal";
 import { LiveTestPanel } from "./LiveTestPanel";
+import { AssembledProjectView } from "./AssembledProjectView";
 import { ErrorType, ExplanationStrategy, Concept } from "@/lib/types";
 
 export const LessonView: React.FC = () => {
@@ -48,9 +50,13 @@ export const LessonView: React.FC = () => {
     goal,
     background,
     projectParts,
+    templateId,
   } = useSessionStore();
 
-  const [activeTab, setActiveTab] = useState<"learn" | "test">("learn");
+  const safeGoal = goal?.trim() || "Your AI Project";
+
+  const [activeTab, setActiveTab] = useState<"learn" | "assembled" | "test">("learn");
+  const [selectedPredictOption, setSelectedPredictOption] = useState<number | null>(null);
   const [isMapCollapsed, setIsMapCollapsed] = useState(false);
   const [showVisualMap, setShowVisualMap] = useState(false);
   const [isTeachBackOpen, setIsTeachBackOpen] = useState(false);
@@ -150,6 +156,52 @@ export const LessonView: React.FC = () => {
     }
   };
 
+  // Domain flags
+  const lowerGoal = (goal || "").toLowerCase();
+  const isMedical =
+    lowerGoal.includes("diabet") ||
+    lowerGoal.includes("disease") ||
+    lowerGoal.includes("cancer") ||
+    lowerGoal.includes("medical") ||
+    lowerGoal.includes("patient") ||
+    lowerGoal.includes("health") ||
+    lowerGoal.includes("heart") ||
+    lowerGoal.includes("clinic");
+
+  const isRealEstate =
+    templateId === "real-estate" ||
+    lowerGoal.includes("real estate") ||
+    lowerGoal.includes("house") ||
+    lowerGoal.includes("housing") ||
+    lowerGoal.includes("property") ||
+    lowerGoal.includes("price prediction");
+
+  const isSpam =
+    templateId === "spam-classifier" ||
+    lowerGoal.includes("spam") ||
+    lowerGoal.includes("email") ||
+    lowerGoal.includes("bayes");
+
+  // Handle Multiple-Choice Prediction Selection
+  const handleSelectPredictOption = (optIdx: number) => {
+    setSelectedPredictOption(optIdx);
+    const pq = currentConcept?.predictQuestion;
+    if (!pq) return;
+
+    if (optIdx === pq.correctIndex) {
+      setPredictSuccess(`Spot-on intuition! ${pq.explanation}`);
+      setActiveDiagnosis(null);
+    } else {
+      setPredictSuccess(null);
+      setActiveDiagnosis({
+        errorType: "CONCEPTUAL_GAP",
+        diagnosis: "Not quite — consider the underlying mathematical relationship.",
+        strategy: "contrast",
+        matchedExplanation: pq.explanation,
+      });
+    }
+  };
+
   // Grounded Prediction Submission Handler
   const handleCheckPrediction = async () => {
     setIsPredictChecked(true);
@@ -160,62 +212,82 @@ export const LessonView: React.FC = () => {
     const targetVal = predTarget.trim().toLowerCase();
 
     // Check for target leakage
-    if (inputVal.includes("price") || inputVal.includes("target")) {
+    if (
+      inputVal.includes("price") ||
+      inputVal.includes("target") ||
+      inputVal.includes("diabetes") ||
+      inputVal.includes("diagnosis") ||
+      inputVal.includes("spam")
+    ) {
       const diag = {
         errorType: "CONCEPTUAL_GAP" as ErrorType,
-        diagnosis: "Target Leakage: 'price' is the prediction target, so it cannot be provided in the inputs!",
+        diagnosis: "Target Leakage: The prediction target cannot be included in the input features list!",
         strategy: "analogy" as ExplanationStrategy,
-        matchedExplanation: "Think of taking an exam with the answers already printed on the test sheet. If the model is fed 'price' as an input, it never learns how square footage or bedrooms influence value — it simply reads the answer key!",
+        matchedExplanation:
+          "Think of taking an exam with the answers already printed on the question sheet. If the model is fed the target as an input, it never learns how features influence outcomes — it simply memorizes the target directly!",
       };
       setActiveDiagnosis(diag);
       return;
     }
 
-    // Check for classification confusion
-    if (targetVal.includes("classification") || targetVal.includes("category")) {
+    // Check for classification confusion on regression projects
+    if (isRealEstate && (targetVal.includes("classification") || targetVal.includes("category"))) {
       const diag = {
         errorType: "TERMINOLOGY_CONFUSION" as ErrorType,
         diagnosis: "Terminology Confusion: Home prices are continuous numbers along a spectrum (regression), not discrete categories (classification).",
         strategy: "contrast" as ExplanationStrategy,
-        matchedExplanation: "Contrast regression with classification: Classification sorts inputs into discrete buckets (like Spam or Ham). Regression predicts a continuous numeric quantity along an open-ended scale (like $250,000 for a house). Because prices can take any numeric dollar amount, this project is regression.",
+        matchedExplanation: "Contrast regression with classification: Classification sorts inputs into discrete buckets (like positive or negative). Regression predicts a continuous numeric quantity (like $250,000 for a house).",
       };
       setActiveDiagnosis(diag);
       return;
     }
 
-    // Check for correct answer
-    const hasInputs = inputVal.includes("sqft") || inputVal.includes("bed") || inputVal.includes("feature");
-    const hasTarget = targetVal.includes("price") || targetVal.includes("value") || targetVal.includes("cost") || targetVal.includes("dollar");
-
-    if (hasInputs && hasTarget) {
-      setPredictSuccess("Spot on intuition! The model takes in ['sqft', 'bedrooms'] and predicts the continuous 'price'. Now fill in the blanks in the code cell below!");
-      return;
+    // Domain checks
+    if (isMedical) {
+      const hasMedicalInputs = inputVal.includes("glucose") || inputVal.includes("bmi") || inputVal.includes("age") || inputVal.includes("vital") || inputVal.includes("feature");
+      const hasMedicalTarget = targetVal.includes("diabet") || targetVal.includes("disease") || targetVal.includes("positive") || targetVal.includes("class") || targetVal.includes("diagnosis") || targetVal.includes("risk");
+      if (hasMedicalInputs && hasMedicalTarget) {
+        setPredictSuccess("Spot on intuition! The model observes patient vitals ['glucose', 'bmi', 'age'] and predicts clinical diagnosis. Now fill in the code blanks below!");
+        return;
+      }
+    } else if (isRealEstate) {
+      const hasInputs = inputVal.includes("sqft") || inputVal.includes("bed") || inputVal.includes("feature");
+      const hasTarget = targetVal.includes("price") || targetVal.includes("value") || targetVal.includes("cost") || targetVal.includes("dollar");
+      if (hasInputs && hasTarget) {
+        setPredictSuccess("Spot on intuition! The model takes in ['sqft', 'bedrooms'] and predicts the continuous 'price'. Now fill in the blanks in the code cell below!");
+        return;
+      }
+    } else {
+      if (inputVal.length > 2 && targetVal.length > 2) {
+        setPredictSuccess(`Spot on intuition! Model observes features [${predInputs}] and learns to predict [${predTarget}]. Now fill in the blanks below!`);
+        return;
+      }
     }
 
-    // If partial or unclear, call /api/evaluate
+    // Fallback evaluate
     try {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           concept: currentConcept,
-          question: `What should go in inputs and target for real estate listings: [1200, 2, 250000]?`,
+          question: `What should go in inputs and target for ${goal || "the project"}?`,
           answer: `inputs: ${predInputs}, target: ${predTarget}`,
         }),
       });
       const data = await res.json();
       setActiveDiagnosis({
         errorType: data.errorType || "CONCEPTUAL_GAP",
-        diagnosis: data.diagnosis || "Check what features are observable before the sale vs what is being predicted.",
+        diagnosis: data.diagnosis || "Check what features are observable beforehand vs what is being predicted.",
         strategy: data.strategy || "analogy",
-        matchedExplanation: data.matchedExplanation || "Inputs are what you observe (sqft, bedrooms) and target is the price to predict.",
+        matchedExplanation: data.matchedExplanation || "Inputs are what you observe and target is the value to predict.",
       });
     } catch (err) {
       setActiveDiagnosis({
         errorType: "CONCEPTUAL_GAP",
-        diagnosis: "Remember: Inputs are the features you observe before prediction, and Target is the single value being predicted.",
+        diagnosis: "Remember: Inputs are observable features known beforehand, and Target is the single outcome being predicted.",
         strategy: "analogy",
-        matchedExplanation: "Consider the listings: you know how big the house is [1200 sqft, 2 beds], and you want the model to predict the price ($250,000).",
+        matchedExplanation: "Consider the project spec: features in the inputs must never contain the target answer.",
       });
     }
   };
@@ -298,7 +370,7 @@ export const LessonView: React.FC = () => {
             <span>Ask Socrates AI ✨</span>
           </button>
 
-          <div className="flex items-center gap-1 bg-[#14130F] p-1 rounded-xl border border-gold/15">
+          <div className="flex items-center gap-1.5 bg-[#14130F] p-1 rounded-xl border border-gold/25 shadow-inner">
             <button
               type="button"
               onClick={() => setActiveTab("learn")}
@@ -309,7 +381,27 @@ export const LessonView: React.FC = () => {
               }`}
             >
               <Code2 className="w-3.5 h-3.5" />
-              <span>Studio &amp; Code</span>
+              <span>Step Studio</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("assembled")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                activeTab === "assembled"
+                  ? "bg-amber-400 text-zinc-950 shadow font-bold"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Built Model</span>
+              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full border ${
+                activeTab === "assembled"
+                  ? "bg-zinc-950/20 text-zinc-950 border-zinc-950/30 font-bold"
+                  : "bg-amber-400/10 text-amber-300 border-amber-400/25"
+              }`}>
+                {projectParts.length}/{concepts.length}
+              </span>
             </button>
 
             <button
@@ -323,6 +415,7 @@ export const LessonView: React.FC = () => {
             >
               <Zap className="w-3.5 h-3.5" />
               <span>Model Tester</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             </button>
           </div>
 
@@ -352,6 +445,10 @@ export const LessonView: React.FC = () => {
       {activeTab === "test" ? (
         <div className="flex-1 overflow-y-auto">
           <LiveTestPanel />
+        </div>
+      ) : activeTab === "assembled" ? (
+        <div className="flex-1 overflow-y-auto">
+          <AssembledProjectView />
         </div>
       ) : (
         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-hidden">
@@ -504,76 +601,182 @@ export const LessonView: React.FC = () => {
                 </span>
               </div>
 
-              {/* Real Project Data Sample */}
+              {/* Dynamic Domain-Grounded Project Data Sample */}
               <div className="bg-zinc-950/80 p-3 rounded-xl border border-white/5 space-y-1 text-xs">
                 <span className="text-[10px] font-mono uppercase text-zinc-400 tracking-wider block font-bold">
-                  Project Data Sample:
+                  Project Data Sample ({safeGoal}):
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs text-amber-200/90 pt-1">
-                  <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
-                    <strong>Listing 1:</strong> 1,200 sqft, 2 beds &rarr; <span className="text-emerald-400">$250,000</span>
-                  </div>
-                  <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
-                    <strong>Listing 2:</strong> 2,400 sqft, 4 beds &rarr; <span className="text-emerald-400">$480,000</span>
-                  </div>
-                  <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
-                    <strong>Listing 3:</strong> 1,800 sqft, 3 beds &rarr; <span className="text-emerald-400">$360,000</span>
-                  </div>
+                  {isMedical ? (
+                    <>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Patient 1:</strong> Glucose: 168 mg/dL, BMI: 32.4 &rarr; <span className="text-rose-400 font-bold">Positive (High Risk)</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Patient 2:</strong> Glucose: 88 mg/dL, BMI: 22.1 &rarr; <span className="text-emerald-400 font-bold">Negative (Healthy)</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Patient 3:</strong> Glucose: 142 mg/dL, BMI: 29.5 &rarr; <span className="text-amber-400 font-bold">Elevated (Pre-diabetic)</span>
+                      </div>
+                    </>
+                  ) : isSpam ? (
+                    <>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Email 1:</strong> &quot;Claim free $1,000 gift card now!&quot; &rarr; <span className="text-rose-400 font-bold">SPAM (1)</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Email 2:</strong> &quot;Hey, are we still meeting for lunch?&quot; &rarr; <span className="text-emerald-400 font-bold">HAM (0)</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Email 3:</strong> &quot;Urgent: Verify your account immediately!&quot; &rarr; <span className="text-rose-400 font-bold">SPAM (1)</span>
+                      </div>
+                    </>
+                  ) : isRealEstate ? (
+                    <>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Listing 1:</strong> 1,200 sqft, 2 beds &rarr; <span className="text-emerald-400">$250,000</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Listing 2:</strong> 2,400 sqft, 4 beds &rarr; <span className="text-emerald-400">$480,000</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Listing 3:</strong> 1,800 sqft, 3 beds &rarr; <span className="text-emerald-400">$360,000</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Sample 1:</strong> Features [12.4, 3.1, 0.85] &rarr; <span className="text-amber-300 font-bold">Class 1</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Sample 2:</strong> Features [3.2, 0.9, 0.12] &rarr; <span className="text-amber-300 font-bold">Class 0</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Sample 3:</strong> Features [18.9, 4.5, 0.92] &rarr; <span className="text-amber-300 font-bold">Class 1</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
-              {/* Grounded Question & Structured Inputs */}
-              <div className="space-y-2">
-                <p className="text-xs text-zinc-200 font-medium">
-                  Before you see the code: what should go in the model&apos;s <code className="text-amber-300 font-mono">inputs</code> list, and what single value should <code className="text-amber-300 font-mono">target</code> be?
-                </p>
+              {/* Grounded Prediction Question & Structured Inputs */}
+              {currentConcept.predictQuestion ? (
+                <div className="space-y-2.5">
+                  <p className="text-xs text-zinc-200 font-medium">
+                    <strong className="text-amber-300 font-semibold mr-1">Prediction Question:</strong>
+                    {currentConcept.predictQuestion.prompt || (currentConcept.predictQuestion as any).question}
+                  </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
-                  <div className="sm:col-span-5">
-                    <label className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
-                      Model Inputs (Features)
-                    </label>
-                    <input
-                      type="text"
-                      value={predInputs}
-                      onChange={(e) => setPredInputs(e.target.value)}
-                      placeholder="e.g. sqft, bedrooms"
-                      className="w-full bg-zinc-950 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                    {currentConcept.predictQuestion.options.map((opt, optIdx) => {
+                      const isSelected = selectedPredictOption === optIdx;
+                      const isCorrect = optIdx === currentConcept.predictQuestion?.correctIndex;
+                      return (
+                        <button
+                          key={optIdx}
+                          type="button"
+                          onClick={() => handleSelectPredictOption(optIdx)}
+                          className={`p-2.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2 ${
+                            isSelected && isCorrect
+                              ? "bg-emerald-950/60 border-emerald-500 text-emerald-200 shadow-md ring-1 ring-emerald-500/50"
+                              : isSelected && !isCorrect
+                              ? "bg-rose-950/60 border-rose-500 text-rose-200 shadow-md ring-1 ring-rose-500/50"
+                              : "bg-zinc-900/60 border-white/10 hover:border-gold/30 text-zinc-300 hover:text-white"
+                          }`}
+                        >
+                          <span
+                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold flex-shrink-0 mt-0.5 border ${
+                              isSelected && isCorrect
+                                ? "bg-emerald-500 text-zinc-950 border-emerald-400"
+                                : isSelected && !isCorrect
+                                ? "bg-rose-500 text-zinc-950 border-rose-400"
+                                : "border-zinc-700 bg-zinc-800 text-zinc-400"
+                            }`}
+                          >
+                            {String.fromCharCode(65 + optIdx)}
+                          </span>
+                          <span className="flex-1 leading-snug">{opt}</span>
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  <div className="sm:col-span-4">
-                    <label className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
-                      Target (Prediction Goal)
-                    </label>
-                    <input
-                      type="text"
-                      value={predTarget}
-                      onChange={(e) => setPredTarget(e.target.value)}
-                      placeholder="e.g. price"
-                      className="w-full bg-zinc-950 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400"
-                    />
-                  </div>
-
-                  <div className="sm:col-span-3 flex items-end">
-                    <button
-                      type="button"
-                      onClick={handleCheckPrediction}
-                      disabled={!predInputs.trim() && !predTarget.trim()}
-                      className="w-full px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow disabled:opacity-40"
-                    >
-                      Check Prediction
-                    </button>
-                  </div>
+                  {predictSuccess && (
+                    <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in duration-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span>{predictSuccess}</span>
+                    </div>
+                  )}
                 </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs text-zinc-200 font-medium">
+                    Before you see the code: what should go in the model&apos;s <code className="text-amber-300 font-mono">inputs</code> list, and what single value should <code className="text-amber-300 font-mono">target</code> be?
+                  </p>
 
-                {predictSuccess && (
-                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in duration-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span>{predictSuccess}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
+                    <div className="sm:col-span-5">
+                      <label className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
+                        Model Inputs (Features)
+                      </label>
+                      <input
+                        type="text"
+                        value={predInputs}
+                        onChange={(e) => setPredInputs(e.target.value)}
+                        placeholder={
+                          isMedical
+                            ? "e.g. glucose, bmi, age"
+                            : isSpam
+                            ? "e.g. message_text, word_counts"
+                            : isRealEstate
+                            ? "e.g. sqft, bedrooms"
+                            : "e.g. feature_1, feature_2"
+                        }
+                        className="w-full bg-zinc-950 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-4">
+                      <label className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
+                        Target (Prediction Goal)
+                      </label>
+                      <input
+                        type="text"
+                        value={predTarget}
+                        onChange={(e) => setPredTarget(e.target.value)}
+                        placeholder={
+                          isMedical
+                            ? "e.g. diabetes_diagnosis"
+                            : isSpam
+                            ? "e.g. is_spam"
+                            : isRealEstate
+                            ? "e.g. price"
+                            : "e.g. target_value"
+                        }
+                        className="w-full bg-zinc-950 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-3 flex items-end">
+                      <button
+                        type="button"
+                        onClick={handleCheckPrediction}
+                        disabled={!predInputs.trim() && !predTarget.trim()}
+                        className="w-full px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow disabled:opacity-40"
+                      >
+                        Check Prediction
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
+
+                  {predictSuccess && (
+                    <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in duration-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span>{predictSuccess}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 3. UNMISSABLE TYPED DIAGNOSIS & MATCHED EXPLANATION CALLOUT */}
@@ -600,6 +803,73 @@ export const LessonView: React.FC = () => {
                     💡 Matched Explanation ({getFriendlyStrategy(activeDiagnosis.strategy)}):
                   </span>
                   <p>{activeDiagnosis.matchedExplanation}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Model Assembly Progress Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/90 border border-gold/20 shadow-md flex-shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-lg bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                  <Layers className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-white block">
+                    {safeGoal}: Pipeline Assembly
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    Step {currentIndex + 1} of {concepts.length} · {projectParts.length} functions assembled into main_model.py
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("assembled")}
+                  className="px-3 py-1.5 rounded-lg bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-400/30 text-xs font-bold transition-all flex items-center gap-1.5 hover:text-white"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>View Built Model (Python)</span>
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("test")}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-1.5 hover:text-white"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Test Model Live</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Step Passed Action Callout */}
+            {isCodePassed && (
+              <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/60 flex items-center justify-between text-xs animate-in fade-in duration-200 flex-shrink-0">
+                <div className="flex items-center gap-2 text-emerald-200">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>
+                    <strong>Step {currentIndex + 1} Passed!</strong> Function code integrated into your assembled model script.
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("assembled")}
+                    className="px-3 py-1 rounded-lg bg-emerald-500 text-zinc-950 font-bold text-xs hover:bg-emerald-400 transition-all flex items-center gap-1"
+                  >
+                    <Layers className="w-3 h-3" />
+                    <span>Run Built Model</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("test")}
+                    className="px-3 py-1 rounded-lg bg-amber-400 text-zinc-950 font-bold text-xs hover:bg-amber-300 transition-all flex items-center gap-1"
+                  >
+                    <Zap className="w-3 h-3" />
+                    <span>Test Model Live</span>
+                  </button>
                 </div>
               </div>
             )}

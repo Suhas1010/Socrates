@@ -30,13 +30,15 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
 
   it("generates medical concepts with interactive blanks and assertions", () => {
     const concepts = generateFallbackConceptsForGoal("Diabetes disease predictor");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBe(8);
     expect(concepts[0].title).toContain("Clinical Problem Formulation");
     expect(concepts[0].starterCode).toContain("___");
     expect(concepts[0].starterCode).toContain("patient_vitals");
     expect(concepts[1].title).toContain("Clinical Feature Normalization");
     expect(concepts[2].title).toContain("Clinical Risk Scoring");
     expect(concepts[3].title).toContain("Clinical Decision Threshold");
+    expect(concepts[4].title).toContain("Binary Cross-Entropy");
+    expect(concepts[7].title).toContain("Inference Engine");
   });
 
   it("updates store synchronously with domain-specific diagnostic questions", () => {

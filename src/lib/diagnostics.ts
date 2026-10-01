@@ -666,6 +666,294 @@ print("Assertion Passed: Clinical decision triage operational!")
           explanation: "In clinical screening, the asymmetric cost of false negatives justifies a more sensitive, lower threshold.",
         },
       },
+      {
+        id: "loss-calculation",
+        title: "Binary Cross-Entropy Loss & Penalty Formulation",
+        prereqs: ["model-architecture"],
+        difficulty: 3,
+        hook: "When our diagnostic model makes a high-confidence false negative prediction, how does calculus mathematically penalize that mistake?",
+        explanationSummary: "Binary cross-entropy loss quantifies prediction penalty: Loss = -[y * log(p) + (1 - y) * log(1 - p)]. If ground truth y=1, loss is -log(p). If p is close to 0, loss skyrockets toward infinity.",
+        corePrinciple: "BCE Loss = -(y * log(p) + (1 - y) * log(1 - p)). Penalizes confident misdiagnoses logarithmically.",
+        whyItMatters: "Squared error treats all errors symmetrically. Logarithmic loss imposes massive penalties on overconfident medical blunders.",
+        buildStep: "Implement the binary cross-entropy loss function to calculate error on patient diagnostic predictions.",
+        starterCode: `# Step 5: Binary Cross-Entropy Loss
+import math
+
+def compute_bce_loss(predicted_prob: float, true_label: int) -> float:
+    # Fill in the blanks:
+    # Clamp probability slightly to avoid math.log(0)
+    p = max(min(predicted_prob, 0.9999), 0.0001)
+    # Formula: - (y * log(p) + (1 - y) * log(1 - p))
+    term1 = ___                                 # TODO: true_label * math.log(p)
+    term2 = ___                                 # TODO: (1 - true_label) * math.log(1.0 - p)
+    loss = -(term1 + term2)
+    return round(loss, 4)
+
+print("Loss (True=1, Pred=0.9):", compute_bce_loss(0.9, 1))
+print("Loss (True=1, Pred=0.1 - Severe Error):", compute_bce_loss(0.1, 1))
+`,
+        solutionCode: `import math
+
+def compute_bce_loss(predicted_prob: float, true_label: int) -> float:
+    p = max(min(predicted_prob, 0.9999), 0.0001)
+    term1 = true_label * math.log(p)
+    term2 = (1 - true_label) * math.log(1.0 - p)
+    loss = -(term1 + term2)
+    return round(loss, 4)
+
+print("Loss (True=1, Pred=0.9):", compute_bce_loss(0.9, 1))
+print("Loss (True=1, Pred=0.1 - Severe Error):", compute_bce_loss(0.1, 1))
+`,
+        testAssertion: `l_good = compute_bce_loss(0.9, 1)
+assert l_good < 0.15, f"Expected low loss for accurate prediction, got {l_good}"
+l_bad = compute_bce_loss(0.1, 1)
+assert l_bad > 2.0, f"Expected high penalty (>2.0) for confident wrong prediction, got {l_bad}"
+l_neg_good = compute_bce_loss(0.1, 0)
+assert l_neg_good < 0.15, f"Expected low loss for accurate negative diagnosis, got {l_neg_good}"
+print("Assertion Passed: Binary cross-entropy loss verified!")
+`,
+        predictQuestion: {
+          prompt: "If a patient has diabetes (label=1) and the model predicts 0.99 probability, what happens to the BCE loss?",
+          options: [
+            "The loss approaches 0.0 because -log(0.99) is nearly zero (near-perfect prediction).",
+            "The loss approaches infinity.",
+            "The loss becomes negative.",
+            "The program crashes because log(1) is undefined.",
+          ],
+          correctIndex: 0,
+          explanation: "-log(0.99) ≈ 0.010. Accurate predictions incur nearly zero loss.",
+        },
+        checkQuestion: {
+          prompt: "Why does binary cross-entropy loss use logarithms instead of simple absolute difference |y - p|?",
+          options: [
+            "Logarithms penalize confident wrong predictions exponentially more severely than small uncertainties.",
+            "Logarithms are faster for CPUs to calculate than subtraction.",
+            "Absolute differences cannot be computed in Python.",
+            "Because probabilities are always negative.",
+          ],
+          correctIndex: 0,
+          explanation: "As predicted probability p approaches 0 for a true positive case, -log(p) approaches infinity, forcing the model to fix disastrous misdiagnoses.",
+        },
+      },
+      {
+        id: "gradient-optimization",
+        title: "Gradient Descent & Clinical Weight Optimization",
+        prereqs: ["loss-calculation"],
+        difficulty: 4,
+        hook: "When a training patient produces an error, how does gradient descent compute the exact numerical nudge to improve the model's weights?",
+        explanationSummary: "For logistic regression with BCE loss, the derivative with respect to feature weight w_i simplifies elegantly: gradient = (prediction - true_label) * feature_val. The weight is updated by: w_new = w - learning_rate * gradient.",
+        corePrinciple: "Gradient = (p - y) * x; New Weight = Weight - lr * Gradient.",
+        whyItMatters: "Gradient descent is the engine that drives modern machine learning, iteratively tuning weights toward zero prediction error.",
+        buildStep: "Implement the gradient descent weight update step for a clinical vital feature.",
+        starterCode: `# Step 6: Gradient Descent Weight Update
+def update_clinical_weight(current_weight: float, feature_val: float, pred: float, label: int, lr: float = 0.1) -> float:
+    # Fill in the blanks:
+    # 1. Error = pred - label
+    # 2. Gradient = error * feature_val
+    # 3. New weight = current_weight - lr * gradient
+    error = ___                                 # TODO: pred - label
+    gradient = ___                              # TODO: error * feature_val
+    new_weight = current_weight - (lr * gradient)
+    return round(new_weight, 4)
+
+print("Updated Weight (lowering error):", update_clinical_weight(1.0, feature_val=0.8, pred=0.9, label=0, lr=0.1))
+`,
+        solutionCode: `def update_clinical_weight(current_weight: float, feature_val: float, pred: float, label: int, lr: float = 0.1) -> float:
+    error = pred - label
+    gradient = error * feature_val
+    new_weight = current_weight - (lr * gradient)
+    return round(new_weight, 4)
+
+print("Updated Weight (lowering error):", update_clinical_weight(1.0, feature_val=0.8, pred=0.9, label=0, lr=0.1))
+`,
+        testAssertion: `w1 = update_clinical_weight(1.0, 0.8, 0.9, 0, lr=0.1)
+assert w1 < 1.0, f"Weight should decrease when model over-predicts positive for negative patient, got {w1}"
+w2 = update_clinical_weight(1.0, 0.8, 0.2, 1, lr=0.1)
+assert w2 > 1.0, f"Weight should increase when model under-predicts for positive patient, got {w2}"
+print("Assertion Passed: Gradient descent weight optimizer operational!")
+`,
+        predictQuestion: {
+          prompt: "If prediction is 0.80 and true label is 0 (false alarm), should the feature weight increase or decrease?",
+          options: [
+            "Decrease: error is positive (+0.80), so subtracting lr * gradient reduces the weight and lowers future risk scores.",
+            "Increase: weights must always grow during training.",
+            "Stay identical: 0.80 is close enough to 0.",
+            "Reset to zero immediately.",
+          ],
+          correctIndex: 0,
+          explanation: "Error is positive (0.8 - 0 = +0.8). Subtracting learning_rate * (+gradient) pushes the weight down.",
+        },
+        checkQuestion: {
+          prompt: "What is the purpose of the learning rate parameter (lr) in gradient descent?",
+          options: [
+            "It controls step size along the negative gradient, preventing violent oscillations or divergence.",
+            "It measures the accuracy of the training dataset.",
+            "It determines how many patient records are in memory.",
+            "It automatically stops the program when complete.",
+          ],
+          correctIndex: 0,
+          explanation: "Learning rate governs how far weights move in the gradient direction on each step.",
+        },
+      },
+      {
+        id: "model-evaluation",
+        title: "Clinical Evaluation: Sensitivity & Confusion Matrix",
+        prereqs: ["decision-boundary"],
+        difficulty: 4,
+        hook: "If 95 out of 100 patients are healthy, a model predicting 'Healthy' for everyone gets 95% accuracy while missing every sick patient. How do clinicians evaluate real performance?",
+        explanationSummary: "Clinical models are evaluated using a Confusion Matrix: True Positives (TP), False Positives (FP), True Negatives (TN), and False Negatives (FN). Sensitivity = TP / (TP + FN) measures the proportion of actual sick patients caught.",
+        corePrinciple: "Sensitivity (Recall) = TP / (TP + FN). In healthcare, high sensitivity prevents missed diagnoses.",
+        whyItMatters: "Accuracy is dangerously deceptive in disease screening. Measuring sensitivity guarantees life-saving triage.",
+        buildStep: "Compute the confusion matrix and clinical sensitivity metric from cohort predictions.",
+        starterCode: `# Step 7: Clinical Confusion Matrix & Sensitivity
+def evaluate_clinical_cohort(predictions: list[int], actuals: list[int]) -> dict:
+    tp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 1)
+    fp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 0)
+    tn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 0)
+    fn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 1)
+    
+    # Fill in the blanks:
+    # Sensitivity (Recall) = tp / (tp + fn)
+    total_positives = tp + fn
+    sensitivity = ___ if total_positives > 0 else 0.0   # TODO: round(tp / total_positives, 4)
+    return {"tp": tp, "fp": fp, "tn": tn, "fn": fn, "sensitivity": sensitivity}
+
+print("Cohort Metrics:", evaluate_clinical_cohort([1, 1, 0, 1], [1, 1, 1, 0]))
+`,
+        solutionCode: `def evaluate_clinical_cohort(predictions: list[int], actuals: list[int]) -> dict:
+    tp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 1)
+    fp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 0)
+    tn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 0)
+    fn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 1)
+    total_positives = tp + fn
+    sensitivity = round(tp / total_positives, 4) if total_positives > 0 else 0.0
+    return {"tp": tp, "fp": fp, "tn": tn, "fn": fn, "sensitivity": sensitivity}
+
+print("Cohort Metrics:", evaluate_clinical_cohort([1, 1, 0, 1], [1, 1, 1, 0]))
+`,
+        testAssertion: `res = evaluate_clinical_cohort([1, 1, 0, 0], [1, 1, 1, 0])
+assert res["tp"] == 2 and res["fn"] == 1, f"Expected 2 TP, 1 FN, got {res}"
+assert round(res["sensitivity"], 2) == 0.67, f"Expected 2/3 = 0.67 sensitivity, got {res['sensitivity']}"
+print("Assertion Passed: Clinical evaluation metrics verified!")
+`,
+        predictQuestion: {
+          prompt: "In a cohort of 10 diabetic patients, if the model correctly identifies 8 and misses 2, what is the clinical sensitivity?",
+          options: [
+            "0.80 (80% sensitivity = 8 / (8 + 2))",
+            "0.20 (20%)",
+            "1.00 (100%)",
+            "0.50 (50%)",
+          ],
+          correctIndex: 0,
+          explanation: "Sensitivity = TP / (TP + FN) = 8 / (8 + 2) = 0.80.",
+        },
+        checkQuestion: {
+          prompt: "Why is a False Negative considered far more dangerous than a False Positive in disease diagnosis?",
+          options: [
+            "A false negative leaves a sick patient untreated, while a false positive triggers a safe confirmatory check.",
+            "False negatives use more computer RAM.",
+            "False positives cause the program to crash.",
+            "Because medical laws prohibit false negatives only.",
+          ],
+          correctIndex: 0,
+          explanation: "Missing an active pathology (false negative) leads to disease progression; false alarms are resolved safely by second-opinion tests.",
+        },
+      },
+      {
+        id: "inference-pipeline",
+        title: "Interactive Clinical Deployment: Complete Inference Engine",
+        prereqs: ["model-evaluation"],
+        difficulty: 4,
+        hook: "We have normalized vitals, weighted logits, sigmoid probability, and clinical triage. How do we package this into a live interactive pipeline that doctors can test on any new patient?",
+        explanationSummary: "An end-to-end inference pipeline takes raw patient measurements (e.g. glucose, BMI, age), normalizes them against clinical bounds, calculates the linear logit, evaluates the sigmoid probability, and returns the actionable triage diagnosis in a structured report.",
+        corePrinciple: "Raw Patient Data -> Pipeline Vectorizer -> Model Scoring -> Sigmoid Risk Probability -> Clinical Triage Decision.",
+        whyItMatters: "Deploying machine learning to healthcare requires a deterministic, end-to-end pipeline that safely validates inputs and produces transparent, auditable clinical decisions.",
+        buildStep: "Package the complete end-to-end clinical inference pipeline function for live patient testing.",
+        starterCode: `# Step 8: Complete End-to-End Clinical Inference Engine
+import math
+
+def run_patient_diagnosis(glucose: float, bmi: float, age: float, threshold: float = 0.40) -> dict:
+    # 1. Normalize vitals to [0, 1]
+    norm_glucose = max(0.0, min(1.0, (glucose - 70.0) / 130.0))
+    norm_bmi = max(0.0, min(1.0, (bmi - 18.5) / 16.5))
+    norm_age = max(0.0, min(1.0, (age - 20.0) / 60.0))
+    
+    # 2. Linear logit with clinical weights [2.2, 1.3, 0.9] and bias -1.8
+    logit = (2.2 * norm_glucose) + (1.3 * norm_bmi) + (0.9 * norm_age) - 1.8
+    
+    # 3. Sigmoid risk probability
+    # Complete the blank: 1.0 / (1.0 + math.exp(-logit))
+    risk_prob = ___                             # TODO: 1.0 / (1.0 + math.exp(-logit))
+    
+    # 4. Clinical triage decision
+    is_positive = risk_prob >= threshold
+    return {
+        "glucose": glucose,
+        "bmi": bmi,
+        "age": age,
+        "risk_probability": round(risk_prob, 4),
+        "diagnosis": "POSITIVE" if is_positive else "NEGATIVE",
+        "threshold": threshold,
+        "recommendation": "Urgent HbA1c & clinical review" if is_positive else "Standard routine monitoring"
+    }
+
+print("Live Patient 1:", run_patient_diagnosis(glucose=175, bmi=33.5, age=58))
+print("Live Patient 2:", run_patient_diagnosis(glucose=88, bmi=21.0, age=25))
+`,
+        solutionCode: `import math
+
+def run_patient_diagnosis(glucose: float, bmi: float, age: float, threshold: float = 0.40) -> dict:
+    norm_glucose = max(0.0, min(1.0, (glucose - 70.0) / 130.0))
+    norm_bmi = max(0.0, min(1.0, (bmi - 18.5) / 16.5))
+    norm_age = max(0.0, min(1.0, (age - 20.0) / 60.0))
+    logit = (2.2 * norm_glucose) + (1.3 * norm_bmi) + (0.9 * norm_age) - 1.8
+    risk_prob = 1.0 / (1.0 + math.exp(-logit))
+    is_positive = risk_prob >= threshold
+    return {
+        "glucose": glucose,
+        "bmi": bmi,
+        "age": age,
+        "risk_probability": round(risk_prob, 4),
+        "diagnosis": "POSITIVE" if is_positive else "NEGATIVE",
+        "threshold": threshold,
+        "recommendation": "Urgent HbA1c & clinical review" if is_positive else "Standard routine monitoring"
+    }
+
+print("Live Patient 1:", run_patient_diagnosis(glucose=175, bmi=33.5, age=58))
+print("Live Patient 2:", run_patient_diagnosis(glucose=88, bmi=21.0, age=25))
+`,
+        testAssertion: `p_high = run_patient_diagnosis(175, 33.5, 58, threshold=0.40)
+assert p_high["diagnosis"] == "POSITIVE", f"Expected POSITIVE for high-risk patient, got {p_high['diagnosis']}"
+assert p_high["risk_probability"] > 0.60, f"Expected risk > 60%, got {p_high['risk_probability']}"
+
+p_low = run_patient_diagnosis(88, 21.0, 25, threshold=0.40)
+assert p_low["diagnosis"] == "NEGATIVE", f"Expected NEGATIVE for healthy baseline, got {p_low['diagnosis']}"
+assert p_low["risk_probability"] < 0.30, f"Expected risk < 30%, got {p_low['risk_probability']}"
+print("Assertion Passed: Full clinical deployment pipeline verified operational!")
+`,
+        predictQuestion: {
+          prompt: "What is the primary architectural purpose of the complete inference pipeline in a production clinical AI system?",
+          options: [
+            "It chains feature normalization, weight scoring, probability mapping, and triage logic into a unified, reproducible function for live patient testing.",
+            "It erases patient data to preserve database disk space.",
+            "It retrains all model weights on every single prediction query.",
+            "It generates random numbers when the model is unsure.",
+          ],
+          correctIndex: 0,
+          explanation: "The inference pipeline executes the complete, deterministic transform chain from raw inputs to calibrated clinical triage decisions.",
+        },
+        checkQuestion: {
+          prompt: "Once the inference pipeline passes assertion testing, where can you test it live with custom patient inputs in Socrates?",
+          options: [
+            "In the 'Model Tester' tab with interactive vital sliders and the live clinical risk gauge.",
+            "By writing letters to the hospital.",
+            "Nowhere, AI models cannot be tested live.",
+            "By restarting the entire course.",
+          ],
+          correctIndex: 0,
+          explanation: "The Model Tester tab lets you interactively adjust patient vitals and thresholds live to observe real-time risk predictions.",
+        },
+      },
     ];
   }
 
