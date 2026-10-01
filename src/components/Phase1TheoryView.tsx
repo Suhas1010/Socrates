@@ -15,6 +15,7 @@ import {
   Send,
   RotateCcw,
   Zap,
+  Workflow,
 } from "lucide-react";
 import { Concept, ErrorType, ExplanationStrategy, TechnicalTerm } from "@/lib/types";
 import { enrichConceptWithDeepTheory } from "@/lib/technicalDictionary";
@@ -159,7 +160,210 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
         )}
       </div>
 
-      {/* 2. Technical Terms Broken Down from Scratch (Jargon Buster) */}
+      {/* 2. SYSTEM BLUEPRINT: The 4-Stage AI Pipeline */}
+      {(() => {
+        const lowerTitle = (concept.title || "").toLowerCase();
+        const lowerId = (concept.id || "").toLowerCase();
+        const lowerGoal = (goal || "").toLowerCase();
+
+        const isEmotion =
+          lowerGoal.includes("emotion") ||
+          lowerGoal.includes("face") ||
+          lowerGoal.includes("expression") ||
+          lowerTitle.includes("facial") ||
+          lowerId.includes("emotion");
+
+        const isMedical =
+          lowerGoal.includes("diabet") ||
+          lowerGoal.includes("heart") ||
+          lowerGoal.includes("patient") ||
+          lowerGoal.includes("health");
+
+        const isHousing =
+          lowerGoal.includes("house") ||
+          lowerGoal.includes("housing") ||
+          lowerGoal.includes("estate") ||
+          lowerGoal.includes("price");
+
+        let activeStageIndex = 1;
+        if (
+          lowerId.includes("framing") ||
+          lowerId.includes("contract") ||
+          lowerId.includes("spec") ||
+          lowerTitle.includes("spec")
+        ) {
+          activeStageIndex = 0;
+        } else if (
+          lowerId.includes("feature") ||
+          lowerTitle.includes("landmark") ||
+          lowerTitle.includes("normalization") ||
+          lowerTitle.includes("extract") ||
+          lowerId.includes("clean")
+        ) {
+          activeStageIndex = 1;
+        } else if (
+          lowerId.includes("weight") ||
+          lowerId.includes("model") ||
+          lowerTitle.includes("linear") ||
+          lowerTitle.includes("combination") ||
+          lowerTitle.includes("dot") ||
+          lowerTitle.includes("train")
+        ) {
+          activeStageIndex = 2;
+        } else if (
+          lowerId.includes("activation") ||
+          lowerId.includes("sigmoid") ||
+          lowerId.includes("softmax") ||
+          lowerId.includes("decision") ||
+          lowerId.includes("threshold") ||
+          lowerTitle.includes("boundary") ||
+          lowerTitle.includes("eval")
+        ) {
+          activeStageIndex = 3;
+        }
+
+        const stages = [
+          {
+            number: "1",
+            name: "Raw Reality",
+            icon: "📷",
+            description: isEmotion
+              ? "Human face camera capture"
+              : isMedical
+              ? "Patient health intake form"
+              : isHousing
+              ? "Physical house property"
+              : "Raw sensory data / text",
+            dataShape: isEmotion
+              ? "face_image.jpg"
+              : isMedical
+              ? "Clinical visit sheet"
+              : isHousing
+              ? "Property listing"
+              : "Raw input object",
+            whyNeeded: "Computers cannot do arithmetic on raw visual images directly.",
+          },
+          {
+            number: "2",
+            name: "Feature Extractor",
+            icon: "🔢",
+            description: isEmotion
+              ? "Geometric muscle measurements"
+              : isMedical
+              ? "Normalized biometric vitals"
+              : isHousing
+              ? "Dimension measurements"
+              : "Normalized numerical vector",
+            dataShape: isEmotion
+              ? "[smile: 0.85, brow: 0.10]"
+              : isMedical
+              ? "[glucose: 168, bmi: 32.4]"
+              : isHousing
+              ? "[sqft: 2400, beds: 4]"
+              : "X = [x₁, x₂, ..., xₙ]",
+            whyNeeded: "Converts messy reality into clean numbers between 0 and 1.",
+          },
+          {
+            number: "3",
+            name: "Weighted Brain",
+            icon: "⚖️",
+            description: "Weighted voting system (W · X + b)",
+            dataShape: isEmotion
+              ? "smile × 3.0 + brow × -2.0"
+              : isMedical
+              ? "glucose × 0.05 + bmi × 0.08"
+              : isHousing
+              ? "sqft × $180 + beds × $25k"
+              : "z = ∑ (wᵢ · xᵢ) + b",
+            whyNeeded: "Multiplies numbers by learned importance dials (weights).",
+          },
+          {
+            number: "4",
+            name: "Decision Gate",
+            icon: "🎯",
+            description: "Activation & Thresholding",
+            dataShape: isEmotion
+              ? "Softmax → 94% Joy ('Happy')"
+              : isMedical
+              ? "Sigmoid → 82% Risk ('Positive')"
+              : isHousing
+              ? "Continuous Value ($480,000)"
+              : "P(class) ≥ threshold",
+            whyNeeded: "Turns raw math points into actionable real-world predictions.",
+          },
+        ];
+
+        return (
+          <div className="glass-panel p-6 md:p-8 rounded-3xl border border-purple-500/20 shadow-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
+                  <Workflow className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base md:text-lg font-bold text-white">
+                    System Blueprint: The 4-Stage AI Pipeline
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    How your code transforms raw inputs into intelligent predictions step-by-step.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-mono">
+                <span>Currently building:</span>
+                <strong className="text-white">Stage {activeStageIndex + 1}</strong>
+              </div>
+            </div>
+
+            {/* 4 Pipeline Stage Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {stages.map((stg, sIdx) => {
+                const isActive = sIdx === activeStageIndex;
+                return (
+                  <div
+                    key={stg.number}
+                    className={`p-4 rounded-2xl border transition-all relative flex flex-col justify-between space-y-3 ${
+                      isActive
+                        ? "bg-purple-950/40 border-purple-400 shadow-xl ring-2 ring-purple-400/40 scale-[1.02]"
+                        : "bg-zinc-950/60 border-white/10 opacity-75 hover:opacity-100"
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-purple-500 text-zinc-950 font-bold text-[10px] font-mono shadow">
+                        YOU ARE HERE
+                      </span>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl">{stg.icon}</span>
+                        <span className="text-xs font-mono font-bold text-zinc-500">
+                          STAGE {stg.number}
+                        </span>
+                      </div>
+                      <h4 className="text-sm font-bold text-white mt-1.5">{stg.name}</h4>
+                      <p className="text-xs text-zinc-300 mt-1 leading-relaxed">
+                        {stg.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5 pt-2 border-t border-white/5">
+                      <div className="p-2 rounded-lg bg-zinc-900/80 font-mono text-[11px] text-purple-200 truncate">
+                        {stg.dataShape}
+                      </div>
+                      <p className="text-[10px] text-zinc-400 leading-tight">
+                        <strong>Why:</strong> {stg.whyNeeded}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 3. Technical Terms Broken Down from Scratch (Jargon Buster) */}
       {concept.technicalTerms && concept.technicalTerms.length > 0 && (
         <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-5">
           <div className="flex items-center justify-between">
