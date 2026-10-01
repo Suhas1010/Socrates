@@ -63,4 +63,33 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
       expect(q.question.toLowerCase()).not.toContain("spam");
     }
   });
+
+  it("generates facial emotion recognition questions without diabetes or spam mentions", () => {
+    const questions = generateDiagnosticQuestionsForGoal("emotions on face analyzer");
+    expect(questions.length).toBe(4);
+
+    expect(questions[0].question).toContain("facial landmark features");
+    expect(questions[0].options[0].text).toContain("Multi-Class Classification");
+
+    expect(questions[1].question).toContain("P(Joy)");
+    expect(questions[2].question).toContain("facial landmark distances");
+    expect(questions[3].options[0].text).toContain("Softmax activation");
+
+    for (const q of questions) {
+      expect(q.question.toLowerCase()).not.toContain("glucose");
+      expect(q.question.toLowerCase()).not.toContain("diabetes");
+      expect(q.question.toLowerCase()).not.toContain("spam");
+    }
+  });
+
+  it("generates facial emotion concepts with action units and Softmax activation", () => {
+    const concepts = generateFallbackConceptsForGoal("emotions on face analyzer");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].title).toContain("Facial Feature Extraction");
+    expect(concepts[0].starterCode).toContain("smile_curvature");
+    expect(concepts[1].title).toContain("Action Unit Feature Normalization");
+    expect(concepts[2].title).toContain("Linear Logit Scoring");
+    expect(concepts[3].title).toContain("Softmax Activation");
+  });
 });
+

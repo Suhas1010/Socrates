@@ -8,6 +8,139 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
   const lower = (goal || "").toLowerCase();
   const safeGoal = goal?.trim() || "Your AI Project";
 
+  // 0. Facial Emotion / Face Expression Analyzer
+  if (
+    lower.includes("emotion") ||
+    lower.includes("face") ||
+    lower.includes("facial") ||
+    lower.includes("expression") ||
+    lower.includes("smile") ||
+    lower.includes("mood")
+  ) {
+    return [
+      {
+        id: "diag-emotion-1",
+        targetConceptId: "problem-framing",
+        question: `When building "${safeGoal}" using facial landmark features (e.g. smile curvature, brow furrow, eye aperture), what kind of machine learning task is this?`,
+        options: [
+          {
+            text: "Multi-Class Classification (categorizing facial expressions into discrete emotional states like Joy, Surprise, Anger)",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "Continuous Regression (predicting open-ended dollar real estate values)",
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: "Predicting distinct emotional states from facial features is a categorical classification task.",
+          },
+          {
+            text: "Unsupervised Clustering (grouping images with zero target labels)",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "We train supervised models on facial images labeled with known emotions.",
+          },
+          {
+            text: "Rule-based regex string replacement",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "Computer vision and facial action units require statistical feature learning, not regex string manipulation.",
+          },
+        ],
+      },
+      {
+        id: "diag-emotion-2",
+        targetConceptId: "prior-probability",
+        question: `If 25 out of 100 face images in an emotion dataset express Joy/Happy, what is the empirical prior probability P(Joy)?`,
+        options: [
+          {
+            text: "0.25 (25%)",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "0.50 (50% — assuming equal coin toss)",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Prior probability reflects historical class base rate: 25 / 100 = 0.25.",
+          },
+          {
+            text: "0.75 (75%)",
+            isCorrect: false,
+            errorType: "CALCULATION_SLIP",
+            rationale: "75% is the probability of non-joy emotions.",
+          },
+          {
+            text: "1.00 (100%)",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "A prior of 1.0 would mean every face in the universe is smiling unconditionally.",
+          },
+        ],
+      },
+      {
+        id: "diag-emotion-3",
+        targetConceptId: "feature-engineering",
+        question: `Why must facial landmark distances (e.g. lip corner lift, brow height) be normalized relative to face width or inter-pupillary distance?`,
+        options: [
+          {
+            text: "To ensure variations in subject distance from the camera or image resolution do not distort emotion feature measurements.",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "Because Python crashes on images larger than 50 pixels.",
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: "Normalization provides scale invariance across different camera distances, not Python language limitations.",
+          },
+          {
+            text: "To erase the face completely from the image tensor.",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Normalization scales geometry; it does not erase the facial structure.",
+          },
+          {
+            text: "To turn all images into sound waveforms.",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "Facial landmarks remain visual-geometric vectors.",
+          },
+        ],
+      },
+      {
+        id: "diag-emotion-4",
+        targetConceptId: "decision-boundary",
+        question: `In a multi-class facial emotion model, what mathematical function converts raw linear logit scores into valid probabilities that sum to 1.0?`,
+        options: [
+          {
+            text: "Softmax activation (exponentiates logits and divides by the sum of all exponentiated logits).",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "Random rounding to the nearest integer.",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Softmax produces a calibrated probability distribution across all competing emotion classes.",
+          },
+          {
+            text: "Linear regression slope formula (y = mx + b).",
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: "Linear regression outputs unbounded continuous scalars, not bounded probability distributions.",
+          },
+          {
+            text: "Deleting all logits except the smallest one.",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "Softmax preserves relative odds across all classes.",
+          },
+        ],
+      },
+    ];
+  }
+
   // 1. Medical / Health / Disease / Clinical (e.g. Diabetes, Cancer, Heart Disease, Medical Diagnosis)
   if (
     lower.includes("diabet") ||
@@ -381,6 +514,337 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
 export function generateFallbackConceptsForGoal(goal: string): Concept[] {
   const lower = (goal || "").toLowerCase();
   const safeGoal = goal?.trim() || "Your AI Project";
+
+  // Facial Emotion / Face Expression Analyzer
+  if (
+    lower.includes("emotion") ||
+    lower.includes("face") ||
+    lower.includes("facial") ||
+    lower.includes("expression") ||
+    lower.includes("smile") ||
+    lower.includes("mood")
+  ) {
+    return [
+      {
+        id: "problem-framing",
+        title: `Facial Feature Extraction & Contract: ${safeGoal}`,
+        prereqs: [],
+        difficulty: 1,
+        hook: `How do computer vision models convert raw facial landmark geometries into quantifiable features to predict emotions?`,
+        explanationSummary: `Facial emotion recognition systems map geometric landmark distances (such as lip corner elevation AU12 and brow furrow AU4) as observable input features (X) to predict categorical emotional states (Y: Joy, Surprise, Anger, Sadness, Neutral).`,
+        corePrinciple: `Action Units (AUs) represent fundamental muscle contractions. Mathematical model: f(action_units) -> emotion_probabilities. Target variables must never leak into inputs.`,
+        whyItMatters: `Explicitly defining facial action unit features makes emotion classification invariant to lighting, skin tone, and camera sensor variations.`,
+        buildStep: `Define the facial emotion model contract specifying task type, action unit features, and target emotions.`,
+        starterCode: `# Step 1: Facial Emotion Architecture Contract for ${safeGoal}
+# Fill in the blanks:
+# 1. Specify task type: "classification" or "regression"
+# 2. List the facial action unit features extracted from landmarks
+# 3. Specify the target emotion classes
+
+def define_face_emotion_spec():
+    return {
+        "project": "${safeGoal}",
+        "task_type": ___,                   # TODO: "classification" or "regression"
+        "action_units": [___],              # TODO: list strings, e.g. "smile_curvature", "brow_furrow", "eye_aperture", "jaw_drop"
+        "target_emotions": [___]            # TODO: list target emotion categories, e.g. "Joy", "Surprise", "Anger", "Neutral"
+    }
+
+print("Vision Spec:", define_face_emotion_spec())
+`,
+        solutionCode: `def define_face_emotion_spec():
+    return {
+        "project": "${safeGoal}",
+        "task_type": "classification",
+        "action_units": ["smile_curvature", "brow_furrow", "eye_aperture", "jaw_drop"],
+        "target_emotions": ["Joy", "Surprise", "Anger", "Neutral"]
+    }
+
+print("Vision Spec:", define_face_emotion_spec())
+`,
+        testAssertion: `spec = define_face_emotion_spec()
+assert isinstance(spec, dict), "define_face_emotion_spec() must return a dictionary"
+task_type = str(spec.get("task_type", "")).lower().strip()
+assert task_type != "___" and task_type != "", "Blank 'task_type' is not filled in yet. Choose 'classification' or 'regression'."
+assert task_type == "classification", f"Emotion recognition is a 'classification' task, got '{task_type}'"
+units = spec.get("action_units", [])
+assert isinstance(units, list) and len(units) > 0 and units != ["___"], "Blank 'action_units' is not filled in yet."
+emotions = spec.get("target_emotions", [])
+assert isinstance(emotions, list) and len(emotions) > 0 and emotions != ["___"], "Blank 'target_emotions' is not filled in yet."
+print("Assertion Passed: Facial emotion specification contract verified!")
+`,
+        predictQuestion: {
+          prompt: `For ${safeGoal}, why are facial action units (e.g. smile curvature, brow furrow) used instead of raw image pixel coordinates?`,
+          options: [
+            "Action units are invariant to camera distance and head size, providing scale-independent biometric signals.",
+            "Raw pixel coordinates make code run backwards.",
+            "Because machine learning cannot process numbers.",
+            "To remove the mouth from the face.",
+          ],
+          correctIndex: 0,
+          explanation: "Action units measure geometric muscle deformation relative to face size, making the model robust across different camera angles and distances.",
+        },
+        checkQuestion: {
+          prompt: "What mathematical representation do we use for the input to our facial emotion classifier?",
+          options: [
+            "A normalized numerical feature vector representing facial landmark displacements.",
+            "An uncompressed raw audio stream.",
+            "A random word dictionary.",
+            "A database backup file.",
+          ],
+          correctIndex: 0,
+          explanation: "Computer vision classifiers transform geometric landmarks into normalized numerical feature vectors for matrix computation.",
+        },
+      },
+      {
+        id: "feature-engineering",
+        title: `Action Unit Feature Normalization: ${safeGoal}`,
+        prereqs: ["problem-framing"],
+        difficulty: 2,
+        hook: `A user sitting close to a webcam has larger pixel distances than someone sitting 6 feet away. How do we make facial measurements distance-invariant?`,
+        explanationSummary: `Feature normalization bounds facial landmark measurements to standardized ranges (e.g., -1.0 to +1.0 for lip curvature, 0.0 to 1.0 for brow furrow) so that camera distance does not distort emotion classification.`,
+        corePrinciple: `Normalized AU = (measured_distance - baseline) / face_scale. Normalization ensures features operate on balanced numerical intervals.`,
+        whyItMatters: `Without normalization, a subject moving closer to the camera would cause pixel distances to expand, leading the classifier to mistakenly detect exaggerated expressions.`,
+        buildStep: `Implement normalize_action_unit to scale raw landmark displacements into normalized floating point values.`,
+        starterCode: `# Step 2: Facial Landmark Normalization
+# Fill in the blanks:
+# 1. Normalize raw displacement by the reference face scale (inter-ocular distance)
+# 2. Clamp the value between min_val and max_val using max() and min()
+
+def normalize_action_unit(raw_displacement: float, face_scale: float, min_val: float = -1.0, max_val: float = 1.0) -> float:
+    # Scale raw pixel distance by face scale to achieve distance-invariance
+    scaled = raw_displacement / ___      # TODO: divide by which reference scale?
+    # Clamp between min_val and max_val
+    clamped = max(min_val, min(max_val, ___))  # TODO: clamp the scaled value
+    return round(clamped, 3)
+
+print("Smiling close-up:", normalize_action_unit(raw_displacement=45.0, face_scale=50.0))
+print("Smiling far away:", normalize_action_unit(raw_displacement=18.0, face_scale=20.0))
+`,
+        solutionCode: `def normalize_action_unit(raw_displacement: float, face_scale: float, min_val: float = -1.0, max_val: float = 1.0) -> float:
+    scaled = raw_displacement / face_scale
+    clamped = max(min_val, min(max_val, scaled))
+    return round(clamped, 3)
+
+print("Smiling close-up:", normalize_action_unit(raw_displacement=45.0, face_scale=50.0))
+print("Smiling far away:", normalize_action_unit(raw_displacement=18.0, face_scale=20.0))
+`,
+        testAssertion: `close_up = normalize_action_unit(45.0, 50.0)
+far_away = normalize_action_unit(18.0, 20.0)
+assert close_up == 0.9, f"Expected 0.9 for close-up smile, got {close_up}"
+assert far_away == 0.9, f"Expected 0.9 for far-away smile, got {far_away}"
+assert close_up == far_away, "Scale invariance failed: close-up and far-away identical smiles must yield identical normalized values!"
+over_extended = normalize_action_unit(100.0, 50.0, -1.0, 1.0)
+assert over_extended == 1.0, f"Clamping failed: expected 1.0, got {over_extended}"
+print("Assertion Passed: Facial feature normalization operates with scale invariance!")
+`,
+        predictQuestion: {
+          prompt: "If a person smiles with displacement 45px at 50px face width, and later with displacement 18px at 20px face width, what should their normalized smile scores be?",
+          options: [
+            "Identical (0.90 for both), because normalization divides by face width to cancel out camera distance.",
+            "45px should score much higher because 45 > 18.",
+            "Both should be 0.0 because pixels cannot be divided.",
+            "18px should score higher because the person is farther.",
+          ],
+          correctIndex: 0,
+          explanation: "Dividing by the face reference scale makes the feature scale-invariant: 45/50 = 0.90 and 18/20 = 0.90.",
+        },
+        checkQuestion: {
+          prompt: "What mathematical property does feature clamping (bounding between -1.0 and 1.0) provide?",
+          options: [
+            "It prevents outlier landmark tracker glitches from producing explosive gradients or infinite logits.",
+            "It changes the color of the webcam feed.",
+            "It makes the computer shut down automatically.",
+            "It deletes old photo files from disk.",
+          ],
+          correctIndex: 0,
+          explanation: "Clamping ensures extreme values or tracking artifacts do not produce disproportionate logit scores during inference.",
+        },
+      },
+      {
+        id: "weights-scoring",
+        title: `Linear Logit Scoring & Emotion Weights: ${safeGoal}`,
+        prereqs: ["feature-engineering"],
+        difficulty: 3,
+        hook: `How does a machine learning model mathematically evaluate whether a combination of smile, brow furrow, and eye aperture indicates Joy, Surprise, or Anger?`,
+        explanationSummary: `Each emotion class maintains learned weights for every facial action unit. A weighted linear sum (logit z = w1*smile + w2*brow + w3*eyes + w4*jaw + bias) scores how strongly the facial configuration aligns with each emotion.`,
+        corePrinciple: `Logit formula: z = (W . X) + b. Positive weights increase the emotion likelihood, while negative weights penalize incompatible movements (e.g. brow furrow penalizes Joy).`,
+        whyItMatters: `Calibrating weights ensures conflicting facial expressions are correctly disentangled (e.g. a wide smile with deeply furrowed brows vs a relaxed smile).`,
+        buildStep: `Implement compute_emotion_logits to calculate class scores for Joy, Surprise, and Anger from normalized action units.`,
+        starterCode: `# Step 3: Linear Emotion Logit Scoring
+# Fill in the blanks:
+# 1. Joy: high positive weight on smile, negative weight on brow_furrow
+# 2. Surprise: high positive weight on eye_openness and jaw_drop
+# 3. Anger: high positive weight on brow_furrow, negative weight on smile
+
+def compute_emotion_logits(smile: float, brow: float, eyes: float, jaw: float) -> dict:
+    # Joy is driven strongly by smile curvature
+    joy_score = (3.5 * ___) - (2.0 * brow) + 0.2            # TODO: which feature drives joy?
+    # Surprise is driven by widened eyes and dropped jaw
+    surprise_score = (2.8 * eyes) + (3.0 * ___) - (1.5 * brow)  # TODO: which feature indicates dropped mouth?
+    # Anger is driven by brow furrow
+    anger_score = (4.0 * ___) - (2.5 * smile) + 0.1         # TODO: which feature indicates furrowed brow?
+    
+    return {
+        "Joy": round(joy_score, 3),
+        "Surprise": round(surprise_score, 3),
+        "Anger": round(anger_score, 3)
+    }
+
+print("Smiling face logits:", compute_emotion_logits(smile=0.85, brow=0.10, eyes=0.60, jaw=0.15))
+print("Surprised face logits:", compute_emotion_logits(smile=0.05, brow=0.15, eyes=0.95, jaw=0.85))
+`,
+        solutionCode: `def compute_emotion_logits(smile: float, brow: float, eyes: float, jaw: float) -> dict:
+    joy_score = (3.5 * smile) - (2.0 * brow) + 0.2
+    surprise_score = (2.8 * eyes) + (3.0 * jaw) - (1.5 * brow)
+    anger_score = (4.0 * brow) - (2.5 * smile) + 0.1
+    return {
+        "Joy": round(joy_score, 3),
+        "Surprise": round(surprise_score, 3),
+        "Anger": round(anger_score, 3)
+    }
+
+print("Smiling face logits:", compute_emotion_logits(smile=0.85, brow=0.10, eyes=0.60, jaw=0.15))
+print("Surprised face logits:", compute_emotion_logits(smile=0.05, brow=0.15, eyes=0.95, jaw=0.85))
+`,
+        testAssertion: `smile_logits = compute_emotion_logits(0.85, 0.10, 0.60, 0.15)
+assert smile_logits["Joy"] > smile_logits["Surprise"], "Smiling face should score higher on Joy than Surprise"
+assert smile_logits["Joy"] > smile_logits["Anger"], "Smiling face should score higher on Joy than Anger"
+
+surp_logits = compute_emotion_logits(0.05, 0.15, 0.95, 0.85)
+assert surp_logits["Surprise"] > surp_logits["Joy"], "Surprised face should score higher on Surprise than Joy"
+
+anger_logits = compute_emotion_logits(-0.50, 0.90, 0.40, 0.10)
+assert anger_logits["Anger"] > anger_logits["Joy"], "Furrowed brow should score higher on Anger than Joy"
+print("Assertion Passed: Emotion scoring weights correctly discriminate distinct facial expressions!")
+`,
+        predictQuestion: {
+          prompt: "Why does the Joy logit have a negative weight (-2.0) on the brow furrow feature?",
+          options: [
+            "Because genuine joy typically exhibits relaxed brows; a strong brow furrow contradicts happiness and suggests confusion or anger.",
+            "Because negative numbers make code execute faster.",
+            "To turn off the webcam.",
+            "Because smiles cannot occur in daylight.",
+          ],
+          correctIndex: 0,
+          explanation: "Negative weights penalize incompatible facial movements, helping the linear model suppress Joy when conflicting features like brow furrowing are present.",
+        },
+        checkQuestion: {
+          prompt: "What is a 'logit' in machine learning classification?",
+          options: [
+            "An unnormalized raw scalar score produced by a linear combination of features and weights before activation.",
+            "A log file stored on disk.",
+            "A Python syntax error.",
+            "A type of computer screen.",
+          ],
+          correctIndex: 0,
+          explanation: "Logits are raw real-valued scores (z = W.X + b) that represent the model's confidence in each class prior to probability normalization.",
+        },
+      },
+      {
+        id: "decision-boundary",
+        title: `Softmax Activation & Live Pipeline: ${safeGoal}`,
+        prereqs: ["weights-scoring"],
+        difficulty: 4,
+        hook: `Logits can be any positive or negative number (-3.2, 5.8, etc.). How do we convert them into calibrated percentages that sum to 100%?`,
+        explanationSummary: `The Softmax activation function exponentiates each class logit and normalizes by the sum of all exponents: P(Class_i) = exp(z_i) / sum(exp(z_j)). This guarantees all class probabilities are strictly positive and sum exactly to 1.0 (100%).`,
+        corePrinciple: `Softmax turns arbitrary continuous logits into a valid categorical probability distribution. The class with the highest probability is chosen as the dominant emotion.`,
+        whyItMatters: `Without Softmax, models cannot express calibrated multi-class uncertainties (e.g. 70% Joy, 20% Surprise, 10% Neutral) or apply decision thresholds.`,
+        buildStep: `Implement predict_face_emotion to compute Softmax probabilities and classify the dominant emotion.`,
+        starterCode: `# Step 4: Multi-Class Softmax Activation & Classification
+# Fill in the blanks:
+# 1. Compute exp(logit) for each emotion class using math.exp()
+# 2. Divide each exp value by sum_exp to get valid probabilities summing to 1.0
+# 3. Determine the dominant emotion using max()
+
+import math
+
+def predict_face_emotion(smile: float, brow: float, eyes: float, jaw: float) -> dict:
+    # 1. Compute linear logits
+    joy_z = (3.5 * smile) - (2.0 * brow) + 0.2
+    surp_z = (2.8 * eyes) + (3.0 * jaw) - (1.5 * brow)
+    anger_z = (4.0 * brow) - (2.5 * smile) + 0.1
+    neutral_z = 0.5 - abs(smile) - brow
+    
+    logits = {"Joy": joy_z, "Surprise": surp_z, "Anger": anger_z, "Neutral": neutral_z}
+    
+    # 2. Exponentiate logits
+    exp_scores = {k: math.exp(v) for k, v in logits.items()}
+    sum_exp = sum(exp_scores.values())
+    
+    # 3. Softmax probabilities: p_i = exp_i / sum_exp
+    probabilities = {k: round(v / ___, 4) for k, v in exp_scores.items()}  # TODO: divide by which total sum?
+    
+    # 4. Find dominant emotion class
+    dominant_emotion = max(probabilities, key=probabilities.get)
+    confidence_pct = round(probabilities[dominant_emotion] * 100, 1)
+    
+    return {
+        "dominant_emotion": dominant_emotion,
+        "confidence": confidence_pct,
+        "probabilities": probabilities
+    }
+
+print("Happy Face:", predict_face_emotion(smile=0.88, brow=0.05, eyes=0.60, jaw=0.20))
+print("Surprised Face:", predict_face_emotion(smile=0.05, brow=0.10, eyes=0.95, jaw=0.85))
+`,
+        solutionCode: `import math
+
+def predict_face_emotion(smile: float, brow: float, eyes: float, jaw: float) -> dict:
+    joy_z = (3.5 * smile) - (2.0 * brow) + 0.2
+    surp_z = (2.8 * eyes) + (3.0 * jaw) - (1.5 * brow)
+    anger_z = (4.0 * brow) - (2.5 * smile) + 0.1
+    neutral_z = 0.5 - abs(smile) - brow
+    logits = {"Joy": joy_z, "Surprise": surp_z, "Anger": anger_z, "Neutral": neutral_z}
+    exp_scores = {k: math.exp(v) for k, v in logits.items()}
+    sum_exp = sum(exp_scores.values())
+    probabilities = {k: round(v / sum_exp, 4) for k, v in exp_scores.items()}
+    dominant_emotion = max(probabilities, key=probabilities.get)
+    confidence_pct = round(probabilities[dominant_emotion] * 100, 1)
+    return {
+        "dominant_emotion": dominant_emotion,
+        "confidence": confidence_pct,
+        "probabilities": probabilities
+    }
+
+print("Happy Face:", predict_face_emotion(smile=0.88, brow=0.05, eyes=0.60, jaw=0.20))
+print("Surprised Face:", predict_face_emotion(smile=0.05, brow=0.10, eyes=0.95, jaw=0.85))
+`,
+        testAssertion: `res_joy = predict_face_emotion(0.88, 0.05, 0.60, 0.20)
+assert res_joy["dominant_emotion"] == "Joy", f"Expected Joy, got {res_joy['dominant_emotion']}"
+assert res_joy["confidence"] > 50.0, f"Expected confidence > 50%, got {res_joy['confidence']}%"
+
+res_surp = predict_face_emotion(0.05, 0.10, 0.95, 0.85)
+assert res_surp["dominant_emotion"] == "Surprise", f"Expected Surprise, got {res_surp['dominant_emotion']}"
+
+probs_sum = sum(res_joy["probabilities"].values())
+assert abs(probs_sum - 1.0) < 0.01, f"Softmax probabilities must sum to 1.0, got {probs_sum}"
+print("Assertion Passed: Full facial emotion inference engine verified operational!")
+`,
+        predictQuestion: {
+          prompt: "Why must multi-class classification probabilities sum to exactly 1.0 (100%)?",
+          options: [
+            "Because an observation must belong to mutually exclusive classes within the defined probability space.",
+            "Because numbers larger than 1 break computer monitors.",
+            "To save memory on the graphic card.",
+            "It is not required; probabilities can sum to any number.",
+          ],
+          correctIndex: 0,
+          explanation: "In standard single-label multi-class classification, classes are mutually exclusive, so the sum of all class probabilities over the outcome space must equal 1.0.",
+        },
+        checkQuestion: {
+          prompt: "Once the inference pipeline passes assertion testing, where can you test it live with interactive facial action unit sliders?",
+          options: [
+            "In the 'Model Tester' tab with real-time AU sliders, SVG face visualizer, and Softmax charts.",
+            "Nowhere, AI models cannot be tested interactively.",
+            "By emailing the weights to a university.",
+            "By clearing the browser cache.",
+          ],
+          correctIndex: 0,
+          explanation: "The Model Tester tab lets you interactively adjust action unit sliders, test expression presets, and observe the live SVG facial avatar update in real time.",
+        },
+      },
+    ];
+  }
 
   // Medical / Health / Disease / Clinical
   if (
