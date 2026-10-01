@@ -236,3 +236,114 @@ export function predictHomeValue(
   };
 }
 
+export interface FacialEmotionFeatures {
+  smile: number;        // -1.0 (frown) to +1.0 (broad smile)
+  browFurrow: number;   // 0.0 (relaxed) to 1.0 (furrowed)
+  eyeOpenness: number;  // 0.0 (narrow/squint) to 1.0 (wide)
+  jawDrop: number;      // 0.0 (closed) to 1.0 (wide open)
+}
+
+export interface EmotionProbability {
+  emotion: string;
+  emoji: string;
+  probability: number;
+}
+
+export interface EmotionPredictionResult {
+  features: FacialEmotionFeatures;
+  dominantEmotion: string;
+  emoji: string;
+  confidence: number;
+  probabilities: EmotionProbability[];
+  threshold: number;
+  isConfident: boolean;
+  actionUnits: {
+    unit: string;
+    activation: string;
+    interpretation: string;
+  }[];
+}
+
+/**
+ * Computer Vision & Facial Action Unit Emotion Classifier
+ * Linear feature weight logit scoring + multi-class Softmax probability distribution
+ */
+export function predictFacialEmotion(
+  features: FacialEmotionFeatures,
+  threshold: number = 0.40
+): EmotionPredictionResult {
+  const { smile, browFurrow, eyeOpenness, jawDrop } = features;
+
+  // Linear logit scoring for 5 universal facial emotions
+  const logits: Record<string, number> = {
+    "Joy / Happy": 4.0 * smile - 2.5 * browFurrow - 0.5 * jawDrop + 0.2,
+    "Surprise": 3.0 * eyeOpenness + 2.8 * jawDrop - 1.8 * browFurrow - 1.2,
+    "Anger": 4.2 * browFurrow - 3.0 * smile - 1.2 * jawDrop + 0.1,
+    "Sadness": -3.8 * smile + 2.2 * browFurrow - 1.5 * eyeOpenness - 0.2,
+    "Neutral": 1.6 - 2.5 * Math.abs(smile) - 2.5 * browFurrow - 2.5 * Math.abs(eyeOpenness - 0.5) - 2.0 * jawDrop,
+  };
+
+  const emojiMap: Record<string, string> = {
+    "Joy / Happy": "😄",
+    "Surprise": "😲",
+    "Anger": "😠",
+    "Sadness": "😢",
+    "Neutral": "😐",
+  };
+
+  // Compute Softmax probabilities: p_i = exp(z_i) / sum(exp(z_j))
+  const maxLogit = Math.max(...Object.values(logits));
+  const exps = Object.fromEntries(
+    Object.entries(logits).map(([k, v]) => [k, Math.exp(v - maxLogit)])
+  );
+  const sumExps = Object.values(exps).reduce((a, b) => a + b, 0);
+
+  const probabilities: EmotionProbability[] = Object.entries(exps).map(([emotion, expVal]) => ({
+    emotion,
+    emoji: emojiMap[emotion] || "🙂",
+    probability: Math.round((expVal / sumExps) * 1000) / 1000,
+  }));
+
+  // Sort descending by probability
+  probabilities.sort((a, b) => b.probability - a.probability);
+
+  const dominant = probabilities[0];
+  const confidence = Math.round(dominant.probability * 1000) / 10;
+  const isConfident = dominant.probability >= threshold;
+
+  const actionUnits = [
+    {
+      unit: "AU12 (Zygomaticus Major - Smile)",
+      activation: `${smile > 0 ? "+" : ""}${smile.toFixed(2)}`,
+      interpretation: smile > 0.4 ? "Strong lip corner pull (smile)" : smile < -0.3 ? "Lip corner depressor (frown)" : "Neutral lip posture",
+    },
+    {
+      unit: "AU4 (Corrugator Supercilii - Brow Furrow)",
+      activation: `${(browFurrow * 100).toFixed(0)}%`,
+      interpretation: browFurrow > 0.5 ? "Deep brow lowerer / furrow" : "Relaxed forehead",
+    },
+    {
+      unit: "AU5 (Upper Lid Raiser - Eye Aperture)",
+      activation: `${(eyeOpenness * 100).toFixed(0)}%`,
+      interpretation: eyeOpenness > 0.75 ? "Widened eyes (surprise/fear)" : eyeOpenness < 0.35 ? "Constricted/narrowed gaze" : "Normal aperture",
+    },
+    {
+      unit: "AU26/27 (Jaw Drop / Mouth Openness)",
+      activation: `${(jawDrop * 100).toFixed(0)}%`,
+      interpretation: jawDrop > 0.6 ? "Open mouth / dropped mandible" : "Mouth closed",
+    },
+  ];
+
+  return {
+    features,
+    dominantEmotion: dominant.emotion,
+    emoji: dominant.emoji,
+    confidence,
+    probabilities,
+    threshold,
+    isConfident,
+    actionUnits,
+  };
+}
+
+

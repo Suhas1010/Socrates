@@ -158,6 +158,14 @@ export const LessonView: React.FC = () => {
 
   // Domain flags
   const lowerGoal = (goal || "").toLowerCase();
+  const isEmotionOrFace =
+    lowerGoal.includes("emotion") ||
+    lowerGoal.includes("face") ||
+    lowerGoal.includes("facial") ||
+    lowerGoal.includes("expression") ||
+    lowerGoal.includes("smile") ||
+    lowerGoal.includes("mood");
+
   const isMedical =
     lowerGoal.includes("diabet") ||
     lowerGoal.includes("disease") ||
@@ -607,7 +615,19 @@ export const LessonView: React.FC = () => {
                   Project Data Sample ({safeGoal}):
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs text-amber-200/90 pt-1">
-                  {isMedical ? (
+                  {isEmotionOrFace ? (
+                    <>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Face 1:</strong> Smile: +0.85, Brow: 0.05 &rarr; <span className="text-amber-300 font-bold">😄 Happy (94%)</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Face 2:</strong> Eyes: 0.95, Jaw: 0.85 &rarr; <span className="text-cyan-400 font-bold">😲 Surprise (89%)</span>
+                      </div>
+                      <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                        <strong className="text-zinc-200">Face 3:</strong> Brow: 0.85, Smile: -0.40 &rarr; <span className="text-rose-400 font-bold">😠 Anger (91%)</span>
+                      </div>
+                    </>
+                  ) : isMedical ? (
                     <>
                       <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
                         <strong className="text-zinc-200">Patient 1:</strong> Glucose: 168 mg/dL, BMI: 32.4 &rarr; <span className="text-rose-400 font-bold">Positive (High Risk)</span>
@@ -724,7 +744,9 @@ export const LessonView: React.FC = () => {
                         value={predInputs}
                         onChange={(e) => setPredInputs(e.target.value)}
                         placeholder={
-                          isMedical
+                          isEmotionOrFace
+                            ? "e.g. smile, brow_furrow, eye_openness"
+                            : isMedical
                             ? "e.g. glucose, bmi, age"
                             : isSpam
                             ? "e.g. message_text, word_counts"
@@ -745,7 +767,9 @@ export const LessonView: React.FC = () => {
                         value={predTarget}
                         onChange={(e) => setPredTarget(e.target.value)}
                         placeholder={
-                          isMedical
+                          isEmotionOrFace
+                            ? "e.g. emotion_class"
+                            : isMedical
                             ? "e.g. diabetes_diagnosis"
                             : isSpam
                             ? "e.g. is_spam"

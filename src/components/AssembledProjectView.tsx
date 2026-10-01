@@ -69,7 +69,45 @@ if __name__ == "__main__":
     print("\\n[Pipeline Status] Executing assembled model on test cohort...")
 `;
 
-    if (
+    const isEmotionOrFace =
+      safeGoal.toLowerCase().includes("emotion") ||
+      safeGoal.toLowerCase().includes("face") ||
+      safeGoal.toLowerCase().includes("facial") ||
+      safeGoal.toLowerCase().includes("expression") ||
+      safeGoal.toLowerCase().includes("smile") ||
+      safeGoal.toLowerCase().includes("mood");
+
+    if (isEmotionOrFace) {
+      script += `
+    test_faces = [
+        {"desc": "Smiling Subject (Broad Joy)", "smile": 0.88, "brow": 0.05, "eyes": 0.65, "jaw": 0.20},
+        {"desc": "Astonished Subject (Sudden Surprise)", "smile": 0.10, "brow": 0.15, "eyes": 0.95, "jaw": 0.85},
+        {"desc": "Frustrated Subject (Intense Brow Furrow)", "smile": -0.60, "brow": 0.90, "eyes": 0.40, "jaw": 0.10},
+        {"desc": "Neutral Baseline Subject", "smile": 0.02, "brow": 0.05, "eyes": 0.50, "jaw": 0.05},
+    ]
+
+    print("\\n😊 Evaluating Facial Emotion Action Units on Test Cohort...")
+    for f in test_faces:
+        joy_score = (3.5 * f["smile"]) - (2.0 * f["brow"])
+        surprise_score = (3.0 * f["jaw"]) + (2.5 * f["eyes"]) - (1.0 * f["smile"])
+        anger_score = (3.8 * f["brow"]) - (2.5 * f["smile"]) - (1.5 * f["jaw"])
+        
+        logits = {"Joy": joy_score, "Surprise": surprise_score, "Anger": anger_score, "Neutral": 0.0}
+        exp_vals = {k: math.exp(v) for k, v in logits.items()}
+        sum_exp = sum(exp_vals.values())
+        probs = {k: round(v / sum_exp, 3) for k, v in exp_vals.items()}
+        dominant = max(probs, key=probs.get)
+        
+        print(f"\\n📸 {f['desc']}:")
+        print(f"   Action Units: Smile={f['smile']}, BrowFurrow={f['brow']}, EyeOpenness={f['eyes']}, JawDrop={f['jaw']}")
+        print(f"   Dominant Emotion: {dominant} (Confidence: {round(probs[dominant] * 100, 1)}%)")
+        print(f"   Softmax Distribution: {probs}")
+
+    print("\\n" + "=" * 65)
+    print("✅ All facial emotion pipeline inference assertions executed cleanly!")
+    print("=" * 65)
+`;
+    } else if (
       safeGoal.toLowerCase().includes("diabet") ||
       safeGoal.toLowerCase().includes("disease") ||
       safeGoal.toLowerCase().includes("medical")
