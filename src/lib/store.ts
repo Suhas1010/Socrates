@@ -445,9 +445,8 @@ export const useSessionStore = create<SessionStoreState>()(
             newHistory.map((h) => ({ conceptId: h.conceptId, isCorrect: h.isCorrect }))
           );
 
-          const firstUnmastered =
-            state.concepts.find((c) => (initialMastery[c.id] ?? 0) < 0.6)?.id ||
-            state.concepts[0]?.id;
+          // For learners starting from scratch, always begin at Step 1 of the project
+          const startingConceptId = state.concepts[0]?.id || "problem-framing";
 
           const newStatus = Object.fromEntries(
             state.concepts.map((c) => [
@@ -461,7 +460,7 @@ export const useSessionStore = create<SessionStoreState>()(
             diagnosticIndex: nextIdx,
             mastery: initialMastery,
             status: newStatus,
-            currentConceptId: firstUnmastered,
+            currentConceptId: startingConceptId,
             screen: "plan",
             activeStage: "plan_review",
           });
