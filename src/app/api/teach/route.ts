@@ -1,0 +1,99 @@
+import { NextRequest, NextResponse } from "next/server";
+import { generateStructuredLLM, TeachOutputSchema } from "@/lib/llm";
+import { SPAM_CLASSIFIER_CONCEPTS } from "@/lib/templates/spamClassifier";
+import { DIGIT_RECOGNIZER_CONCEPTS } from "@/lib/templates/digitRecognizer";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { concept, profile = {}, lastDiagnosis } = body;
+
+    const conceptId = concept?.id || "what-is-classification";
+    const allConcepts = [...SPAM_CLASSIFIER_CONCEPTS, ...DIGIT_RECOGNIZER_CONCEPTS];
+    const matchedConcept = allConcepts.find((c) => c.id === conceptId) || SPAM_CLASSIFIER_CONCEPTS[0];
+
+    // Determine strategy based on last diagnosis (§6.3)
+    let strategy: "analogy" | "contrast" | "worked_example" | "counterexample" = "analogy";
+    if (lastDiagnosis?.errorType === "TERMINOLOGY_CONFUSION") {
+      strategy = "contrast";
+    } else if (lastDiagnosis?.errorType === "CALCULATION_SLIP") {
+      strategy = "worked_example";
+    } else if (lastDiagnosis?.errorType === "OVERCONFIDENT_MISCONCEPTION") {
+      strategy = "counterexample";
+    }
+
+    const interests = profile.interests || "everyday applications";
+
+    // Build tailored explanation based on strategy and learner interests
+    let explanationText = matchedConcept.explanationSummary || "";
+    let exampleText = "";
+
+    if (strategy === "analogy") {
+      explanationText = `Think of this like in ${interests}: When filtering signal from noise, your mind doesn't evaluate every grain of sand; it patterns matches critical signals. ${explanationText}`;
+      exampleText = `For instance, if someone offers you a "FREE luxury car", you immediately assess how rare that is compared to normal messages.`;
+    } else if (strategy === "contrast") {
+      explanationText = `Notice the crucial contrast: We are not just checking if words match; we are calculating conditional likelihood ratios. ${explanationText}`;
+      exampleText = `Contrast P(Word | Spam) with P(Spam | Word): One is how frequently spammers use the phrase; the other is your posterior certainty upon reading it.`;
+    } else if (strategy === "worked_example") {
+      explanationText = `Let's work through the exact numbers from our dataset: ${explanationText}`;
+      exampleText = `Given 100 spam messages and 100 normal messages: If 'win' appears in 40 spam and 2 normal, smoothed likelihood is (40+1)/(100+V) vs (2+1)/(100+V).`;
+    } else if (strategy === "counterexample") {
+      explanationText = `Here is a counterexample that breaks the intuition: ${explanationText}`;
+      exampleText = `Imagine a word that appears 100% of the time in spam, but also 100% of the time in personal emails. Its predictive power is zero!`;
+    }
+
+    const fallbackData = {
+      hook: matchedConcept.hook,
+      explanation: explanationText,
+      strategy,
+      example: exampleText,
+      checkQuestion: matchedConcept.checkQuestion || {
+        prompt: `Why is understanding ${matchedConcept.title} essential for building our project?`,
+        options: [
+          "It defines the mathematical decision boundary used by our classifier.",
+          "It is required by the Python language syntax.",
+          "It converts the computer screen to high resolution.",
+          "It slows down model execution to prevent overheating."
+        ],
+        correctIndex: 0,
+        explanation: "Every component directly maps to the machine learning decision function."
+      },
+      buildTask: matchedConcept.buildStep,
+      starterCode: matchedConcept.starterCode,
+    };
+
+    const systemPrompt = `You are Socrates, a project-first AI tutor.
+The learner is building: "${profile.goal || "a spam classifier"}".
+Concept: "${matchedConcept.title}".
+Strategy: "${strategy}".
+Interests: "${interests}".
+RULES:
+1. Hook MUST be a curiosity gap, NEVER a definition.
+2. Ground all examples in the project's data.
+3. Keep explanation concise, punchy, and crystal clear.
+4. Output JSON adhering to TeachOutputSchema.`;
+
+    const result = await generateStructuredLLM({
+      systemPrompt,
+      userPrompt: `Teach concept: ${matchedConcept.title}. Last error diagnosis: ${lastDiagnosis?.diagnosis || "none"}.`,
+      schema: TeachOutputSchema,
+      fallbackData,
+    });
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Error in /api/teach:", error);
+    return NextResponse.json(
+      {
+        hook: SPAM_CLASSIFIER_CONCEPTS[0].hook,
+        explanation: SPAM_CLASSIFIER_CONCEPTS[0].explanationSummary,
+        strategy: "analogy",
+        example: "Consider how you immediately spot phishing texts.",
+        checkQuestion: SPAM_CLASSIFIER_CONCEPTS[0].checkQuestion,
+        buildTask: SPAM_CLASSIFIER_CONCEPTS[0].buildStep,
+        starterCode: SPAM_CLASSIFIER_CONCEPTS[0].starterCode,
+      },
+      { status: 200 }
+    );
+  }
+}
