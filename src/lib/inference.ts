@@ -819,6 +819,550 @@ export function deriveModelContractForGoal(
     };
   }
 
+  // 4.1 Recommender Systems (Movies, Music, Books, Products)
+  if (
+    lower.includes("recommend") ||
+    lower.includes("movie") ||
+    lower.includes("netflix") ||
+    lower.includes("spotify") ||
+    lower.includes("song") ||
+    lower.includes("book") ||
+    lower.includes("collaborative filtering")
+  ) {
+    return {
+      functionName: "recommend_item_rating",
+      title: "Live Recommendation Scoring Engine",
+      subtitle:
+        "Test your recommendation model on user affinity vectors, catalog popularity, and release recency live in your browser!",
+      badge: "Recommender System",
+      features: [
+        {
+          id: "userAvgRating",
+          label: "User Baseline Rating",
+          type: "slider",
+          min: 1.0,
+          max: 5.0,
+          step: 0.1,
+          default: 4.2,
+          unit: "★",
+          description: "Average star rating this user gives to all consumed media",
+        },
+        {
+          id: "genreAffinity",
+          label: "Genre Affinity Score",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.90,
+          unit: "%",
+          description: "Alignment between this item's genres and user historical watch time",
+        },
+        {
+          id: "itemPopularity",
+          label: "Global Catalog Popularity",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.85,
+          unit: "%",
+          description: "Overall platform community engagement percentile",
+        },
+        {
+          id: "criticScore",
+          label: "Critical Acclaim Score",
+          type: "slider",
+          min: 0,
+          max: 100,
+          step: 1,
+          default: 84,
+          unit: "/100",
+          description: "Aggregated professional review score",
+        },
+      ],
+      output: {
+        type: "regression",
+        label: "Predicted User Star Rating",
+        unit: "Stars",
+      },
+      presets: [
+        {
+          name: "Top Recommended Match",
+          emoji: "🎬",
+          values: { userAvgRating: 4.5, genreAffinity: 0.95, itemPopularity: 0.85, criticScore: 92 },
+        },
+        {
+          name: "Polarizing Indie Gem",
+          emoji: "🎭",
+          values: { userAvgRating: 3.8, genreAffinity: 0.90, itemPopularity: 0.25, criticScore: 88 },
+        },
+        {
+          name: "Low Match Blockbuster",
+          emoji: "💥",
+          values: { userAvgRating: 2.5, genreAffinity: 0.10, itemPopularity: 0.95, criticScore: 55 },
+        },
+      ],
+    };
+  }
+
+  // 4.2 Object & Obstacle Detection (Self-Driving / Autonomous Vision)
+  if (
+    lower.includes("object detect") ||
+    lower.includes("pedestrian") ||
+    lower.includes("obstacle") ||
+    lower.includes("self-driving") ||
+    lower.includes("autonomous") ||
+    lower.includes("yolo") ||
+    lower.includes("bounding box") ||
+    lower.includes("traffic sign") ||
+    lower.includes("vehicle detect")
+  ) {
+    return {
+      functionName: "detect_road_obstacle",
+      title: "Live Autonomous Vehicle Obstacle Detector",
+      subtitle:
+        "Simulate incoming camera bounding box geometry, proximity distance, and relative approach speed to evaluate collision triage in real time.",
+      badge: "Autonomous Vision Detector",
+      defaultThreshold: 0.50,
+      features: [
+        {
+          id: "distanceMeters",
+          label: "Proximity Distance",
+          type: "slider",
+          min: 1.0,
+          max: 100.0,
+          step: 1.0,
+          default: 18.0,
+          unit: "m",
+          description: "Sensor lidar/radar distance from vehicle bumper to obstacle",
+        },
+        {
+          id: "relativeSpeedKmh",
+          label: "Relative Approach Speed",
+          type: "slider",
+          min: -20.0,
+          max: 120.0,
+          step: 2.0,
+          default: 45.0,
+          unit: "km/h",
+          description: "Rate of closing speed between ego vehicle and obstacle",
+        },
+        {
+          id: "aspectRatio",
+          label: "Bounding Box Aspect Ratio (W/H)",
+          type: "slider",
+          min: 0.2,
+          max: 2.5,
+          step: 0.05,
+          default: 0.45,
+          unit: "",
+          description: "Narrow ratio (<0.6) signals pedestrian/cyclist; wide (>1.2) signals car/truck",
+        },
+        {
+          id: "detectionConfidence",
+          label: "Vision Feature Confidence",
+          type: "slider",
+          min: 0.1,
+          max: 1.0,
+          step: 0.05,
+          default: 0.90,
+          unit: "%",
+          description: "Raw neural backbone confidence score",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Obstacle Collision Triage",
+        classes: [
+          { name: "CRITICAL COLLISION IMMINENT", emoji: "🚨", color: "#EF4444" },
+          { name: "CAUTION: PEDESTRIAN IN PATH", emoji: "🚶", color: "#F59E0B" },
+          { name: "VEHICLE TRACKING / SAFE GAP", emoji: "🚗", color: "#3B82F6" },
+          { name: "CLEAR ROADWAY", emoji: "🛣️", color: "#10B981" },
+        ],
+      },
+      presets: [
+        {
+          name: "Jaywalking Pedestrian Hazard",
+          emoji: "🚶",
+          values: { distanceMeters: 12.0, relativeSpeedKmh: 35.0, aspectRatio: 0.40, detectionConfidence: 0.92 },
+        },
+        {
+          name: "Lead Vehicle Highway Cruise",
+          emoji: "🚙",
+          values: { distanceMeters: 45.0, relativeSpeedKmh: 5.0, aspectRatio: 1.65, detectionConfidence: 0.98 },
+        },
+        {
+          name: "High-Speed Emergency Braking",
+          emoji: "🚨",
+          values: { distanceMeters: 8.0, relativeSpeedKmh: 80.0, aspectRatio: 1.40, detectionConfidence: 0.95 },
+        },
+      ],
+    };
+  }
+
+  // 4.3 Cybersecurity & Network Intrusion Detection
+  if (
+    lower.includes("cyber") ||
+    lower.includes("intrusion") ||
+    lower.includes("ddos") ||
+    lower.includes("packet") ||
+    lower.includes("malware") ||
+    lower.includes("network attack") ||
+    lower.includes("firewall")
+  ) {
+    return {
+      functionName: "inspect_network_session",
+      title: "Live Network Threat & Intrusion Detector",
+      subtitle:
+        "Simulate incoming network session telemetry (packet rate, byte length, failed logins) to test automated intrusion prevention live.",
+      badge: "Cybersecurity Threat Engine",
+      defaultThreshold: 0.40,
+      features: [
+        {
+          id: "packetsPerSecond",
+          label: "Packet Rate",
+          type: "slider",
+          min: 1,
+          max: 5000,
+          step: 50,
+          default: 1800,
+          unit: "pkt/s",
+          description: "Traffic volume per second from source IP (high values indicate flood/DDoS)",
+        },
+        {
+          id: "packetLengthBytes",
+          label: "Average Packet Size",
+          type: "slider",
+          min: 64,
+          max: 1500,
+          step: 16,
+          default: 1420,
+          unit: "bytes",
+          description: "Payload size per frame (MTU frame capacity)",
+        },
+        {
+          id: "failedLogins",
+          label: "Failed Auth Attempts",
+          type: "slider",
+          min: 0,
+          max: 20,
+          step: 1,
+          default: 8,
+          unit: "attempts",
+          description: "Consecutive authentication failures within 60 seconds",
+        },
+        {
+          id: "portScanRatio",
+          label: "Port Variance Index",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.85,
+          unit: "",
+          description: "Entropy of destination ports queried (signals reconnaissance port scans)",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Security Triage Decision",
+        positiveClass: "SECURITY INTRUSION FLAGGED",
+        negativeClass: "BENIGN USER TRAFFIC",
+        classes: [
+          { name: "SECURITY INTRUSION FLAGGED", emoji: "🛡️", color: "#EF4444" },
+          { name: "BENIGN USER TRAFFIC", emoji: "🟢", color: "#10B981" },
+        ],
+      },
+      presets: [
+        {
+          name: "SYN Flood / DDoS Attack",
+          emoji: "💣",
+          values: { packetsPerSecond: 4500, packetLengthBytes: 64, failedLogins: 0, portScanRatio: 0.10 },
+        },
+        {
+          name: "Credential Stuffing Brute Force",
+          emoji: "🔓",
+          values: { packetsPerSecond: 120, packetLengthBytes: 450, failedLogins: 16, portScanRatio: 0.05 },
+        },
+        {
+          name: "Standard Web Traffic",
+          emoji: "🌐",
+          values: { packetsPerSecond: 25, packetLengthBytes: 512, failedLogins: 0, portScanRatio: 0.02 },
+        },
+      ],
+    };
+  }
+
+  // 4.4 Customer Churn & Subscriber Attrition
+  if (
+    lower.includes("customer churn") ||
+    lower.includes("subscriber churn") ||
+    lower.includes("customer retention") ||
+    lower.includes("attrition") ||
+    lower.includes("churn")
+  ) {
+    return {
+      functionName: "predict_customer_churn",
+      title: "Live Customer Churn Risk Predictor",
+      subtitle:
+        "Evaluate subscriber account signals (tenure, charges, support tickets, contract length) to compute early churn likelihood in real time.",
+      badge: "Customer Retention Model",
+      defaultThreshold: 0.35,
+      features: [
+        {
+          id: "tenureMonths",
+          label: "Customer Tenure",
+          type: "slider",
+          min: 1,
+          max: 72,
+          step: 1,
+          default: 6,
+          unit: "months",
+          description: "Length of active subscription history",
+        },
+        {
+          id: "monthlyChargesUsd",
+          label: "Monthly Bill",
+          type: "slider",
+          min: 15,
+          max: 200,
+          step: 5,
+          default: 95,
+          unit: "$/mo",
+          description: "Recurring monthly subscription charge",
+        },
+        {
+          id: "supportCalls",
+          label: "Support Escalations",
+          type: "slider",
+          min: 0,
+          max: 12,
+          step: 1,
+          default: 4,
+          unit: "tickets",
+          description: "Count of customer service issues logged in last 90 days",
+        },
+        {
+          id: "contractTypeYears",
+          label: "Contract Commitment",
+          type: "slider",
+          min: 0,
+          max: 2,
+          step: 1,
+          default: 0,
+          unit: "years",
+          description: "0 = Month-to-month (highest risk), 1 = 1-Year, 2 = 2-Year fixed",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Retention Triage",
+        positiveClass: "HIGH CHURN RISK",
+        negativeClass: "LOYAL SUBSCRIBER",
+        classes: [
+          { name: "HIGH CHURN RISK", emoji: "⚠️", color: "#EF4444" },
+          { name: "LOYAL SUBSCRIBER", emoji: "⭐", color: "#10B981" },
+        ],
+      },
+      presets: [
+        {
+          name: "At-Risk Month-to-Month Customer",
+          emoji: "🚨",
+          values: { tenureMonths: 3, monthlyChargesUsd: 110, supportCalls: 5, contractTypeYears: 0 },
+        },
+        {
+          name: "Loyal Multi-Year Subscriber",
+          emoji: "🏆",
+          values: { tenureMonths: 48, monthlyChargesUsd: 45, supportCalls: 0, contractTypeYears: 2 },
+        },
+        {
+          name: "Borderline Account Review",
+          emoji: "🔍",
+          values: { tenureMonths: 14, monthlyChargesUsd: 75, supportCalls: 2, contractTypeYears: 1 },
+        },
+      ],
+    };
+  }
+
+  // 4.5 Audio / Speech Recognition
+  if (
+    lower.includes("audio") ||
+    lower.includes("speech") ||
+    lower.includes("voice") ||
+    lower.includes("sound") ||
+    lower.includes("acoustic") ||
+    lower.includes("speaker")
+  ) {
+    return {
+      functionName: "classify_voice_command",
+      title: "Live Acoustic Speech Command Recognizer",
+      subtitle:
+        "Test acoustic frequency spectra (pitch fundamental, spectral brightness, zero-crossing rate, duration) on live voice classification.",
+      badge: "Acoustic Audio Model",
+      defaultThreshold: 0.40,
+      features: [
+        {
+          id: "pitchHz",
+          label: "Fundamental Pitch (F0)",
+          type: "slider",
+          min: 60,
+          max: 400,
+          step: 5,
+          default: 210,
+          unit: "Hz",
+          description: "Vocal cord vibration frequency",
+        },
+        {
+          id: "spectralCentroidHz",
+          label: "Spectral Brightness Centroid",
+          type: "slider",
+          min: 800,
+          max: 4000,
+          step: 50,
+          default: 2600,
+          unit: "Hz",
+          description: "Center of acoustic mass (distinguishes fricatives from vowels)",
+        },
+        {
+          id: "zeroCrossingRate",
+          label: "Zero-Crossing Rate",
+          type: "slider",
+          min: 0.01,
+          max: 0.30,
+          step: 0.01,
+          default: 0.14,
+          unit: "",
+          description: "Rate of signal sign changes (high for unvoiced consonants like 's'/'t')",
+        },
+        {
+          id: "durationSeconds",
+          label: "Utterance Duration",
+          type: "slider",
+          min: 0.2,
+          max: 2.5,
+          step: 0.1,
+          default: 0.8,
+          unit: "sec",
+          description: "Total acoustic speech duration",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Recognized Voice Intent",
+        classes: [
+          { name: "Command: 'Play Music'", emoji: "▶️", color: "#10B981" },
+          { name: "Command: 'Stop / Pause'", emoji: "⏹️", color: "#EF4444" },
+          { name: "Command: 'Skip / Next'", emoji: "⏭️", color: "#3B82F6" },
+        ],
+      },
+      presets: [
+        {
+          name: "Vocal: 'Play'",
+          emoji: "🎵",
+          values: { pitchHz: 215, spectralCentroidHz: 2650, zeroCrossingRate: 0.14, durationSeconds: 0.8 },
+        },
+        {
+          name: "Vocal: 'Stop'",
+          emoji: "🛑",
+          values: { pitchHz: 120, spectralCentroidHz: 1350, zeroCrossingRate: 0.06, durationSeconds: 0.5 },
+        },
+        {
+          name: "Vocal: 'Next'",
+          emoji: "⏭️",
+          values: { pitchHz: 175, spectralCentroidHz: 2100, zeroCrossingRate: 0.10, durationSeconds: 0.7 },
+        },
+      ],
+    };
+  }
+
+  // 4.6 Fake News & Misinformation Detection
+  if (
+    lower.includes("fake news") ||
+    lower.includes("misinformation") ||
+    lower.includes("clickbait") ||
+    lower.includes("fact check") ||
+    lower.includes("rumor") ||
+    lower.includes("disinformation")
+  ) {
+    return {
+      functionName: "evaluate_article_credibility",
+      title: "Live News & Misinformation Detector",
+      subtitle:
+        "Analyze linguistic sensationalism, headline capitalization, and source credibility index in real time.",
+      badge: "NLP Fact Checker",
+      defaultThreshold: 0.50,
+      features: [
+        {
+          id: "sensationalDensity",
+          label: "Sensationalist Word Density",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.85,
+          unit: "%",
+          description: "Frequency of hyper-emotional trigger words ('shocking', 'secret', 'miracle')",
+        },
+        {
+          id: "capsRatio",
+          label: "Uppercase Letter Ratio",
+          type: "slider",
+          min: 0.0,
+          max: 0.8,
+          step: 0.05,
+          default: 0.45,
+          unit: "%",
+          description: "Percentage of capitalized characters in headline and lead paragraph",
+        },
+        {
+          id: "sourceCredibility",
+          label: "Publisher Credibility Score",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.15,
+          unit: "",
+          description: "Historical journalistic audit reputation index (1.0 = verified wire service)",
+        },
+        {
+          id: "quoteCount",
+          label: "Direct Verified Quotes",
+          type: "slider",
+          min: 0,
+          max: 10,
+          step: 1,
+          default: 0,
+          unit: "quotes",
+          description: "Number of named, verifiable expert quotations in the article",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Credibility Assessment",
+        positiveClass: "UNVERIFIED / SENSATIONALIST FAKE NEWS",
+        negativeClass: "VERIFIED CREDIBLE REPORT",
+        classes: [
+          { name: "UNVERIFIED / SENSATIONALIST FAKE NEWS", emoji: "⚠️", color: "#EF4444" },
+          { name: "VERIFIED CREDIBLE REPORT", emoji: "📰", color: "#10B981" },
+        ],
+      },
+      presets: [
+        {
+          name: "Sensationalist Clickbait Article",
+          emoji: "🔥",
+          values: { sensationalDensity: 0.85, capsRatio: 0.45, sourceCredibility: 0.15, quoteCount: 0 },
+        },
+        {
+          name: "Balanced Investigative Report",
+          emoji: "📜",
+          values: { sensationalDensity: 0.08, capsRatio: 0.02, sourceCredibility: 0.95, quoteCount: 5 },
+        },
+      ],
+    };
+  }
+
   // 5. AUTONOMOUS DYNAMIC PARSER FOR ANY OTHER PROJECT
   const isRegression =
     lower.includes("price") ||

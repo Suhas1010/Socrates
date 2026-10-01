@@ -12,14 +12,14 @@ import { enrichConceptWithDeepTheory, ML_DL_DICTIONARY } from "../technicalDicti
 describe("Domain-Grounded Diagnostics & Roadmaps", () => {
   it("generates medical-specific diagnostic questions for diabetes project without any spam mentions", () => {
     const questions = generateDiagnosticQuestionsForGoal("Diabetes disease predictor");
-    expect(questions.length).toBe(4);
+    expect(questions.length).toBeGreaterThanOrEqual(3);
 
     // Verify Check 1 and 2 mention clinical concepts
-    expect(questions[0].question).toContain("patient attributes (e.g. glucose, blood pressure, BMI)");
-    expect(questions[0].options[0].text).toContain("Binary Classification (categorizing patients into Positive or Negative");
+    expect(questions[0].question).toContain("patient's measurements");
+    expect(questions[0].options[0].text).toContain("hundreds of past patients");
 
-    expect(questions[1].question).toContain("clinical screening cohort are diagnosed with the condition");
-    expect(questions[1].question).toContain("P(Condition)");
+    expect(questions[1].question).toContain("past patients");
+    expect(questions[1].options[0].text).toContain("known outcomes");
     expect(questions[1].question.toLowerCase()).not.toContain("email");
     expect(questions[1].question.toLowerCase()).not.toContain("spam");
 
@@ -33,15 +33,13 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
 
   it("generates medical concepts with interactive blanks and assertions", () => {
     const concepts = generateFallbackConceptsForGoal("Diabetes disease predictor");
-    expect(concepts.length).toBe(8);
-    expect(concepts[0].title).toContain("Clinical Problem Formulation");
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
+    expect(concepts[0].title).toContain("Define the Problem");
     expect(concepts[0].starterCode).toContain("___");
-    expect(concepts[0].starterCode).toContain("patient_vitals");
-    expect(concepts[1].title).toContain("Clinical Feature Normalization");
-    expect(concepts[2].title).toContain("Clinical Risk Scoring");
-    expect(concepts[3].title).toContain("Clinical Decision Threshold");
-    expect(concepts[4].title).toContain("Binary Cross-Entropy");
-    expect(concepts[7].title).toContain("Inference Engine");
+    expect(concepts[1].title).toContain("Dataset");
+    expect(concepts[2].title).toContain("Train a Real ML Model");
+    expect(concepts[2].starterCode).toContain("model.fit");
+    expect(concepts[3].title).toContain("Evaluate on Held-Out Test Data");
   });
 
   it("updates store synchronously with domain-specific diagnostic questions", () => {
@@ -51,15 +49,15 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     const updated = useSessionStore.getState();
     expect(updated.goal).toBe("Diabetes disease predictor");
     expect(updated.templateId).toBe("custom");
-    expect(updated.diagnosticQuestions.length).toBe(4);
-    expect(updated.diagnosticQuestions[1].question).toContain("P(Condition)");
+    expect(updated.diagnosticQuestions.length).toBeGreaterThanOrEqual(3);
+    expect(updated.diagnosticQuestions[0].question).toContain("patient's measurements");
     expect(updated.diagnosticQuestions[1].question.toLowerCase()).not.toContain("spam");
-    expect(updated.concepts[0].title).toContain("Clinical Problem Formulation");
+    expect(updated.concepts[0].title).toContain("Define the Problem");
   });
 
   it("generates grounded custom diagnostic questions for arbitrary goals", () => {
     const questions = generateDiagnosticQuestionsForGoal("Autonomous Drone Navigation");
-    expect(questions.length).toBe(4);
+    expect(questions.length).toBeGreaterThanOrEqual(3);
     expect(questions[0].question).toContain("Autonomous Drone Navigation");
     for (const q of questions) {
       expect(q.question.toLowerCase()).not.toContain("email");
@@ -69,14 +67,10 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
 
   it("generates facial emotion recognition questions without diabetes or spam mentions", () => {
     const questions = generateDiagnosticQuestionsForGoal("emotions on face analyzer");
-    expect(questions.length).toBe(4);
+    expect(questions.length).toBeGreaterThanOrEqual(3);
 
-    expect(questions[0].question).toContain("facial landmark features");
-    expect(questions[0].options[0].text).toContain("Multi-Class Classification");
-
-    expect(questions[1].question).toContain("P(Joy)");
-    expect(questions[2].question).toContain("facial landmark distances");
-    expect(questions[3].options[0].text).toContain("Softmax activation");
+    expect(questions[0].question).toContain("photos of faces");
+    expect(questions[0].options[0].text).toContain("measurements (like eyebrow height, lip curve)");
 
     for (const q of questions) {
       expect(q.question.toLowerCase()).not.toContain("glucose");
@@ -137,14 +131,10 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
 
   it("generates plant disease diagnostic questions without any medical or glucose contamination", () => {
     const questions = generateDiagnosticQuestionsForGoal("AI based plant disease detector");
-    expect(questions.length).toBe(4);
+    expect(questions.length).toBeGreaterThanOrEqual(3);
 
-    expect(questions[0].question).toContain("leaf pathogens (like Powdery Mildew, Leaf Blight, or Rust)");
-    expect(questions[0].options[0].text).toContain("Multi-Class Classification");
-
-    expect(questions[1].question).toContain("P(Fungal Infection)");
-    expect(questions[2].question).toContain("lesion surface area");
-    expect(questions[3].question).toContain("agronomic rationale for lowering the alert decision threshold");
+    expect(questions[0].question).toContain("farmer who takes a photo of a leaf");
+    expect(questions[0].options[0].text).toContain("visual patterns in the photo");
 
     for (const q of questions) {
       const qLower = q.question.toLowerCase();
@@ -250,6 +240,108 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(enriched.technicalTerms?.map((t: any) => t.term)).toContain("Facial Action Units (FACS AUs)");
     expect(enriched.deepMath).toBeDefined();
     expect(enriched.deepMath!.numericalExample.stepByStepArithmetic.length).toBeGreaterThan(0);
+  });
+
+  it("generates tailored diagnostics and scikit-learn roadmaps for Recommender Systems", () => {
+    const questions = generateDiagnosticQuestionsForGoal("Movie Recommender System");
+    expect(questions.length).toBeGreaterThanOrEqual(3);
+    expect(questions[0].question).toContain("recommendation system (like Netflix or Spotify)");
+    expect(questions[1].question).toContain("sparse");
+    expect(questions[2].question).toContain("popular movies");
+
+    const concepts = generateFallbackConceptsForGoal("Movie Recommender System");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].starterCode).toContain("predicted_rating_stars");
+    expect(concepts[1].starterCode).toContain("genre_affinity");
+    expect(concepts[2].starterCode).toContain("RandomForestRegressor");
+    expect(concepts[2].starterCode).toContain("model.fit");
+    expect(concepts[2].solutionCode).toContain("model.fit(X_train, y_train)");
+
+    const contract = deriveModelContractForGoal("Movie Recommender System");
+    expect(contract.badge).toBe("Recommender System");
+    expect(contract.features.map((f) => f.id)).toContain("genreAffinity");
+  });
+
+  it("generates tailored diagnostics and scikit-learn roadmaps for Object Detection / Self-Driving", () => {
+    const questions = generateDiagnosticQuestionsForGoal("Autonomous Car Obstacle Detection");
+    expect(questions.length).toBeGreaterThanOrEqual(3);
+    expect(questions[0].question).toContain("records 30 video frames per second");
+    expect(questions[0].options[0].text).toContain("WHAT the objects are");
+    expect(questions[1].question).toContain("empty road with zero pedestrians");
+    expect(questions[2].options[0].text).toContain("Intersection over Union");
+
+    const concepts = generateFallbackConceptsForGoal("Autonomous Car Obstacle Detection");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].starterCode).toContain("obstacle_type");
+    expect(concepts[2].starterCode).toContain("RandomForestClassifier");
+
+    const contract = deriveModelContractForGoal("Autonomous Car Obstacle Detection");
+    expect(contract.badge).toBe("Autonomous Vision Detector");
+    expect(contract.features.map((f) => f.id)).toContain("distanceMeters");
+  });
+
+  it("generates tailored diagnostics and scikit-learn roadmaps for Cybersecurity Intrusion Detection", () => {
+    const questions = generateDiagnosticQuestionsForGoal("Cybersecurity Threat and Intrusion Detection");
+    expect(questions.length).toBeGreaterThanOrEqual(3);
+    expect(questions[0].question).toContain("data packets hit a server");
+    expect(questions[1].question).toContain("99.995% accuracy");
+    expect(questions[2].question).toContain("packet size (up to 1,500 bytes)");
+
+    const concepts = generateFallbackConceptsForGoal("Cybersecurity Threat and Intrusion Detection");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].starterCode).toContain("is_malicious_attack");
+    expect(concepts[1].starterCode).toContain("foreign_port");
+
+    const contract = deriveModelContractForGoal("Cybersecurity Threat and Intrusion Detection");
+    expect(contract.badge).toBe("Cybersecurity Threat Engine");
+    expect(contract.features.map((f) => f.id)).toContain("packetsPerSecond");
+  });
+
+  it("generates tailored diagnostics and scikit-learn roadmaps for Customer Churn", () => {
+    const questions = generateDiagnosticQuestionsForGoal("Customer Churn Predictor");
+    expect(questions.length).toBeGreaterThanOrEqual(3);
+    expect(questions[0].question).toContain("predict who will cancel BEFORE they leave");
+    expect(questions[1].question).toContain("only 4 out of 100 subscribers cancel");
+
+    const concepts = generateFallbackConceptsForGoal("Customer Churn Predictor");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].starterCode).toContain("will_churn");
+    expect(concepts[2].starterCode).toContain("GradientBoostingClassifier");
+
+    const contract = deriveModelContractForGoal("Customer Churn Predictor");
+    expect(contract.badge).toBe("Customer Retention Model");
+    expect(contract.features.map((f) => f.id)).toContain("monthlyChargesUsd");
+  });
+
+  it("generates tailored diagnostics and scikit-learn roadmaps for Fake News Detection", () => {
+    const questions = generateDiagnosticQuestionsForGoal("Fake News & Misinformation Detector");
+    expect(questions.length).toBeGreaterThanOrEqual(3);
+    expect(questions[0].question).toContain("evaluate whether an article might be misleading or fake");
+    expect(questions[1].question).toContain("SHOCKING TRUTH REVEALED!!!");
+
+    const concepts = generateFallbackConceptsForGoal("Fake News & Misinformation Detector");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].starterCode).toContain("is_fake_news");
+
+    const contract = deriveModelContractForGoal("Fake News & Misinformation Detector");
+    expect(contract.badge).toBe("NLP Fact Checker");
+    expect(contract.features.map((f) => f.id)).toContain("sensationalDensity");
+  });
+
+  it("generates tailored diagnostics and scikit-learn roadmaps for Voice & Audio Recognition", () => {
+    const questions = generateDiagnosticQuestionsForGoal("Voice Command Audio Classifier");
+    expect(questions.length).toBeGreaterThanOrEqual(3);
+    expect(questions[0].question).toContain("microphone, it records sound vibrations");
+    expect(questions[1].question).toContain("44,100 raw pressure samples");
+
+    const concepts = generateFallbackConceptsForGoal("Voice Command Audio Classifier");
+    expect(concepts.length).toBe(4);
+    expect(concepts[0].starterCode).toContain("voice_command_class");
+    expect(concepts[1].starterCode).toContain("pitch_hz");
+
+    const contract = deriveModelContractForGoal("Voice Command Audio Classifier");
+    expect(contract.badge).toBe("Acoustic Audio Model");
+    expect(contract.features.map((f) => f.id)).toContain("pitchHz");
   });
 });
 

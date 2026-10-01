@@ -21,120 +21,90 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
       {
         id: "diag-emotion-1",
         targetConceptId: "problem-framing",
-        question: `When building "${safeGoal}" using facial landmark features, what is the computer's ultimate job when given a picture of someone's face?`,
+        question: `You want to build "${safeGoal}". Imagine showing the model 1,000 photos of faces — some happy, some angry, some surprised. What is the model's job?`,
         options: [
           {
-            text: "Multi-Class Classification (categorizing the face into discrete emotion states like Happy, Surprised, Angry, or Neutral).",
+            text: `Look at each photo's measurements (like eyebrow height, lip curve) and learn which combination of measurements goes with which emotion — so it can label NEW photos it has never seen.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Calculate the exact dollar price of the camera.",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Predicting distinct emotional categories is classification, not financial regression.",
-          },
-          {
-            text: "Delete the face image from the hard drive.",
+            text: `Memorise every single photo and refuse to work on any new photos.`,
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
-            rationale: "The model analyzes images to recognize human expressions, not delete files.",
+            rationale: `Memorising training photos is not learning. A good model recognises patterns that apply to NEW faces it has never seen.`,
           },
           {
-            text: "Print out the image on physical paper.",
+            text: `Download the internet and search for matching faces.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "The model runs computational software logic in Python.",
+            rationale: `ML models learn from the training data you provide — they don't browse the web.`,
+          },
+          {
+            text: `A human expert manually reviews every photo and writes the label.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `That is manual labeling, not machine learning. ML automates this process after learning from labeled examples.`,
           },
         ],
       },
       {
         id: "diag-emotion-2",
         targetConceptId: "prior-probability",
-        question: `A camera only sees colored pixels. To calculate P(Joy) or any emotion, can a Python program directly "feel" human emotion without converting the image into measurements (features) first?`,
+        question: `A camera sees pixels — millions of coloured dots. How does a computer figure out if someone is happy from pixels alone?`,
         options: [
           {
-            text: "No — computers only understand numbers, so we must extract key measurements (like lip curvature and eyebrow height).",
+            text: `We measure specific physical features of the face (like how curved the lips are, how raised the eyebrows are) and give those measurements as numbers to the model.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Yes — computers have human empathy and understand emotional feelings naturally.",
+            text: `The computer "feels" emotions the same way humans do.`,
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
-            rationale: "Computers have zero emotional awareness. They only compute arithmetic on numerical measurements (features).",
+            rationale: `Computers have zero emotional awareness. They only compute arithmetic on numbers. We must convert the face into numerical measurements first.`,
           },
           {
-            text: "Yes — Python has a built-in 'import human_soul' module.",
+            text: `Python has a built-in "emotion detector" that works on raw photos automatically.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "AI is statistical mathematics, not spiritual consciousness.",
+            rationale: `No such built-in exists. You must explicitly extract numerical features from the image and feed them to a trained model.`,
           },
           {
-            text: "No — computers can only understand audio sound waves, never images.",
+            text: `Computers can only process sound files, not images.`,
             isCorrect: false,
             errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Computers process images as matrices of numerical values.",
+            rationale: `Computers process images as matrices of numbers (pixel values). Both images and audio are just numbers at the lowest level.`,
           },
         ],
       },
       {
         id: "diag-emotion-3",
         targetConceptId: "feature-engineering",
-        question: `Why can't we just write a simple rule using raw facial landmark distances like "if smile > 0.5: return 'Happy'" for every human face?`,
+        question: `Why can't we just write a simple rule like "if smile_width > 50, print Happy" for every face?`,
         options: [
           {
-            text: "Because human expressions are nuanced (e.g. someone might grimace in anger or have different face shapes), so we need multiple weighted features.",
+            text: `Because human faces are all different — a 50-pixel smile on a baby is huge, but tiny on an adult. One simple rule fails on real diversity. A trained model handles all these variations automatically.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Because Python crashes if you write an if statement.",
+            text: `Because Python crashes if you use an if statement.`,
             isCorrect: false,
             errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Python handles conditional if statements effortlessly; the limitation is the complexity of real human facial anatomy.",
+            rationale: `Python if statements work perfectly fine. The issue is that a single rigid rule cannot handle the variation in real human faces.`,
           },
           {
-            text: "Because smiling faces are invisible to digital cameras.",
+            text: `Because smiling faces are invisible to cameras.`,
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
-            rationale: "Digital cameras capture smiles clearly; single rigid thresholds simply fail to capture nuanced expressions.",
+            rationale: `Cameras capture smiles clearly. The problem is that a single measurement threshold cannot generalize across diverse face shapes and sizes.`,
           },
           {
-            text: "Because computers can only execute while loops.",
+            text: `There is no reason — one rule would work perfectly.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Computers execute all control flow constructs.",
-          },
-        ],
-      },
-      {
-        id: "diag-emotion-4",
-        targetConceptId: "decision-boundary",
-        question: `When our AI model analyzes a face, what mathematical function converts raw linear scores into valid probabilities that sum to 1.0?`,
-        options: [
-          {
-            text: "Softmax activation (converts scores into calibrated confidence percentages like 92% Happy, 5% Neutral, 3% Surprised).",
-            isCorrect: true,
-            errorType: "NONE",
-          },
-          {
-            text: "It should claim it is 100% infallible on every face in the universe.",
-            isCorrect: false,
-            errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Real-world data contains uncertainty; calibrated AI models always output probabilities, not arrogant certainties.",
-          },
-          {
-            text: "It should randomly pick a letter of the alphabet.",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "The model outputs calibrated probabilities across the target emotional classes.",
-          },
-          {
-            text: "It should shut down the computer immediately.",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "The model returns an evaluation dictionary or classification string.",
+            rationale: `Try it — a single threshold fails on real-world diversity. ML discovers the complex multi-feature pattern automatically from examples.`,
           },
         ],
       },
@@ -159,120 +129,120 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
       {
         id: "diag-plant-1",
         targetConceptId: "problem-framing",
-        question: `When building "${safeGoal}" to identify leaf pathogens (like Powdery Mildew, Leaf Blight, or Rust) from crop photographs, what kind of machine learning task is this?`,
+        question: `You want to build "${safeGoal}". Imagine a farmer who takes a photo of a leaf. What should the AI model do with that photo?`,
         options: [
           {
-            text: "Multi-Class Classification (categorizing the leaf into distinct disease states or a healthy baseline)",
+            text: `Look at visual patterns in the photo (like spots, discoloration, texture) and match them to known disease patterns it learned from thousands of labelled training photos.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Continuous Regression (predicting open-ended continuous dollar prices for farm equipment)",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Identifying discrete botanical pathogen classes is a classification problem, not financial regression.",
-          },
-          {
-            text: "Unsupervised Clustering (grouping files on disk without any ground truth botanical labels)",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Plant disease models are trained using supervised datasets with expert-labeled crop disease tags.",
-          },
-          {
-            text: "Reinforcement Learning (controlling a physical tractor driving through video game simulations)",
+            text: `Physically treat the leaf by spraying it with chemicals.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Computer vision classification analyzes static image tensors, not reinforcement reward agents.",
+            rationale: `AI models analyse images and make predictions — they cannot perform physical actions like spraying crops.`,
+          },
+          {
+            text: `Search Google Images for a matching leaf.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `The model learns from training data you provide, not from internet searches.`,
+          },
+          {
+            text: `Print the photo on paper and send it to a laboratory.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `AI models run entirely in software — they make instant digital predictions, no physical lab needed.`,
           },
         ],
       },
       {
         id: "diag-plant-2",
         targetConceptId: "prior-probability",
-        question: `In a commercial greenhouse survey where 8 out of 100 inspected tomato leaves exhibit early fungal spots, what is the baseline prior probability P(Fungal Infection)?`,
+        question: `You have 100 leaf photos in your training dataset. 8 show disease, 92 are healthy. You train a model and it predicts "healthy" for every single new photo. What is wrong with this?`,
         options: [
           {
-            text: "0.08 (8% baseline prevalence in the greenhouse crop)",
+            text: `The model is just defaulting to "healthy" for everything. It gets 92% accuracy by doing nothing useful — but it misses 100% of diseased leaves, which is the whole point of the project.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "0.50 (50% — assuming equal odds regardless of actual greenhouse survey data)",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Prior probability reflects historical base rate: 8 / 100 = 0.08, not 50/50.",
-          },
-          {
-            text: "0.92 (92% — subtracting from 100 without dividing)",
-            isCorrect: false,
-            errorType: "CALCULATION_SLIP",
-            rationale: "0.92 is the probability of a leaf being healthy/uninfected.",
-          },
-          {
-            text: "1.00 (100% — certainty before examining any leaves)",
+            text: `92% accuracy is excellent — the model works perfectly.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "A prior of 1.0 would mean every plant on Earth is unconditionally diseased.",
+            rationale: `A model that never detects disease is useless for disease detection, even with 92% accuracy. Always check whether it actually catches the thing you care about.`,
+          },
+          {
+            text: `8% disease rate means the project is impossible.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Imbalanced datasets are common. The solution is to use appropriate techniques, not to abandon the project.`,
+          },
+          {
+            text: `The dataset needs exactly 50% diseased and 50% healthy.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Balanced datasets help, but are not strictly required. Real-world datasets are often imbalanced — the model must still learn to detect rare events.`,
           },
         ],
       },
       {
         id: "diag-plant-3",
         targetConceptId: "feature-engineering",
-        question: `When combining lesion surface area (0–100%) with chlorophyll discoloration index (0.01–0.98), why is feature scaling or normalization applied?`,
+        question: `Your plant disease model uses two measurements: "percentage of leaf covered by spots" (0–100%) and "colour change score" (0.01–0.98). Does the big difference in scale matter?`,
         options: [
           {
-            text: "To ensure features with larger numerical ranges do not disproportionately dominate gradient updates during model optimization.",
+            text: `Yes — the model might unfairly focus on the spot percentage (because 100 is much bigger than 0.98) and almost ignore the colour score. Rescaling both to a common range (like 0 to 1) fixes this.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Because Python arithmetic errors out on numbers greater than 10.",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Python handles arbitrary numbers; normalization ensures balanced optimization dynamics.",
-          },
-          {
-            text: "To eliminate the need for photographing training leaf samples.",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Scaling transforms data values; it does not replace the requirement for leaf imagery.",
-          },
-          {
-            text: "To convert all leaf images into raw text strings.",
+            text: `No — the model treats all numbers the same regardless of size.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Machine learning vision models process numeric feature vectors and pixel matrices, not text strings.",
+            rationale: `Many ML algorithms ARE sensitive to scale. A 0–100 feature will dominate a 0–1 feature in the model's calculations, even if both carry equal biological importance.`,
+          },
+          {
+            text: `Python crashes if you mix percentages and decimal scores in a list.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Python handles all numbers fine. The issue is mathematical: unequal scales lead to unfair weighting in the model's calculations.`,
+          },
+          {
+            text: `We should just delete the colour score since it has smaller values.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Never delete features just because they have smaller numbers. Rescale them so the model treats both features fairly.`,
           },
         ],
       },
       {
         id: "diag-plant-4",
         targetConceptId: "decision-boundary",
-        question: `In agricultural disease triage, what is the agronomic rationale for lowering the alert decision threshold from 0.50 to 0.35 confidence?`,
+        question: `Your model outputs a "disease confidence" score between 0 and 1. You set the threshold at 0.50 — scores above 0.50 trigger an alert. A farmer says: "I'd rather get a few false alarms than miss any real disease." What threshold change does this suggest?`,
         options: [
           {
-            text: "Prioritize High Sensitivity / Recall: Early detection prevents fungal contagion from ruining the entire harvest, accepting a few false positive alerts.",
+            text: `Lower the threshold to something like 0.30 — so the model alerts more often, catching more real disease cases even if some alerts are false alarms.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "To guarantee that the computer uses less electricity.",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Decision thresholds adjust classification sensitivity, not GPU electrical power.",
-          },
-          {
-            text: "Because machine learning models only execute mathematical operations below 0.40.",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Thresholds are statistical decision boundaries chosen based on real-world cost of misclassification.",
-          },
-          {
-            text: "To turn all diseased leaves green automatically.",
+            text: `Raise the threshold to 0.90 — so only very confident predictions trigger an alert.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "The AI model performs diagnostic inference; it cannot physically alter the biological plant tissue.",
+            rationale: `Raising the threshold means the model only alerts when very confident, which causes it to MISS more borderline disease cases. The farmer wants the opposite.`,
+          },
+          {
+            text: `Keep it at exactly 0.50 — changing it makes the model inaccurate.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `0.50 is just a default. Adjusting the threshold trades off false alarms vs missed detections — it is a design choice based on real-world priorities.`,
+          },
+          {
+            text: `Delete the threshold entirely — the model should decide for itself.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `The threshold is a design parameter you control. It balances the real-world cost of missing a disease vs the cost of a false alarm.`,
           },
         ],
       },
@@ -298,349 +268,910 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
       {
         id: "diag-med-1",
         targetConceptId: "problem-framing",
-        question: `When building "${safeGoal}" using patient attributes (e.g. glucose, blood pressure, BMI), what kind of machine learning task is this?`,
+        question: `You want to build "${safeGoal}". A doctor looks at a patient's measurements (like age, weight, blood test results) and makes a prediction. What is the ML model's job here?`,
         options: [
           {
-            text: "Binary Classification (categorizing patients into Positive or Negative for the condition)",
+            text: `Learn from hundreds of past patients — each with known measurements AND known outcomes — so it can predict the outcome for NEW patients it has never seen before.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Continuous Regression (predicting open-ended continuous dollar prices)",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Predicting the presence or absence of a disease is a categorical classification problem, not continuous pricing.",
-          },
-          {
-            text: "Unsupervised Clustering (grouping records without any ground truth diagnostic labels)",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "We train on labeled patient records with known historical diagnoses.",
-          },
-          {
-            text: "Reinforcement Learning (agent playing a video game through reward signals)",
+            text: `Replace the doctor entirely and diagnose without any data.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Diagnostic prediction uses supervised clinical datasets, not reinforcement learning agents.",
+            rationale: `ML models are decision-support tools, not replacements. They predict based on patterns in historical data — they always need input measurements.`,
+          },
+          {
+            text: `Look up the patient's name in a database and retrieve a pre-written answer.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `ML models learn statistical patterns from training data. They do not look up individuals in a database.`,
+          },
+          {
+            text: `Randomly generate a diagnosis without looking at any patient measurements.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `ML models make predictions based on learned patterns in the input features — not random guessing.`,
           },
         ],
       },
       {
         id: "diag-med-2",
         targetConceptId: "prior-probability",
-        question: `If 15 out of 100 patients in a clinical screening cohort are diagnosed with the condition, what is the baseline prior probability P(Condition)?`,
+        question: `To train a "${safeGoal}" model, you have 200 past patients. For each patient you have their measurements AND whether the prediction turned out to be correct. Why do you need BOTH the measurements AND the outcomes?`,
         options: [
           {
-            text: "0.15 (15%)",
+            text: `The model learns by comparing its predictions to the known outcomes. Without the outcomes, it has no way to know if it is right or wrong — and cannot improve.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "0.50 (50% — assuming equal odds regardless of cohort data)",
+            text: `You only need the outcomes — measurements are optional.`,
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
-            rationale: "Prior probability reflects historical base rate: 15 / 100 = 0.15, not 50/50.",
+            rationale: `Without the input measurements, the model has nothing to learn FROM. Both are required: measurements as inputs, outcomes as the target to learn.`,
           },
           {
-            text: "0.85 (85% — subtracting from 100 without dividing)",
+            text: `The outcomes are stored separately in a hospital database, not in training data.`,
             isCorrect: false,
-            errorType: "CALCULATION_SLIP",
-            rationale: "85% is the probability of NOT having the condition.",
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `For supervised learning, we need labeled training examples — each example has both the input measurements and the known correct answer.`,
           },
           {
-            text: "1.00 (100% — certainty before seeing any tests)",
+            text: `You only need measurements — the model figures out outcomes on its own.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "A prior of 1.0 would mean every human has the disease unconditionally.",
+            rationale: `The model cannot learn without seeing what the correct answer is. Supervision means the training data contains both inputs AND labeled answers.`,
           },
         ],
       },
       {
         id: "diag-med-3",
         targetConceptId: "feature-engineering",
-        question: `When combining blood glucose (70–200 mg/dL) with age (20–80 years), why is feature scaling or normalization applied?`,
+        question: `For "${safeGoal}", your training data includes: age (years), blood pressure (mmHg), and cholesterol (mg/dL). These are already numbers — can you feed them directly into the model, or is there anything to watch out for?`,
         options: [
           {
-            text: "To ensure features with larger numerical ranges do not disproportionately dominate gradient updates during model optimization.",
+            text: `You CAN feed them as numbers, but watch out: age goes 0–100, blood pressure 60–200, cholesterol 100–300. The model might unfairly weight cholesterol just because its numbers are bigger. It helps to rescale all features to a similar range.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Because Python arithmetic errors out on numbers greater than 100.",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Python handles arbitrary numbers; scaling is a mathematical convergence requirement.",
-          },
-          {
-            text: "To eliminate the need for collecting training patient data.",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Scaling transforms data; it does not replace the need for patient samples.",
-          },
-          {
-            text: "To convert all patient records into text strings.",
+            text: `Yes, just feed them directly — scale differences never matter.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Machine learning models require pure numeric tensors, not text strings.",
-          },
-        ],
-      },
-      {
-        id: "diag-med-4",
-        targetConceptId: "decision-boundary",
-        question: `If the model calculates a disease risk score of 0.82 for a patient, and your clinical decision threshold is 0.50, what decision should the system make?`,
-        options: [
-          {
-            text: "Classify as Positive / High Risk because 0.82 exceeds the 0.50 decision threshold.",
-            isCorrect: true,
-            errorType: "NONE",
+            rationale: `Scale differences DO matter for many algorithms. Features with larger values can dominate the model's calculations unfairly.`,
           },
           {
-            text: "Classify as Negative because scores must reach 1.00 for a positive diagnosis.",
-            isCorrect: false,
-            errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Decision rules trigger whenever predicted probability exceeds the decision threshold (0.82 >= 0.50).",
-          },
-          {
-            text: "Discard the patient's record because the score is not an integer.",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Probabilities are continuous numbers between 0 and 1.",
-          },
-          {
-            text: "Invert the prediction and diagnose the opposite.",
+            text: `No — you must convert all medical measurements to text strings first.`,
             isCorrect: false,
             errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Higher risk probabilities correspond to the positive class.",
+            rationale: `ML models work on numbers. Text would need to be encoded as numbers, not the other way around.`,
+          },
+          {
+            text: `Blood pressure cannot be used as a feature because it changes over time.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `A single snapshot measurement (e.g., today's blood pressure reading) can absolutely be used as a feature. The model learns from point-in-time measurements.`,
           },
         ],
       },
     ];
   }
 
-  // 2. Financial / Fraud / Churn / Risk / Default
+  // 2. Financial / Fraud / Risk / Default
   if (
     lower.includes("fraud") ||
-    lower.includes("churn") ||
     lower.includes("credit") ||
     lower.includes("loan") ||
     lower.includes("bank") ||
     lower.includes("default") ||
     lower.includes("finance")
   ) {
-    return [
+        return [
       {
         id: "diag-fin-1",
         targetConceptId: "problem-framing",
-        question: `For "${safeGoal}", what is the core machine learning task?`,
+        question: `You want to build "${safeGoal}". When a bank looks at a transaction and asks "Is this fraud or not?", what kind of answer are they looking for?`,
         options: [
           {
-            text: "Binary Classification (identifying positive event vs normal status)",
+            text: `A yes/no decision — either it IS suspicious (fraud/risk) or it is NOT. The model learns from thousands of past transactions with known outcomes.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Continuous Regression (predicting open-ended continuous quantities)",
+            text: `An exact dollar amount, like predicting the precise transaction total.`,
             isCorrect: false,
             errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Flagging events (fraud vs legitimate, churn vs retain) is a classification task.",
+            rationale: `Fraud detection is about categorizing a transaction (fraud vs legitimate) — not predicting a number. Predicting numbers is a different type of ML called regression.`,
           },
           {
-            text: "Unsupervised dimensionality reduction with no labels",
+            text: `The name and address of the fraudster.`,
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
-            rationale: "We use historical transaction records labeled with known outcomes.",
+            rationale: `ML models predict categories based on patterns in numerical features. They do not identify specific individuals.`,
           },
           {
-            text: "Heuristic hardcoded if-else statements",
+            text: `A random guess, since fraud is impossible to detect.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Machine learning learns statistical decision boundaries rather than hardcoded rules.",
+            rationale: `Fraud detection ML models achieve 95%+ accuracy on real datasets by learning patterns in transaction data.`,
           },
         ],
       },
       {
         id: "diag-fin-2",
         targetConceptId: "prior-probability",
-        question: `If 2 out of every 100 transactions are confirmed fraudulent, what is the base rate prior probability P(Fraud)?`,
+        question: `Out of 100 past transactions in your training data, only 2 were fraud. You train the model, and it predicts "not fraud" for EVERY new transaction. It gets 98% accuracy. Is this a good model?`,
         options: [
           {
-            text: "0.02 (2%)",
+            text: `No! It gets 98% by doing absolutely nothing — just always saying "safe". It would miss 100% of real fraud cases. Accuracy alone is a misleading metric here.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "0.50 (50% — equal likelihood)",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Fraud is heavily imbalanced: 2 / 100 = 0.02, not 50%.",
-          },
-          {
-            text: "0.98 (98%)",
-            isCorrect: false,
-            errorType: "CALCULATION_SLIP",
-            rationale: "98% is the probability of legitimate transactions.",
-          },
-          {
-            text: "0.00 (impossible to detect)",
+            text: `Yes — 98% accuracy is excellent, whatever the reason.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "A prior of 0 would prevent Bayesian updates from ever triggering.",
+            rationale: `A model that never flags fraud is useless for fraud detection, regardless of its accuracy number. This is why we also look at how many frauds it actually catches.`,
+          },
+          {
+            text: `It depends on the weather that day.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `ML model performance depends on training data and evaluation metrics — not external conditions like weather.`,
+          },
+          {
+            text: `Yes — if it gets 98% it correctly identified all 2 fraud cases.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `It got 98% by ignoring fraud entirely. 98 correct "safe" labels out of 100 = 98%, while missing both fraud cases.`,
           },
         ],
       },
       {
         id: "diag-fin-3",
         targetConceptId: "feature-engineering",
-        question: `Why must transaction attributes (amount, frequency, account age) be normalized before training a model?`,
+        question: `Your fraud model uses two features: transaction amount ($0–$50,000) and number of attempts (1–10). Why does the huge difference in scale matter?`,
         options: [
           {
-            text: "To prevent high-magnitude features (e.g. $10,000 transaction amount) from overpowering lower-magnitude indicators (e.g. 3 attempts).",
+            text: `The model might ignore "number of attempts" almost completely because $50,000 is a much bigger number than 10, even though both features matter equally. We need to rescale them to the same range.`,
             isCorrect: true,
             errorType: "NONE",
           },
           {
-            text: "Because Python lists cannot hold floating point numbers.",
-            isCorrect: false,
-            errorType: "TERMINOLOGY_CONFUSION",
-            rationale: "Feature scaling is a mathematical stability technique, not a language limitation.",
-          },
-          {
-            text: "To delete past transaction history.",
-            isCorrect: false,
-            errorType: "CONCEPTUAL_GAP",
-            rationale: "Scaling preserves information while balancing numerical variance.",
-          },
-          {
-            text: "Because all financial transactions are equal in value.",
+            text: `It does not matter — the model treats all numbers the same regardless of size.`,
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
-            rationale: "Transaction amounts vary across orders of magnitude.",
+            rationale: `Many ML algorithms are sensitive to the scale of features. A $50,000 difference dominates a 10-attempt difference in calculations, even if both are equally important signals.`,
+          },
+          {
+            text: `Python crashes if you mix large and small numbers in a list.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Python handles all sizes of numbers. The issue is mathematical: the model's internal calculations give unfair weight to larger-magnitude features.`,
+          },
+          {
+            text: `We should delete the smaller feature since it has smaller numbers.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Never delete features based on scale. Scale the features to a common range (like 0–1) so the model weighs them fairly.`,
           },
         ],
       },
     ];
   }
 
-  // 3. General / Custom Machine Learning Project (Grounded in their exact goal title!)
+  // 2.5 Customer Churn & Subscriber Retention
+  if (
+    lower.includes("customer churn") ||
+    lower.includes("subscriber churn") ||
+    lower.includes("customer retention") ||
+    lower.includes("attrition") ||
+    lower.includes("churn")
+  ) {
+    return [
+      {
+        id: "diag-churn-1",
+        targetConceptId: "problem-framing",
+        question: `You want to build "${safeGoal}". A subscription service wants to stop customers from canceling. Why predict who will cancel BEFORE they leave?`,
+        options: [
+          {
+            text: `So the company can step in with support, discounts, or bug fixes while the customer is still active — once they already left, it is too late.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `To automatically cancel their accounts before they can do it themselves.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `The goal is customer retention, not prematurely closing accounts.`,
+          },
+          {
+            text: `Because computers cannot store data about people who already canceled.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Databases can easily store past customer records. The reason to predict early is business intervention.`,
+          },
+          {
+            text: `Churn models only work on people who promise to never leave.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `The whole point is identifying at-risk users who are likely to leave.`,
+          },
+        ],
+      },
+      {
+        id: "diag-churn-2",
+        targetConceptId: "prior-probability",
+        question: `If only 4 out of 100 subscribers cancel each month, and a lazy model predicts "nobody cancels", it scores 96% accuracy. Why is this model useless?`,
+        options: [
+          {
+            text: `Because the entire business goal was to find the 4 people at risk of leaving! The model caught 0% of them, so 96% accuracy is completely deceptive.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `96% accuracy is fantastic — the company should deploy it immediately.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A churn model that never flags churners saves zero customers, regardless of accuracy.`,
+          },
+          {
+            text: `Because Python will crash when running on 96% accuracy.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Accuracy is just a statistical score. The issue is operational usefulness.`,
+          },
+          {
+            text: `Subscriptions cannot be modeled using machine learning.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Churn prediction is one of the most widely used and successful ML applications in business.`,
+          },
+        ],
+      },
+      {
+        id: "diag-churn-3",
+        targetConceptId: "feature-engineering",
+        question: `A subscriber's monthly bill just increased by $35, their weekly usage dropped by 70%, and they submitted 3 support tickets. How does the model use these clues?`,
+        options: [
+          {
+            text: `It combines all three measurements into a single risk score — multiple warning signs reinforce each other to predict a high churn probability.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `It picks only one feature at random and ignores the other two.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Machine learning models look at all input features simultaneously to discover multi-signal patterns.`,
+          },
+          {
+            text: `It waits for the customer to fill out an exit survey first.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Exit surveys happen after cancellation. ML predicts beforehand using behavioral signals.`,
+          },
+          {
+            text: `It deletes their support tickets to improve customer satisfaction.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Software models read data; they do not delete customer support records.`,
+          },
+        ],
+      },
+    ];
+  }
+
+  // 2.6 Recommender Systems (Movies, Music, Books, Products)
+  if (
+    lower.includes("recommend") ||
+    lower.includes("movie") ||
+    lower.includes("netflix") ||
+    lower.includes("spotify") ||
+    lower.includes("song") ||
+    lower.includes("book") ||
+    lower.includes("collaborative filtering")
+  ) {
+    return [
+      {
+        id: "diag-rec-1",
+        targetConceptId: "problem-framing",
+        question: `You want to build "${safeGoal}". How does a modern recommendation system (like Netflix or Spotify) know what you might like next?`,
+        options: [
+          {
+            text: `It compares your past ratings/choices with millions of other users who have similar taste, and recommends things they loved that you haven't seen yet.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `A human Netflix employee manually curates a custom list for every single subscriber every morning.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Manual curation doesn't scale to hundreds of millions of users. ML algorithms compute similarity automatically.`,
+          },
+          {
+            text: `It randomly shuffles the entire movie catalog every time you open the app.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Random shuffling offers zero personalization. Recommenders use learned taste patterns.`,
+          },
+          {
+            text: `It downloads your personal webcam footage to see what you look like.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Recommenders rely on interaction history (ratings, clicks, watch duration) — not camera biometrics.`,
+          },
+        ],
+      },
+      {
+        id: "diag-rec-2",
+        targetConceptId: "prior-probability",
+        question: `A catalog has 10,000 movies. An average user has only watched and rated 25 of them (meaning 99.7% of the ratings grid is blank). How do algorithms handle this "sparse" data?`,
+        options: [
+          {
+            text: `They look for overlapping ratings between users to find taste "neighborhoods", filling in the missing blanks with predicted rating scores.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `They delete all movies that haven't been watched by 100% of users.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Deleting unrated movies would erase almost the entire catalog. Collaborative filtering is built specifically for sparse tables.`,
+          },
+          {
+            text: `They force the user to watch all 10,000 movies before giving any recommendations.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `No user could watch 10,000 movies. The model must extrapolate from tiny samples of user activity.`,
+          },
+          {
+            text: `Python crashes if more than 50% of a table is empty.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Python and sparse matrix libraries handle 99%+ empty matrices efficiently.`,
+          },
+        ],
+      },
+      {
+        id: "diag-rec-3",
+        targetConceptId: "feature-engineering",
+        question: `Why can't a recommender simply show the top 10 most popular movies of all time to every single user on the homepage?`,
+        options: [
+          {
+            text: `Because everyone has different tastes — a fan of quiet indie dramas would be annoyed if they only ever saw generic superhero blockbusters.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Because popular movies are illegal to recommend twice.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `There is no legal restriction. The issue is personalization and user satisfaction.`,
+          },
+          {
+            text: `Popular movies have smaller file sizes so the server refuses to stream them.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `File size has nothing to do with recommendation quality.`,
+          },
+          {
+            text: `Top 10 lists work perfectly for 100% of users with no complaints.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A single global top 10 list fails to cater to niche genres and individual preferences.`,
+          },
+        ],
+      },
+    ];
+  }
+
+  // 2.7 Autonomous Driving & Vision Object / Obstacle Detection
+  if (
+    lower.includes("object detect") ||
+    lower.includes("pedestrian") ||
+    lower.includes("obstacle") ||
+    lower.includes("self-driving") ||
+    lower.includes("autonomous") ||
+    lower.includes("yolo") ||
+    lower.includes("bounding box") ||
+    lower.includes("traffic sign") ||
+    lower.includes("vehicle detect")
+  ) {
+    return [
+      {
+        id: "diag-obj-1",
+        targetConceptId: "problem-framing",
+        question: `You want to build "${safeGoal}". A camera on a car records 30 video frames per second. What must the vision model output for each frame?`,
+        options: [
+          {
+            text: `Both WHAT the objects are (car, pedestrian, cyclist) AND WHERE they are in the image (box coordinates: [x, y, width, height]).`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Just a single word saying whether the photo is pretty or ugly.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Driving safety requires detecting specific obstacles and their spatial coordinates in the road.`,
+          },
+          {
+            text: `It physically steers the wheel using mechanical arms inside the camera lens.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `The vision model is software that outputs detections. Vehicle control is handled downstream by path planning and steering controllers.`,
+          },
+          {
+            text: `It sends a text message to the manufacturer asking for advice.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Object detection runs locally in real time (milliseconds) on the vehicle's computer.`,
+          },
+        ],
+      },
+      {
+        id: "diag-obj-2",
+        targetConceptId: "prior-probability",
+        question: `On a clear highway, 99.9% of video frames show empty road with zero pedestrians. If a model simply predicts "no pedestrians" 100% of the time, it gets 99.9% accuracy. Why is this unacceptable?`,
+        options: [
+          {
+            text: `Because it would hit the one pedestrian who steps onto the road! In safety AI, catching rare danger events (Recall) is infinitely more important than raw accuracy.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `99.9% accuracy is safe enough for any road situation.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A car that never stops for pedestrians because they are rare is lethal. Imbalanced safety metrics require prioritizing recall.`,
+          },
+          {
+            text: `Because highway roads are actually 50% covered by pedestrians.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Pedestrians on highways are indeed rare, which is why class imbalance is a critical concept to master.`,
+          },
+          {
+            text: `Cars only drive in reverse if accuracy is above 99%.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Accuracy does not reverse mechanical transmission; it measures prediction quality.`,
+          },
+        ],
+      },
+      {
+        id: "diag-obj-3",
+        targetConceptId: "feature-engineering",
+        question: `How does an AI model measure whether its predicted bounding box around an obstacle is accurate compared to the human ground truth?`,
+        options: [
+          {
+            text: `By calculating how much the predicted box overlaps with the true box (Intersection over Union / IoU).`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `By counting how many vowels are in the word "obstacle".`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Box evaluation is spatial and geometric, not linguistic.`,
+          },
+          {
+            text: `It doesn't measure overlap — as long as any pixel matches, it gets 100%.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A single matching pixel is not enough; the bounding box must closely enclose the physical object.`,
+          },
+          {
+            text: `By asking other drivers on the road through their radios.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Evaluation is computed mathematically against annotated training datasets.`,
+          },
+        ],
+      },
+    ];
+  }
+
+  // 2.8 Cybersecurity & Network Threat / Intrusion Detection
+  if (
+    lower.includes("cyber") ||
+    lower.includes("intrusion") ||
+    lower.includes("ddos") ||
+    lower.includes("packet") ||
+    lower.includes("malware") ||
+    lower.includes("network attack") ||
+    lower.includes("firewall")
+  ) {
+    return [
+      {
+        id: "diag-cyber-1",
+        targetConceptId: "problem-framing",
+        question: `You want to build "${safeGoal}". Thousands of data packets hit a server every second. What is the ML model's job?`,
+        options: [
+          {
+            text: `Learn what normal traffic looks like (normal packet sizes, typical request rates) so it can instantly flag abnormal spikes or intrusion signatures.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Disconnect the company's internet whenever anyone visits a website.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `The goal is protecting legitimate business traffic, not shutting down operations.`,
+          },
+          {
+            text: `Identify the hacker's real legal name and home address from IP numbers.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `ML models classify traffic behavior (malicious vs benign); they do not magically reveal personal identities.`,
+          },
+          {
+            text: `Print every data packet on physical paper for human review.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Network traffic happens at gigabits per second — AI automation is required for sub-millisecond defense.`,
+          },
+        ],
+      },
+      {
+        id: "diag-cyber-2",
+        targetConceptId: "prior-probability",
+        question: `In 1,000,000 network packets, only 50 are malicious cyberattacks. A model predicts "normal traffic" for every packet and boasts 99.995% accuracy. Why is this dangerous?`,
+        options: [
+          {
+            text: `It let all 50 hackers right into the database! When attacks are rare, high accuracy is meaningless if the model misses 100% of real threats.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `99.995% accuracy proves the firewall is impregnable.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A firewall that never blocks anything is not secure. Tracking Recall on the attack class is mandatory.`,
+          },
+          {
+            text: `Because 50 attacks out of a million means the server was never attacked.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Even a single undetected intrusion can cause a catastrophic data breach.`,
+          },
+          {
+            text: `Packets cannot be counted using numbers.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Packets are discrete digital units counted and inspected continuously.`,
+          },
+        ],
+      },
+      {
+        id: "diag-cyber-3",
+        targetConceptId: "feature-engineering",
+        question: `Your intrusion model examines packet size (up to 1,500 bytes) and failed password attempts (0 to 5). Why does rescaling both features to a common range matter?`,
+        options: [
+          {
+            text: `Because 1,500 is much larger than 5, the model might fixate on packet size and almost ignore the vital signal of repeated failed passwords.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `It does not matter — models always treat all numbers with equal fairness regardless of size.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Numerical magnitude directly influences weights in many algorithms. Feature scaling levels the playing field.`,
+          },
+          {
+            text: `Python crashes when numbers larger than 100 are used in machine learning.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Python handles arbitrarily large numbers. The constraint is mathematical weighting in optimization algorithms.`,
+          },
+          {
+            text: `We should delete failed password attempts because it has smaller numbers.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Failed password attempts is a critical security signal. Always scale, never discard valuable signals.`,
+          },
+        ],
+      },
+    ];
+  }
+
+  // 2.9 Fake News & Misinformation Detection (NLP)
+  if (
+    lower.includes("fake news") ||
+    lower.includes("misinformation") ||
+    lower.includes("clickbait") ||
+    lower.includes("fact check") ||
+    lower.includes("rumor") ||
+    lower.includes("disinformation")
+  ) {
+    return [
+      {
+        id: "diag-fake-1",
+        targetConceptId: "problem-framing",
+        question: `You want to build "${safeGoal}". How can machine learning evaluate whether an article might be misleading or fake?`,
+        options: [
+          {
+            text: `By analyzing stylistic patterns (like emotional sensationalism, ALL CAPS, excessive punctuation, unverified claims) learned from thousands of labeled real vs fake articles.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `By sending an undercover detective to interview the author.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `ML runs automated statistical text analysis; it does not perform physical investigative reporting.`,
+          },
+          {
+            text: `By deleting every article that disagrees with the programmer's opinion.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `A scientific model learns objective credibility indicators from diverse training data, not personal bias.`,
+          },
+          {
+            text: `Machine learning cannot analyze text because text has no pixels.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `NLP (Natural Language Processing) is one of the largest branches of AI, converting words into numerical features.`,
+          },
+        ],
+      },
+      {
+        id: "diag-fake-2",
+        targetConceptId: "feature-engineering",
+        question: `Computers can only do maths on numbers, not English sentences. How does an AI read a headline like "SHOCKING TRUTH REVEALED!!!"?`,
+        options: [
+          {
+            text: `We convert text into numbers — like counting sensational words, measuring the percentage of CAPITAL letters, and calculating word frequencies (TF-IDF).`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `The computer translates the headline into French before processing.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `French is still human text. All text must be vectorized into numbers for machine learning.`,
+          },
+          {
+            text: `Computers have a human brain inside that understands words directly.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Computers only perform arithmetic on numerical vectors.`,
+          },
+          {
+            text: `Headlines are automatically discarded and never used in fake news models.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Headlines are one of the strongest signals for clickbait and sensationalism.`,
+          },
+        ],
+      },
+      {
+        id: "diag-fake-3",
+        targetConceptId: "decision-boundary",
+        question: `If your model was trained ONLY on news articles from 2020, what will happen when you ask it to check breaking 2026 news?`,
+        options: [
+          {
+            text: `It might struggle because it memorized specific 2020 names and events, rather than learning timeless stylistic patterns of unverified writing.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `It will be 100% accurate because news never changes.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Language, names, and topics evolve constantly. Models must generalize to new topics without overfitting to old entities.`,
+          },
+          {
+            text: `Python refuses to run on articles published in a different calendar year.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Python will run without error, but the predictions will suffer from temporal domain shift.`,
+          },
+          {
+            text: `The model automatically travels forward in time to read the 2026 internet.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Models only know what was in their training dataset unless explicitly retrained.`,
+          },
+        ],
+      },
+    ];
+  }
+
+  // 2.10 Audio / Speech / Voice Recognition
+  if (
+    lower.includes("audio") ||
+    lower.includes("speech") ||
+    lower.includes("voice") ||
+    lower.includes("sound") ||
+    lower.includes("acoustic") ||
+    lower.includes("speaker")
+  ) {
+    return [
+      {
+        id: "diag-audio-1",
+        targetConceptId: "problem-framing",
+        question: `You want to build "${safeGoal}". When someone speaks into a microphone, it records sound vibrations in the air. How does an AI recognize spoken words?`,
+        options: [
+          {
+            text: `It breaks the sound wave into frequency patterns over time (acoustic fingerprints called spectrograms) and matches them to phonemes and words.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `A tiny person inside the smart speaker writes down what it hears.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Audio recognition is powered by statistical signal processing and deep neural networks.`,
+          },
+          {
+            text: `Microphones only record text, not sound waves.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Microphones convert physical air pressure waves into continuous electrical signals (sound waves).`,
+          },
+          {
+            text: `It guesses based solely on the color of the microphone.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Audio classification depends on acoustic frequency spectra, not physical hardware color.`,
+          },
+        ],
+      },
+      {
+        id: "diag-audio-2",
+        targetConceptId: "feature-engineering",
+        question: `A 1-second audio file contains 44,100 raw pressure samples. Why do we extract features (like pitch and energy) instead of feeding raw wave points directly?`,
+        options: [
+          {
+            text: `Raw waves are chaotic and change drastically if someone speaks slightly louder. Acoustic features extract the stable frequency pattern that actually defines the word.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Because 44,100 numbers is too large for any computer to store.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Computers easily store millions of numbers. The challenge is extracting informative signals from raw noise.`,
+          },
+          {
+            text: `Sound waves cannot be represented with numbers.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Digital audio is fundamentally a stream of numerical amplitude samples.`,
+          },
+          {
+            text: `Raw waves are always identical for every person who speaks.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Raw waveforms vary wildly between speakers, microphones, and room acoustics.`,
+          },
+        ],
+      },
+      {
+        id: "diag-audio-3",
+        targetConceptId: "decision-boundary",
+        question: `Your voice recognition model works with 99% accuracy in your quiet bedroom, but fails completely inside a moving car. Why?`,
+        options: [
+          {
+            text: `It overfit to clean silence! In a car, engine rumble and wind noise mix into the frequencies, confusing a model that was never trained with background noise.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Cars block all microphone signals from entering software.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Microphones in cars work fine; the issue is background noise distribution shift.`,
+          },
+          {
+            text: `Human voices sound completely backwards when traveling in vehicles.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Vehicle velocity does not invert human voice frequencies.`,
+          },
+          {
+            text: `99% accuracy in one room guarantees 99% accuracy anywhere in the universe.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Models only generalize to acoustic environments that resemble their training data distribution.`,
+          },
+        ],
+      },
+    ];
+  }
+
+  // 3. General / Custom Machine Learning Project — beginner-friendly, zero jargon first
   return [
     {
       id: "diag-custom-1",
       targetConceptId: "problem-framing",
-      question: `When building "${safeGoal}", what is the primary role of problem formulation?`,
+      question: `You want to build "${safeGoal}". Think of it like teaching a child to recognise patterns. Which best describes what the computer will do?`,
       options: [
         {
-          text: `Defining the observable input features (X) and the target outcome (Y) the model is learning to predict.`,
+          text: `Look at many past examples and learn a pattern, so it can make a prediction on NEW data it has never seen before.`,
           isCorrect: true,
           errorType: "NONE",
         },
         {
-          text: `Writing a 50-page documentation manual before touching any data.`,
-          isCorrect: false,
-          errorType: "TERMINOLOGY_CONFUSION",
-          rationale: "Problem formulation establishes the mathematical data contract between inputs and targets.",
-        },
-        {
-          text: `Feeding the target answer directly into the input features.`,
+          text: `A human programmer manually writes an if/else rule for every possible situation.`,
           isCorrect: false,
           errorType: "CONCEPTUAL_GAP",
-          rationale: "Including the target in the inputs causes target leakage, breaking real-world generalization.",
+          rationale: `If you wrote a rule for every situation you'd need millions of rules. ML learns the pattern automatically from examples.`,
         },
         {
-          text: `Assuming machine learning models read human thoughts automatically.`,
+          text: `The computer searches Google and copy-pastes the answer.`,
           isCorrect: false,
           errorType: "OVERCONFIDENT_MISCONCEPTION",
-          rationale: "Models only operate on explicitly defined numerical feature vectors.",
+          rationale: `ML models learn from historical data you provide — they don't browse the internet.`,
+        },
+        {
+          text: `The programmer tells the computer the exact answer to every possible question in advance.`,
+          isCorrect: false,
+          errorType: "CONCEPTUAL_GAP",
+          rationale: `That is a lookup table, not learning. ML models discover patterns from examples.`,
         },
       ],
     },
     {
       id: "diag-custom-2",
-      targetConceptId: "prior-probability",
-      question: `In a dataset of 100 historical examples for "${safeGoal}", if 20 belong to the target class, what is the empirical prior probability P(Target)?`,
+      targetConceptId: "feature-engineering",
+      question: `For "${safeGoal}", you describe each historical example as a row of numbers — like [30, 88, 1005] for one day's temperature, humidity, and pressure. Why numbers instead of words like "hot" or "humid"?`,
       options: [
         {
-          text: "0.20 (20%)",
+          text: `Computers do maths — they can add, multiply, and compare numbers. They cannot do maths on words. Numbers let the model calculate patterns.`,
           isCorrect: true,
           errorType: "NONE",
         },
         {
-          text: "0.50 (50% — assuming balanced coin flip)",
+          text: `Because Python crashes if you use strings inside a list.`,
+          isCorrect: false,
+          errorType: "TERMINOLOGY_CONFUSION",
+          rationale: `Python handles strings fine. ML algorithms need numbers to run mathematical operations.`,
+        },
+        {
+          text: `Because numbers take less storage space on disk.`,
           isCorrect: false,
           errorType: "CONCEPTUAL_GAP",
-          rationale: "Prior probability reflects historical frequency: 20 / 100 = 0.20.",
+          rationale: `Storage is not the reason. ML training needs numerical values to compute patterns.`,
         },
         {
-          text: "0.80 (80%)",
-          isCorrect: false,
-          errorType: "CALCULATION_SLIP",
-          rationale: "80% represents the non-target class proportion.",
-        },
-        {
-          text: "1.00 (100%)",
+          text: `There is no reason — words would work equally well.`,
           isCorrect: false,
           errorType: "OVERCONFIDENT_MISCONCEPTION",
-          rationale: "A prior of 1.0 means every sample is unconditionally positive.",
+          rationale: `You cannot multiply or find gradients in plain text. ML requires numerical inputs.`,
         },
       ],
     },
     {
       id: "diag-custom-3",
-      targetConceptId: "feature-engineering",
-      question: `Why do we transform raw real-world data into scaled numerical vectors before training "${safeGoal}"?`,
-      options: [
-        {
-          text: "Optimization algorithms and gradient updates require pure numerical floats on comparable scales.",
-          isCorrect: true,
-          errorType: "NONE",
-        },
-        {
-          text: "Because modern computers cannot store text strings.",
-          isCorrect: false,
-          errorType: "TERMINOLOGY_CONFUSION",
-          rationale: "Computers store strings easily, but calculus optimization operates on numerical matrices.",
-        },
-        {
-          text: "To delete ground truth labels from the dataset.",
-          isCorrect: false,
-          errorType: "CONCEPTUAL_GAP",
-          rationale: "Feature vectors represent inputs (X); labels (Y) remain separate for supervised training.",
-        },
-        {
-          text: "To make code execute in reverse order.",
-          isCorrect: false,
-          errorType: "OVERCONFIDENT_MISCONCEPTION",
-          rationale: "Vectorization prepares clean numeric matrices for matrix operations.",
-        },
-      ],
-    },
-    {
-      id: "diag-custom-4",
       targetConceptId: "decision-boundary",
-      question: `When the model for "${safeGoal}" outputs a decision score of 0.78 and the decision threshold is 0.50, what is the predicted outcome?`,
+      question: `You train your model on 100 examples and then test it on those SAME 100 examples — it scores 100% accuracy. Is your model actually good?`,
       options: [
         {
-          text: "Classified as Positive / Target because 0.78 is greater than or equal to the 0.50 threshold.",
+          text: `No — the model may have just memorised those 100 examples, like a student who memorised exam answers. It could fail completely on new unseen data.`,
           isCorrect: true,
           errorType: "NONE",
         },
         {
-          text: "Classified as Negative because it did not reach 1.00.",
+          text: `Yes — 100% accuracy always means a perfect model.`,
           isCorrect: false,
           errorType: "OVERCONFIDENT_MISCONCEPTION",
-          rationale: "Standard decision rules trigger whenever predicted probability reaches or exceeds the threshold.",
+          rationale: `Testing on training data is meaningless. The model already saw those examples — it is like re-taking an exam you were given the answer sheet for.`,
         },
         {
-          text: "The model halts execution with an error.",
-          isCorrect: false,
-          errorType: "CONCEPTUAL_GAP",
-          rationale: "A score of 0.78 is a valid probability output.",
-        },
-        {
-          text: "The threshold is increased to 0.78 automatically.",
+          text: `sklearn will throw an error if you evaluate on training data.`,
           isCorrect: false,
           errorType: "TERMINOLOGY_CONFUSION",
-          rationale: "The decision threshold is set prior to inference to partition the feature space.",
+          rationale: `sklearn will not error — but the score is misleadingly inflated.`,
+        },
+        {
+          text: `The model deletes training data after learning, making the test invalid.`,
+          isCorrect: false,
+          errorType: "CONCEPTUAL_GAP",
+          rationale: `Models never delete data. The problem is evaluating on examples the model already memorised.`,
         },
       ],
     },
@@ -1596,7 +2127,7 @@ print("Assertion Passed: Full plant disease inference pipeline verified!")
     ];
   }
 
-  // Medical / Health / Disease / Clinical
+  // Medical / Health / Disease / clinical — domain-aware, goal-specific
   if (
     !isPlantOrAgri &&
     (lower.includes("diabet") ||
@@ -1609,812 +2140,1073 @@ print("Assertion Passed: Full plant disease inference pipeline verified!")
       lower.includes("heart") ||
       lower.includes("tumor") ||
       lower.includes("glucose") ||
+      lower.includes("blood pressure") ||
+      lower.includes("hypertension") ||
       (lower.includes("diagnosis") && !isPlantOrAgri))
   ) {
+    // Detect specific medical sub-domain
+    const isHeartRate =
+      lower.includes("heart rate") ||
+      lower.includes("bpm") ||
+      lower.includes("pulse") ||
+      lower.includes("resting heart") ||
+      lower.includes("cardiac rate");
+
+    const isHeartDisease =
+      !isHeartRate &&
+      (lower.includes("heart disease") ||
+        lower.includes("heart attack") ||
+        lower.includes("coronary") ||
+        lower.includes("cardiovascular") ||
+        lower.includes("myocardial"));
+
+    const isDiabetes =
+      lower.includes("diabet") ||
+      lower.includes("glucose") ||
+      lower.includes("insulin") ||
+      lower.includes("blood sugar");
+
+    const isCancer =
+      lower.includes("cancer") ||
+      lower.includes("tumor") ||
+      lower.includes("malignant") ||
+      lower.includes("biopsy");
+
+    const isBloodPressure =
+      lower.includes("blood pressure") ||
+      lower.includes("hypertension") ||
+      lower.includes("systolic") ||
+      lower.includes("bp prediction");
+
+    let medFeatures: string[];
+    let medTarget: string;
+    let medTaskType: string;
+    let medSampleRows: string;
+    let medSklearnModel: string;
+    let medTestSamples: string;
+    let medPredictVarName: string;
+
+    if (isHeartRate) {
+      medFeatures = ["age", "weight_kg", "height_cm", "activity_level", "sleep_hours", "stress_score"];
+      medTarget = "resting_heart_rate_bpm";
+      medTaskType = "regression";
+      medSampleRows = `# [age, weight_kg, height_cm, activity(1-5), sleep_hrs, stress(1-10)] -> resting_hr_bpm
+X_train = [
+    [25, 70,  175, 4, 7.5, 3],
+    [45, 90,  170, 2, 6.0, 7],
+    [30, 65,  168, 5, 8.0, 2],
+    [55, 100, 165, 1, 5.5, 9],
+    [35, 75,  180, 3, 7.0, 5],
+    [22, 58,  162, 5, 8.5, 2],
+]
+y_train = [62, 85, 58, 92, 72, 55]  # resting BPM`;
+      medSklearnModel = `from sklearn.ensemble import GradientBoostingRegressor
+model = GradientBoostingRegressor(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+      medTestSamples = `new_patients = [
+    [40, 80, 172, 3, 6.5, 6],
+    [28, 62, 170, 5, 8.0, 2],
+]`;
+      medPredictVarName = "new_patients";
+    } else if (isDiabetes) {
+      medFeatures = ["glucose_mg_dl", "bmi", "age", "blood_pressure_mmhg", "insulin_mu_ml", "skin_thickness_mm"];
+      medTarget = "diabetes_positive";
+      medTaskType = "classification";
+      medSampleRows = `# [glucose, bmi, age, blood_pressure, insulin, skin_thickness] -> diabetes(0=No,1=Yes)
+X_train = [
+    [150, 32.0, 50, 88, 180, 35],
+    [85,  20.0, 25, 70,  30, 20],
+    [165, 35.5, 58, 92, 220, 40],
+    [90,  22.5, 30, 72,  40, 22],
+    [140, 30.0, 45, 85, 160, 33],
+    [75,  19.0, 22, 68,  25, 18],
+]
+y_train = [1, 0, 1, 0, 1, 0]  # 1=Diabetic, 0=Non-diabetic`;
+      medSklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+      medTestSamples = `new_patients = [
+    [155, 33.0, 52, 90, 190, 36],
+    [88,  21.0, 27, 71,  35, 21],
+]`;
+      medPredictVarName = "new_patients";
+    } else if (isHeartDisease) {
+      medFeatures = ["age", "cholesterol_mg_dl", "resting_bp_mmhg", "max_heart_rate", "oldpeak_st", "num_vessels"];
+      medTarget = "heart_disease_positive";
+      medTaskType = "classification";
+      medSampleRows = `# [age, cholesterol, resting_bp, max_hr, oldpeak, vessels] -> heart_disease(0=No,1=Yes)
+X_train = [
+    [63, 233, 145, 150, 2.3, 0],
+    [37, 250, 130, 187, 3.5, 0],
+    [41, 204, 130, 172, 1.4, 0],
+    [56, 236, 120, 178, 0.8, 0],
+    [57, 354, 140, 163, 0.6, 0],
+    [57, 192, 148, 148, 0.4, 1],
+]
+y_train = [0, 1, 0, 0, 1, 1]  # 1=Heart disease present`;
+      medSklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+      medTestSamples = `new_patients = [
+    [55, 280, 138, 155, 1.5, 1],
+    [40, 195, 125, 180, 0.5, 0],
+]`;
+      medPredictVarName = "new_patients";
+    } else if (isCancer) {
+      medFeatures = ["radius_mean", "texture_mean", "perimeter_mean", "area_mean", "smoothness_mean", "compactness_mean"];
+      medTarget = "malignant";
+      medTaskType = "classification";
+      medSampleRows = `# Tumour cell measurements -> malignant(0=Benign,1=Malignant)
+X_train = [
+    [17.99, 10.38, 122.8, 1001.0, 0.118, 0.278],
+    [13.54, 14.36,  87.5,  566.3, 0.098, 0.105],
+    [20.57, 17.77, 132.9, 1326.0, 0.085, 0.079],
+    [11.42, 20.38,  77.6,  386.1, 0.142, 0.284],
+    [15.22, 30.62, 103.4,  716.9, 0.105, 0.208],
+    [12.46, 24.04,  83.97, 475.9, 0.119, 0.240],
+]
+y_train = [1, 0, 1, 1, 1, 0]  # 1=Malignant, 0=Benign`;
+      medSklearnModel = `from sklearn.svm import SVC
+model = SVC(kernel='rbf', random_state=42)
+model.fit(X_train, y_train)`;
+      medTestSamples = `new_tumours = [
+    [18.5, 12.0, 118.0,  950.0, 0.110, 0.260],
+    [12.0, 15.0,  80.0,  430.0, 0.092, 0.095],
+]`;
+      medPredictVarName = "new_tumours";
+    } else if (isBloodPressure) {
+      medFeatures = ["age", "weight_kg", "bmi", "sodium_intake_mg", "activity_hrs_per_wk", "stress_score"];
+      medTarget = "systolic_bp_mmhg";
+      medTaskType = "regression";
+      medSampleRows = `# [age, weight_kg, bmi, sodium_mg, activity_hrs, stress(1-10)] -> systolic_bp
+X_train = [
+    [35, 70, 22.0, 1800, 5, 3],
+    [55, 95, 31.0, 3200, 1, 8],
+    [45, 80, 26.5, 2400, 3, 5],
+    [28, 60, 19.8, 1500, 6, 2],
+    [65, 100, 34.0, 3500, 0, 9],
+    [40, 75, 24.2, 2100, 4, 4],
+]
+y_train = [115, 155, 132, 108, 168, 122]  # systolic blood pressure (mmHg)`;
+      medSklearnModel = `from sklearn.linear_model import Ridge
+model = Ridge(alpha=1.0)
+model.fit(X_train, y_train)`;
+      medTestSamples = `new_patients = [
+    [50, 88, 28.5, 2800, 2, 7],
+    [32, 65, 21.0, 1700, 5, 3],
+]`;
+      medPredictVarName = "new_patients";
+    } else {
+      medFeatures = ["age", "bmi", "systolic_bp", "cholesterol_mg_dl", "activity_score"];
+      medTarget = "health_risk_level";
+      medTaskType = "classification";
+      medSampleRows = `# [age, bmi, systolic_bp, cholesterol, activity(1-5)] -> health_risk(0=Low,1=High)
+X_train = [
+    [35, 22.0, 115, 180, 4],
+    [58, 33.0, 155, 260, 1],
+    [42, 26.5, 128, 200, 3],
+    [29, 19.8, 108, 160, 5],
+    [65, 35.0, 165, 285, 0],
+    [47, 24.0, 122, 195, 3],
+]
+y_train = [0, 1, 0, 0, 1, 0]  # 1=High risk, 0=Low risk`;
+      medSklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+      medTestSamples = `new_patients = [
+    [55, 30.0, 148, 240, 1],
+    [30, 21.5, 112, 170, 4],
+]`;
+      medPredictVarName = "new_patients";
+    }
+
+    const medFeaturesStr = JSON.stringify(medFeatures);
+    const medFeaturesComment = medFeatures.map((f, i) => `# ${i}: ${f}`).join("\n");
+    const isRegression = medTaskType === "regression";
+
     return [
       {
         id: "problem-framing",
-        title: `Clinical Problem Formulation: ${safeGoal}`,
+        title: `Define the Problem: ${safeGoal}`,
         prereqs: [],
         difficulty: 1,
-        hook: `Before predicting health outcomes for ${safeGoal}, what clinical features are measured, and what diagnostic category are we predicting?`,
-        explanationSummary: `Medical machine learning defines an explicit contract: observable clinical vitals (glucose, blood pressure, BMI, age) serve as inputs (X), and the clinical diagnosis (positive or negative) serves as the target outcome (Y).`,
-        corePrinciple: `Supervised classification learns a mathematical mapping f(patient_vitals) -> diagnostic_outcome. Target variables must never leak into the input features.`,
-        whyItMatters: `Defining clear input/output contracts prevents target leakage, where future diagnostic test results contaminate training data and cause models to fail catastrophically in clinical deployment.`,
-        buildStep: `Define the clinical problem specification dictionary with target diagnosis and observed patient vital features.`,
-        starterCode: `# Step 1: Clinical Problem Contract for ${safeGoal}
-# Fill in the blanks:
-# 1. Specify task type: "classification" or "regression"
-# 2. List the clinical vital signs observed by doctors
-# 3. State the target outcome variable to predict
+        hook: `Before writing ANY code: what data goes IN to the model, and what does it predict? For "${safeGoal}", the model reads measurements that you already know, and predicts something you want to find out.`,
+        explanationSummary: `Think of training a model like teaching a new employee. You show them 100 past examples: "On THIS day the readings were [${medFeatures.slice(0,2).join(", ")}, ...] — and the known result was ${medTarget}." After 100 examples they learn the pattern. That is machine learning.\n\nKEY TERMS (no jargon):\n• FEATURE = a measurement you already have (INPUT to the model)\n• TARGET = the thing you want to predict (OUTPUT of the model)\n\nFor ${safeGoal}: Features = [${medFeatures.slice(0,2).join(", ")}, ...]. Target = ${medTarget}.`,
+        corePrinciple: `🎓 Plain English: Features are facts you ALREADY KNOW. Target is the unknown thing you want to FIND OUT. Like a doctor who already knows your age, weight, and test results (features) and needs to predict your diagnosis (target).`,
+        whyItMatters: `The most common beginner mistake: accidentally including the target in the feature list. Example: if "will_rain_tomorrow" is inside your weather features, the model reads the answer directly and learns nothing. This is called target leakage and is dangerous because the model fails completely on real new data.`,
+        buildStep: `Write the data contract: list exact input features and target for ${safeGoal}.`,
+        starterCode: `# Step 1: Data Contract for ${safeGoal}
+# Real input features:
+${medFeaturesComment}
+# Target: ${medTarget}
 
-def define_clinical_spec():
+def define_project_spec():
     return {
         "project": "${safeGoal}",
-        "task_type": ___,               # TODO: "classification" or "regression"
-        "patient_vitals": [___],        # TODO: list strings, e.g. "glucose_mg_dl", "blood_pressure", "bmi", "age"
-        "target_diagnosis": ___         # TODO: what single condition is being predicted?
+        "task_type": ___,     # TODO: "${medTaskType}"
+        "features": ___,      # TODO: ${medFeaturesStr}
+        "target": ___         # TODO: "${medTarget}"
     }
 
-print("Clinical Spec:", define_clinical_spec())
+print("Spec:", define_project_spec())
 `,
-        solutionCode: `def define_clinical_spec():
+        solutionCode: `def define_project_spec():
     return {
         "project": "${safeGoal}",
-        "task_type": "classification",
-        "patient_vitals": ["glucose_mg_dl", "blood_pressure", "bmi", "age"],
-        "target_diagnosis": "diabetes_positive"
+        "task_type": "${medTaskType}",
+        "features": ${medFeaturesStr},
+        "target": "${medTarget}"
     }
 
-print("Clinical Spec:", define_clinical_spec())
+print("Spec:", define_project_spec())
 `,
-        testAssertion: `spec = define_clinical_spec()
-assert isinstance(spec, dict), "define_clinical_spec() must return a dictionary"
-task_type = str(spec.get("task_type", "")).lower().strip()
-assert task_type != "___" and task_type != "", "Blank 'task_type' is not filled in yet. Choose 'classification' or 'regression'."
-assert task_type == "classification", f"Disease diagnosis is a 'classification' task, got '{task_type}'"
-vitals = spec.get("patient_vitals", [])
-assert isinstance(vitals, list), "'patient_vitals' must be a list of vital names"
-assert len(vitals) > 0 and vitals != ["___"], "Blank 'patient_vitals' is not filled in yet."
-target = str(spec.get("target_diagnosis", "")).lower().strip()
-assert target != "___" and target != "", "Blank 'target_diagnosis' is not filled in yet."
-assert target not in [str(x).lower() for x in vitals], "TARGET_LEAKAGE: Target diagnosis cannot be in the patient_vitals list!"
-print("Assertion Passed: Clinical specification contract verified!")
+        testAssertion: `spec = define_project_spec()
+assert isinstance(spec, dict)
+task = str(spec.get("task_type", "")).lower()
+assert task in ["classification", "regression"], f"Got '{task}'"
+features = spec.get("features", [])
+assert isinstance(features, list) and len(features) >= 2
+target = str(spec.get("target", "")).strip()
+assert target and target != "___"
+assert target not in [str(f).lower() for f in features], "TARGET LEAKAGE!"
+print("✅ Data contract verified for ${safeGoal}")
 `,
         predictQuestion: {
-          prompt: `For ${safeGoal}, why must the 'target_diagnosis' be excluded from the 'patient_vitals' input list?`,
+          prompt: `For "${safeGoal}", which correctly identifies features vs target?`,
           options: [
-            "Including the target in the inputs creates data leakage, giving the model the answer during training but failing on new patients.",
-            "Python throws a syntax error if any string appears twice.",
-            "Medical datasets can only store numerical values, never names.",
-            "Diagnostic models can only process one feature at a time.",
+            `features = [${medFeatures.slice(0,2).join(", ")}, ...] (inputs we measure). target = ${medTarget} (what we predict).`,
+            `features = ${medTarget}. target = the model weights.`,
+            `features and target are the same.`,
+            `target = number of training rows.`,
           ],
           correctIndex: 0,
-          explanation: "If the target is in the inputs, the model simply memorizes the target directly (leakage) and learns nothing about predictive clinical vitals.",
+          explanation: `Features are measured inputs. Target is the single output the model learns to predict. They must never overlap.`,
         },
         checkQuestion: {
-          prompt: `In machine learning for healthcare, what distinguishes classification from regression?`,
+          prompt: `Why would including "${medTarget}" in the feature list break the model?`,
           options: [
-            "Classification predicts discrete diagnostic categories (e.g. Positive vs Negative), while regression predicts continuous numerical quantities.",
-            "Classification is only for images, regression is only for text.",
-            "Regression is always more accurate than classification.",
-            "Classification requires no training data.",
+            `Target leakage "” the model memorises the answer during training and fails on real data where that answer is unknown.`,
+            `Python raises SyntaxError on duplicate keys.`,
+            `sklearn cannot handle more than 5 features.`,
+            `It would make training faster.`,
           ],
           correctIndex: 0,
-          explanation: "Disease diagnosis categorizes patients into discrete condition classes (Binary or Multiclass Classification).",
+          explanation: `At prediction time you don't HAVE the target "” that's what you're finding out. Leaking it creates a model that cheats and is worthless in production.`,
         },
       },
       {
         id: "feature-engineering",
-        title: "Clinical Feature Normalization & Scaling",
+        title: `Build the Training Dataset: ${safeGoal}`,
         prereqs: ["problem-framing"],
         difficulty: 2,
-        hook: `Blood glucose ranges from 70–200 mg/dL while patient age ranges from 20–80. Why must we scale these features before training our model?`,
-        explanationSummary: `When numerical features have widely differing scales, optimization algorithms update weights unevenly. Min-max normalization transforms raw clinical measurements onto a standardized [0.0, 1.0] scale using the formula: (x - min) / (max - min).`,
-        corePrinciple: `Scaled Value = (Value - Min) / (Max - Min). Features on equal footing allow gradient descent to converge smoothly.`,
-        whyItMatters: `Without scaling, features with large numbers (like glucose or platelet counts) dominate distance metrics and gradient calculations, blinding the model to vital indicators with smaller numerical ranges (like BMI or HbA1c).`,
-        buildStep: `Implement min-max scaling to transform raw clinical patient measurements into a normalized [0.0, 1.0] range.`,
-        starterCode: `# Step 2: Clinical Feature Scaling
-# Formula: normalized = (value - min_val) / (max_val - min_val)
+        hook: `A model learns from EXAMPLES, not rules. We need to give it a table of past examples in a format Python understands. Each row = one past observation. Let's build that table now.`,
+        explanationSummary: `Imagine a spreadsheet:\n• Each ROW = one historical observation (one past event)\n• Each COLUMN = one feature value (one measurement)\n• There's also a "correct answer" column\n\nIn Python, we split this into TWO variables:\n• X_train = the feature columns (a list of lists — each inner list is one row)\n• y_train = the correct answers (a plain list, one answer per row)\n\nFor ${safeGoal}: each row in X_train has [${medFeatures.join(", ")}] and the matching y_train value = the known ${medTarget}.`,
+        corePrinciple: `🎓 Think of X_train as EXAM QUESTIONS and y_train as the ANSWER KEY. During training the model reads both together to learn the pattern. After training, you give it only new questions (new rows) and it predicts the answers.`,
+        whyItMatters: `Without training data you'd have to manually guess every weight in a formula — and those guesses are almost always wrong. A model trained on real examples discovers the true statistical relationship automatically.`,
+        buildStep: `Create X_train (list of lists, where each inner list = one example's values) and y_train (list of correct answers) for ${safeGoal}.`,
+        starterCode: `# ══════════════════════════════════════════════════════════
+# STEP 2: Build the Training Dataset
+# ══════════════════════════════════════════════════════════
+#
+# X_train = a list of lists (like a spreadsheet)
+#   Each inner list [ , , , ] = ONE past example (one row)
+#   Column order: ${medFeatures.join(" | ")}
+#
+# y_train = the correct answers
+#   One answer per row in X_train
 
-def normalize_vital(value: float, min_val: float, max_val: float) -> float:
-    # Fill in the blanks:
-    # 1. Compute the range (max_val - min_val)
-    # 2. Divide the offset (value - min_val) by the range
-    vital_range = ___                           # TODO: max_val - min_val
-    normalized = ___                            # TODO: (value - min_val) / vital_range
-    return round(normalized, 4)
+${medSampleRows}
 
-# Test with glucose: value=135 mg/dL, normal range [70, 200]
-print("Normalized Glucose:", normalize_vital(135.0, 70.0, 200.0))
+# Explore what we built:
+print(f"Number of training examples (rows): {len(X_train)}")
+print(f"Number of features per example (columns): {len(X_train[0])}")
+print(f"Feature names: ${medFeatures.join(', ')}")
+print(f"First example values: {X_train[0]}")
+print(f"Correct answer for first example: {y_train[0]}")
+
+# ✏ TODO: Add 2 more rows to X_train and y_train
+# Keep the same column order: ${medFeatures.join(', ')}
 `,
-        solutionCode: `def normalize_vital(value: float, min_val: float, max_val: float) -> float:
-    vital_range = max_val - min_val
-    normalized = (value - min_val) / vital_range
-    return round(normalized, 4)
+        solutionCode: `${medSampleRows}
 
-print("Normalized Glucose:", normalize_vital(135.0, 70.0, 200.0))
+print(f"Dataset: {len(X_train)} rows x {len(X_train[0])} features")
+print(f"Features: ${medFeatures.join(', ')}")
+print(f"Target  ({medTarget}): {y_train}")
 `,
-        testAssertion: `res = normalize_vital(135.0, 70.0, 200.0)
-assert res == 0.5, f"Expected 0.5 for glucose 135 in range [70, 200], got {res}"
-res_low = normalize_vital(70.0, 70.0, 200.0)
-assert res_low == 0.0, f"Expected 0.0 for min value, got {res_low}"
-res_high = normalize_vital(200.0, 70.0, 200.0)
-assert res_high == 1.0, f"Expected 1.0 for max value, got {res_high}"
-print("Assertion Passed: Clinical vital scaling operational!")
+        testAssertion: `assert len(X_train) >= 4, f"Need >= 4 rows, got {len(X_train)}"
+assert all(len(r) == ${medFeatures.length} for r in X_train), "Each row must have ${medFeatures.length} features: ${medFeatures.join(', ')}"
+assert len(X_train) == len(y_train), "X_train and y_train must be same length"
+print(f"✅ {len(X_train)} training examples, ${medFeatures.length} real features each")
 `,
         predictQuestion: {
-          prompt: "If a patient's fasting blood glucose is 200 mg/dL and the reference cohort range is 70 to 200 mg/dL, what is the normalized value?",
+          prompt: `What does a single row in the ${safeGoal} training dataset represent?`,
           options: [
-            "1.00 (the maximum boundary of the normalized scale)",
-            "0.50 (the midpoint of the cohort)",
-            "0.00 (baseline)",
-            "200.00 (unscaled raw measurement)"
+            `One complete historical observation "” all ${medFeatures.length} measurements for one person paired with the known ${medTarget}.`,
+            `One learned weight value.`,
+            `One Python function.`,
+            `One column of the table.`,
           ],
           correctIndex: 0,
-          explanation: "(200 - 70) / (200 - 70) = 130 / 130 = 1.00.",
+          explanation: `Each row = one real-world example. The model finds patterns by comparing feature values to targets across all rows.`,
         },
         checkQuestion: {
-          prompt: "What happens during gradient updates if one vital feature has values in the thousands and another has values between 0 and 1?",
+          prompt: `Why is "model.fit(X_train, y_train)" more powerful than manually writing "output = 2.2*x1 + 1.3*x2"?`,
           options: [
-            "The large feature dominates gradient magnitude, causing unstable updates and ignoring the smaller feature.",
-            "Python automatically balances the weights without any scaling.",
-            "The model learns twice as fast.",
-            "The smaller feature gets multiplied by 1000 automatically."
+            `model.fit() discovers the optimal coefficients from real data. The formula uses numbers a human guessed "” no learning happened.`,
+            `They produce identical results.`,
+            `Manual formulas always outperform trained models.`,
+            `sklearn requires datasets; it has nothing to do with learning.`,
           ],
           correctIndex: 0,
-          explanation: "Gradients are proportional to input feature scale, so unscaled large features overwhelm optimization.",
+          explanation: `ML training finds optimal weights by minimising error across all examples simultaneously "” discovering patterns impossible to handpick.`,
         },
       },
       {
         id: "model-architecture",
-        title: "Clinical Risk Scoring & Sigmoid Probability Mapping",
+        title: `Train a Real ML Model: ${safeGoal}`,
         prereqs: ["feature-engineering"],
         difficulty: 3,
-        hook: `How does our diagnostic model turn weighted vital scores into a true clinical risk probability between 0% and 100%?`,
-        explanationSummary: `A linear combination of weighted patient vitals produces an unbounded logit score z. The sigmoid activation function sigma(z) = 1 / (1 + exp(-z)) maps this score smoothly into a calibrated clinical probability between 0.0 and 1.0.`,
-        corePrinciple: `P(Disease | Vitals) = 1 / (1 + exp(-z)), where z = w1*vital1 + w2*vital2 + ... + bias.`,
-        whyItMatters: `Clinicians need probabilistic confidence estimates, not just arbitrary numbers, so they can weigh clinical uncertainty before recommending invasive procedures or treatments.`,
-        buildStep: `Implement the sigmoid activation function to map logit scores into clinical disease probabilities.`,
-        starterCode: `# Step 3: Sigmoid Risk Probability Function
-import math
+        hook: `We will use a Python library called sklearn (scikit-learn) to train a real model. A library = pre-written Python code you can import. You do NOT write the ML algorithm yourself. You just: import → create model → call .fit() → call .predict().`,
+        explanationSummary: `sklearn is the world's most popular ML library for Python. It has dozens of algorithms already built for you.\n\nThe 4 lines that do all the work:\n  1. from sklearn.X import Algorithm  ← import the algorithm\n  2. model = Algorithm()               ← create an untrained model\n  3. model.fit(X_train, y_train)       ← TRAIN IT (learning happens here)\n  4. model.predict(new_data)           ← get predictions on new examples\n\nWhat does .fit() do? It studies every row in X_train, makes a prediction, compares it to y_train, and adjusts its internal settings to reduce the error. It repeats thousands of times until the error is minimal.`,
+        corePrinciple: `🎓 Plain English for .fit(): Like a student studying for an exam. They read each question (X_train row), check the correct answer (y_train), notice what they got wrong, and improve. After studying everything, they can answer NEW questions they've never seen — because they learned the pattern, not just the answers.`,
+        whyItMatters: `Before libraries like sklearn, implementing ML from scratch took hundreds of lines of complex maths. With sklearn, a complete beginner can train a real ML model in 4 lines. That is the whole point of this step.`,
+        buildStep: `Import sklearn, create the model, train it with .fit(), then predict on new unseen examples with .predict().`,
+        starterCode: `# ═══════════════════════════════════════════════════════════
+# STEP 3: Train a Real ML Model using sklearn
+# ═══════════════════════════════════════════════════════════
+#
+# WHAT IS sklearn? It is a Python library (pre-written code you can import).
+# You do NOT write the ML algorithm yourself — sklearn already has it.
+# You just: import it, create a model, and call .fit() to train it.
 
-def calculate_disease_probability(logit_score: float) -> float:
-    # Fill in the blanks:
-    # Formula: 1 / (1 + math.exp(-logit_score))
-    denominator = ___                           # TODO: 1.0 + math.exp(-logit_score)
-    probability = ___                           # TODO: 1.0 / denominator
-    return round(probability, 4)
+${medSampleRows}
 
-print("Probability for logit 0.0:", calculate_disease_probability(0.0))
-print("Probability for logit 2.2:", calculate_disease_probability(2.2))
+# Step 3a: Import the algorithm from sklearn
+# (This is like opening the right toolbox for the job)
+${medSklearnModel.split("\n")[0]}
+
+# Step 3b: Create a model object
+# (This creates an "untrained" model, like hiring someone before they start studying)
+model = ___           # TODO: e.g. RandomForestClassifier() or GradientBoostingRegressor()
+
+# Step 3c: TRAIN the model — this is where learning happens!
+# model.fit(questions, answers) — the model studies both to find the pattern
+model.fit(___, ___)   # TODO: model.fit(X_train, y_train)
+
+# Step 3d: Predict on NEW data the model has NEVER seen before
+${medTestSamples}
+# model.predict() applies what the model learned to new examples
+predictions = model.predict(___)  # TODO: pass in ${medPredictVarName}
+print("Predictions for new data:", predictions)
+print("(These came from a model that LEARNED — no hardcoded numbers!)")
 `,
-        solutionCode: `import math
+        solutionCode: `${medSampleRows}
 
-def calculate_disease_probability(logit_score: float) -> float:
-    denominator = 1.0 + math.exp(-logit_score)
-    probability = 1.0 / denominator
-    return round(probability, 4)
+# sklearn learns the weights "” no handpicking!
+${medSklearnModel}
 
-print("Probability for logit 0.0:", calculate_disease_probability(0.0))
-print("Probability for logit 2.2:", calculate_disease_probability(2.2))
+${medTestSamples}
+predictions = model.predict(${medPredictVarName})
+print("✅ Trained on", len(X_train), "examples")
+print("Predictions for new data:", predictions)
+print("Target: ${medTarget}")
+print("\\nðŸ’¡ Weights were LEARNED from data, not hardcoded!")
 `,
-        testAssertion: `p0 = calculate_disease_probability(0.0)
-assert p0 == 0.5, f"Expected 0.5 for logit 0.0, got {p0}"
-p_high = calculate_disease_probability(2.1972)
-assert round(p_high, 2) == 0.90, f"Expected ~0.90 for logit 2.1972, got {p_high}"
-p_low = calculate_disease_probability(-2.1972)
-assert round(p_low, 2) == 0.10, f"Expected ~0.10 for logit -2.1972, got {p_low}"
-print("Assertion Passed: Sigmoid probability mapping verified!")
+        testAssertion: `try:
+    preds = model.predict(${medPredictVarName})
+    assert len(preds) == len(${medPredictVarName})
+    assert hasattr(model, "fit")
+    print(f"✅ Real ML model trained! Predictions: {list(preds)}")
+except NameError:
+    print("âš  Call model.fit(X_train, y_train) first")
+    raise
 `,
         predictQuestion: {
-          prompt: "When the weighted logit score z equals exactly 0.0, what disease probability does the sigmoid function output?",
+          prompt: `What is the difference between model.fit() and "logit = 2.2*x1 + 1.3*x2 - 1.8"?`,
           options: [
-            "0.50 (50% probability — boundary of maximum uncertainty)",
-            "0.00 (0% probability)",
-            "1.00 (100% certainty)",
-            "-1.00 (negative confidence)"
+            `model.fit() discovers those coefficients from real data. The formula uses manually guessed numbers "” no learning happened.`,
+            `Both give identical outputs.`,
+            `model.fit() is just a wrapper around the formula.`,
+            `Handpicked weights are always more accurate.`,
           ],
           correctIndex: 0,
-          explanation: "1 / (1 + exp(0)) = 1 / (1 + 1) = 1/2 = 0.50.",
+          explanation: `Hardcoded weights = someone's guess. Trained weights = mathematically optimal values computed from the actual training data.`,
         },
         checkQuestion: {
-          prompt: "Why is the sigmoid function preferred over a simple linear clamp [0, 1] for risk scoring?",
+          prompt: `After model.fit(X_train, y_train), what has changed inside the model?`,
           options: [
-            "It is smoothly differentiable everywhere and asymptotically bounds outputs between 0 and 1 without hard cutoffs.",
-            "It rounds all numbers to the nearest integer.",
-            "It only works with positive numbers.",
-            "It deletes features with small values."
+            `The model's internal parameters (weights/trees/splits) have been optimised to minimise prediction error on training data.`,
+            `X_train has been deleted.`,
+            `The model printed training rows.`,
+            `Nothing "” .fit() only validates types.`,
           ],
           correctIndex: 0,
-          explanation: "Sigmoidal curves allow gradient backpropagation across the entire real number line without abrupt gradient zeroing.",
+          explanation: `fit() runs an optimisation algorithm that tunes all internal parameters. Subsequent .predict() calls use those discovered parameters.`,
         },
       },
       {
         id: "decision-boundary",
-        title: "Clinical Decision Threshold & Sensitivity Triage",
+        title: `Evaluate on Held-Out Test Data: ${safeGoal}`,
         prereqs: ["model-architecture"],
         difficulty: 3,
-        hook: `In healthcare, missing a sick patient (false negative) is dangerous. How do we tune the decision threshold to protect patients?`,
-        explanationSummary: `While standard models use 0.50 as a default decision threshold, clinical risk models can lower the threshold (e.g. to 0.35) to prioritize sensitivity (recall), ensuring potential disease cases undergo secondary physician review.`,
-        corePrinciple: `Decision = "High Risk / Positive" if P(Disease) >= threshold else "Low Risk / Negative". Adjusting threshold trades off Sensitivity vs Specificity.`,
-        whyItMatters: `A rigid 0.50 threshold fails in medicine when the cost of a false negative (missed diagnosis) is far higher than the cost of a false positive (follow-up confirmatory blood test).`,
-        buildStep: `Implement the clinical triage decision function with an adjustable risk threshold.`,
-        starterCode: `# Step 4: Clinical Decision Triage Function
+        hook: `Your model was just trained. But how do you know if it actually WORKS on new data — or did it just memorise the training examples? We test it on examples it has NEVER seen before.`,
+        explanationSummary: `Before training, we secretly hold back 2 examples (the "test set"). The model NEVER sees these during training.\n\nAfter training, we run:\n  predictions = model.predict(X_test)\n...and compare against the real answers (y_test).\n\n• If the model memorised training data → it fails on the test set\n• If the model learned the real pattern → it gets the test set right\n\nThis is called a train/test split. It is the most important quality check in all of machine learning.`,
+        corePrinciple: `🎓 Real-world analogy: You study 80% of past exam papers (training). Then you attempt the remaining 20% of papers you have NEVER studied — as a practice test. If you pass the practice test, you learned concepts. If you only pass papers you already studied, you just memorised.`,
+        whyItMatters: `A model that scores 100% on training data but 50% on test data has "overfit" — it memorised examples instead of learning the real pattern. Test accuracy is the only honest measure of how the model performs on new real-world data.`,
+        buildStep: `Split your dataset, train, then evaluate on the held-out test set.`,
+        starterCode: `# Step 4: Honest Evaluation for ${safeGoal}
+${medSampleRows}
 
-def triage_patient(risk_probability: float, threshold: float = 0.40) -> dict:
-    # Fill in the blanks:
-    # 1. Determine if risk_probability meets or exceeds threshold
-    # 2. Return decision dict with category and risk level
-    is_positive = ___                           # TODO: risk_probability >= threshold
-    diagnosis = ___ if is_positive else ___     # TODO: "POSITIVE" if is_positive else "NEGATIVE"
-    return {
-        "probability": risk_probability,
-        "threshold": threshold,
-        "diagnosis": diagnosis,
-        "recommendation": "Confirmatory clinical exam" if is_positive else "Routine monitoring"
-    }
+X_train_split = X_train[:4]
+y_train_split = y_train[:4]
+X_test = X_train[4:]   # Never seen during training
+y_test = y_train[4:]
 
-print("Patient 1:", triage_patient(0.45, threshold=0.40))
-print("Patient 2:", triage_patient(0.25, threshold=0.40))
+${medSklearnModel.replace(/X_train/g, "X_train_split").replace(/y_train/g, "y_train_split")}
+
+predictions = model.predict(___)   # TODO: X_test
+${isRegression
+  ? `mae = sum(abs(p - t) for p, t in zip(predictions, y_test)) / len(y_test)
+print(f"Mean Absolute Error: {round(mae, 2)}")`
+  : `correct = sum(1 for p, t in zip(predictions, y_test) if p == t)
+print(f"Test accuracy: {round(correct/len(y_test)*100)}%")`}
 `,
-        solutionCode: `def triage_patient(risk_probability: float, threshold: float = 0.40) -> dict:
-    is_positive = risk_probability >= threshold
-    diagnosis = "POSITIVE" if is_positive else "NEGATIVE"
-    return {
-        "probability": risk_probability,
-        "threshold": threshold,
-        "diagnosis": diagnosis,
-        "recommendation": "Confirmatory clinical exam" if is_positive else "Routine monitoring"
-    }
+        solutionCode: `${medSampleRows}
 
-print("Patient 1:", triage_patient(0.45, threshold=0.40))
-print("Patient 2:", triage_patient(0.25, threshold=0.40))
+X_train_split = X_train[:4]
+y_train_split = y_train[:4]
+X_test = X_train[4:]
+y_test = y_train[4:]
+
+${medSklearnModel.replace(/X_train/g, "X_train_split").replace(/y_train/g, "y_train_split")}
+
+predictions = model.predict(X_test)
+print(f"True:      {y_test}")
+print(f"Predicted: {list(predictions)}")
+${isRegression
+  ? `mae = sum(abs(float(p)-float(t)) for p,t in zip(predictions, y_test)) / len(y_test)
+print(f"Mean Absolute Error: {round(mae, 2)} (lower = better)")`
+  : `correct = sum(1 for p,t in zip(predictions, y_test) if p==t)
+print(f"Test accuracy: {round(correct/len(y_test)*100)}%")`}
 `,
-        testAssertion: `t1 = triage_patient(0.45, 0.40)
-assert t1["diagnosis"] == "POSITIVE", f"Expected POSITIVE for 0.45 >= 0.40, got {t1['diagnosis']}"
-t2 = triage_patient(0.35, 0.40)
-assert t2["diagnosis"] == "NEGATIVE", f"Expected NEGATIVE for 0.35 < 0.40, got {t2['diagnosis']}"
-t3 = triage_patient(0.40, 0.40)
-assert t3["diagnosis"] == "POSITIVE", f"Threshold boundary 0.40 should trigger POSITIVE, got {t3['diagnosis']}"
-print("Assertion Passed: Clinical decision triage operational!")
-`,
-        predictQuestion: {
-          prompt: "If we lower the diagnostic decision threshold from 0.50 down to 0.30, what happens to the number of flagged patients?",
-          options: [
-            "More patients will be flagged as high risk (higher sensitivity / fewer missed cases).",
-            "Fewer patients will be flagged.",
-            "The model stops making predictions.",
-            "All patients will be diagnosed as healthy."
-          ],
-          correctIndex: 0,
-          explanation: "Lowering the decision threshold catches more patients who have even moderate probability, increasing sensitivity.",
-        },
-        checkQuestion: {
-          prompt: "Why would a hospital choose a decision threshold lower than 0.50 for a disease screening model?",
-          options: [
-            "Because missing a true case (false negative) could be fatal, whereas a false alarm can be resolved by a follow-up test.",
-            "Because computers prefer smaller numbers.",
-            "To make the model run faster.",
-            "Because probabilities never exceed 0.50 in reality."
-          ],
-          correctIndex: 0,
-          explanation: "In clinical screening, the asymmetric cost of false negatives justifies a more sensitive, lower threshold.",
-        },
-      },
-      {
-        id: "loss-calculation",
-        title: "Binary Cross-Entropy Loss & Penalty Formulation",
-        prereqs: ["model-architecture"],
-        difficulty: 3,
-        hook: "When our diagnostic model makes a high-confidence false negative prediction, how does calculus mathematically penalize that mistake?",
-        explanationSummary: "Binary cross-entropy loss quantifies prediction penalty: Loss = -[y * log(p) + (1 - y) * log(1 - p)]. If ground truth y=1, loss is -log(p). If p is close to 0, loss skyrockets toward infinity.",
-        corePrinciple: "BCE Loss = -(y * log(p) + (1 - y) * log(1 - p)). Penalizes confident misdiagnoses logarithmically.",
-        whyItMatters: "Squared error treats all errors symmetrically. Logarithmic loss imposes massive penalties on overconfident medical blunders.",
-        buildStep: "Implement the binary cross-entropy loss function to calculate error on patient diagnostic predictions.",
-        starterCode: `# Step 5: Binary Cross-Entropy Loss
-import math
-
-def compute_bce_loss(predicted_prob: float, true_label: int) -> float:
-    # Fill in the blanks:
-    # Clamp probability slightly to avoid math.log(0)
-    p = max(min(predicted_prob, 0.9999), 0.0001)
-    # Formula: - (y * log(p) + (1 - y) * log(1 - p))
-    term1 = ___                                 # TODO: true_label * math.log(p)
-    term2 = ___                                 # TODO: (1 - true_label) * math.log(1.0 - p)
-    loss = -(term1 + term2)
-    return round(loss, 4)
-
-print("Loss (True=1, Pred=0.9):", compute_bce_loss(0.9, 1))
-print("Loss (True=1, Pred=0.1 - Severe Error):", compute_bce_loss(0.1, 1))
-`,
-        solutionCode: `import math
-
-def compute_bce_loss(predicted_prob: float, true_label: int) -> float:
-    p = max(min(predicted_prob, 0.9999), 0.0001)
-    term1 = true_label * math.log(p)
-    term2 = (1 - true_label) * math.log(1.0 - p)
-    loss = -(term1 + term2)
-    return round(loss, 4)
-
-print("Loss (True=1, Pred=0.9):", compute_bce_loss(0.9, 1))
-print("Loss (True=1, Pred=0.1 - Severe Error):", compute_bce_loss(0.1, 1))
-`,
-        testAssertion: `l_good = compute_bce_loss(0.9, 1)
-assert l_good < 0.15, f"Expected low loss for accurate prediction, got {l_good}"
-l_bad = compute_bce_loss(0.1, 1)
-assert l_bad > 2.0, f"Expected high penalty (>2.0) for confident wrong prediction, got {l_bad}"
-l_neg_good = compute_bce_loss(0.1, 0)
-assert l_neg_good < 0.15, f"Expected low loss for accurate negative diagnosis, got {l_neg_good}"
-print("Assertion Passed: Binary cross-entropy loss verified!")
+        testAssertion: `preds = model.predict(X_test)
+assert len(preds) == len(y_test), f"Expected {len(y_test)} preds, got {len(preds)}"
+print(f"✅ Evaluated on {len(y_test)} unseen test examples")
 `,
         predictQuestion: {
-          prompt: "If a patient has diabetes (label=1) and the model predicts 0.99 probability, what happens to the BCE loss?",
+          prompt: `Why evaluate on a test set instead of the same training data?`,
           options: [
-            "The loss approaches 0.0 because -log(0.99) is nearly zero (near-perfect prediction).",
-            "The loss approaches infinity.",
-            "The loss becomes negative.",
-            "The program crashes because log(1) is undefined.",
+            `Training accuracy can reach 100% by memorisation. Test accuracy on unseen data is the only honest real-world measure.`,
+            `sklearn crashes if you reuse training data for evaluation.`,
+            `The test set is always larger.`,
+            `Training data gets deleted after .fit().`,
           ],
           correctIndex: 0,
-          explanation: "-log(0.99) ≈ 0.010. Accurate predictions incur nearly zero loss.",
+          explanation: `A model that memorises training examples will fail on new data. The test set simulates real-world unseen inputs.`,
         },
         checkQuestion: {
-          prompt: "Why does binary cross-entropy loss use logarithms instead of simple absolute difference |y - p|?",
+          prompt: `A ${safeGoal} model gets 100% training accuracy but 50% test accuracy. What happened?`,
           options: [
-            "Logarithms penalize confident wrong predictions exponentially more severely than small uncertainties.",
-            "Logarithms are faster for CPUs to calculate than subtraction.",
-            "Absolute differences cannot be computed in Python.",
-            "Because probabilities are always negative.",
+            `Overfitting "” the model memorised training examples instead of learning the general pattern.`,
+            `The model performed perfectly.`,
+            `The test labels are wrong.`,
+            `100% training accuracy = great model.`,
           ],
           correctIndex: 0,
-          explanation: "As predicted probability p approaches 0 for a true positive case, -log(p) approaches infinity, forcing the model to fix disastrous misdiagnoses.",
-        },
-      },
-      {
-        id: "gradient-optimization",
-        title: "Gradient Descent & Clinical Weight Optimization",
-        prereqs: ["loss-calculation"],
-        difficulty: 4,
-        hook: "When a training patient produces an error, how does gradient descent compute the exact numerical nudge to improve the model's weights?",
-        explanationSummary: "For logistic regression with BCE loss, the derivative with respect to feature weight w_i simplifies elegantly: gradient = (prediction - true_label) * feature_val. The weight is updated by: w_new = w - learning_rate * gradient.",
-        corePrinciple: "Gradient = (p - y) * x; New Weight = Weight - lr * Gradient.",
-        whyItMatters: "Gradient descent is the engine that drives modern machine learning, iteratively tuning weights toward zero prediction error.",
-        buildStep: "Implement the gradient descent weight update step for a clinical vital feature.",
-        starterCode: `# Step 6: Gradient Descent Weight Update
-def update_clinical_weight(current_weight: float, feature_val: float, pred: float, label: int, lr: float = 0.1) -> float:
-    # Fill in the blanks:
-    # 1. Error = pred - label
-    # 2. Gradient = error * feature_val
-    # 3. New weight = current_weight - lr * gradient
-    error = ___                                 # TODO: pred - label
-    gradient = ___                              # TODO: error * feature_val
-    new_weight = current_weight - (lr * gradient)
-    return round(new_weight, 4)
-
-print("Updated Weight (lowering error):", update_clinical_weight(1.0, feature_val=0.8, pred=0.9, label=0, lr=0.1))
-`,
-        solutionCode: `def update_clinical_weight(current_weight: float, feature_val: float, pred: float, label: int, lr: float = 0.1) -> float:
-    error = pred - label
-    gradient = error * feature_val
-    new_weight = current_weight - (lr * gradient)
-    return round(new_weight, 4)
-
-print("Updated Weight (lowering error):", update_clinical_weight(1.0, feature_val=0.8, pred=0.9, label=0, lr=0.1))
-`,
-        testAssertion: `w1 = update_clinical_weight(1.0, 0.8, 0.9, 0, lr=0.1)
-assert w1 < 1.0, f"Weight should decrease when model over-predicts positive for negative patient, got {w1}"
-w2 = update_clinical_weight(1.0, 0.8, 0.2, 1, lr=0.1)
-assert w2 > 1.0, f"Weight should increase when model under-predicts for positive patient, got {w2}"
-print("Assertion Passed: Gradient descent weight optimizer operational!")
-`,
-        predictQuestion: {
-          prompt: "If prediction is 0.80 and true label is 0 (false alarm), should the feature weight increase or decrease?",
-          options: [
-            "Decrease: error is positive (+0.80), so subtracting lr * gradient reduces the weight and lowers future risk scores.",
-            "Increase: weights must always grow during training.",
-            "Stay identical: 0.80 is close enough to 0.",
-            "Reset to zero immediately.",
-          ],
-          correctIndex: 0,
-          explanation: "Error is positive (0.8 - 0 = +0.8). Subtracting learning_rate * (+gradient) pushes the weight down.",
-        },
-        checkQuestion: {
-          prompt: "What is the purpose of the learning rate parameter (lr) in gradient descent?",
-          options: [
-            "It controls step size along the negative gradient, preventing violent oscillations or divergence.",
-            "It measures the accuracy of the training dataset.",
-            "It determines how many patient records are in memory.",
-            "It automatically stops the program when complete.",
-          ],
-          correctIndex: 0,
-          explanation: "Learning rate governs how far weights move in the gradient direction on each step.",
-        },
-      },
-      {
-        id: "model-evaluation",
-        title: "Clinical Evaluation: Sensitivity & Confusion Matrix",
-        prereqs: ["decision-boundary"],
-        difficulty: 4,
-        hook: "If 95 out of 100 patients are healthy, a model predicting 'Healthy' for everyone gets 95% accuracy while missing every sick patient. How do clinicians evaluate real performance?",
-        explanationSummary: "Clinical models are evaluated using a Confusion Matrix: True Positives (TP), False Positives (FP), True Negatives (TN), and False Negatives (FN). Sensitivity = TP / (TP + FN) measures the proportion of actual sick patients caught.",
-        corePrinciple: "Sensitivity (Recall) = TP / (TP + FN). In healthcare, high sensitivity prevents missed diagnoses.",
-        whyItMatters: "Accuracy is dangerously deceptive in disease screening. Measuring sensitivity guarantees life-saving triage.",
-        buildStep: "Compute the confusion matrix and clinical sensitivity metric from cohort predictions.",
-        starterCode: `# Step 7: Clinical Confusion Matrix & Sensitivity
-def evaluate_clinical_cohort(predictions: list[int], actuals: list[int]) -> dict:
-    tp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 1)
-    fp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 0)
-    tn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 0)
-    fn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 1)
-    
-    # Fill in the blanks:
-    # Sensitivity (Recall) = tp / (tp + fn)
-    total_positives = tp + fn
-    sensitivity = ___ if total_positives > 0 else 0.0   # TODO: round(tp / total_positives, 4)
-    return {"tp": tp, "fp": fp, "tn": tn, "fn": fn, "sensitivity": sensitivity}
-
-print("Cohort Metrics:", evaluate_clinical_cohort([1, 1, 0, 1], [1, 1, 1, 0]))
-`,
-        solutionCode: `def evaluate_clinical_cohort(predictions: list[int], actuals: list[int]) -> dict:
-    tp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 1)
-    fp = sum(1 for p, a in zip(predictions, actuals) if p == 1 and a == 0)
-    tn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 0)
-    fn = sum(1 for p, a in zip(predictions, actuals) if p == 0 and a == 1)
-    total_positives = tp + fn
-    sensitivity = round(tp / total_positives, 4) if total_positives > 0 else 0.0
-    return {"tp": tp, "fp": fp, "tn": tn, "fn": fn, "sensitivity": sensitivity}
-
-print("Cohort Metrics:", evaluate_clinical_cohort([1, 1, 0, 1], [1, 1, 1, 0]))
-`,
-        testAssertion: `res = evaluate_clinical_cohort([1, 1, 0, 0], [1, 1, 1, 0])
-assert res["tp"] == 2 and res["fn"] == 1, f"Expected 2 TP, 1 FN, got {res}"
-assert round(res["sensitivity"], 2) == 0.67, f"Expected 2/3 = 0.67 sensitivity, got {res['sensitivity']}"
-print("Assertion Passed: Clinical evaluation metrics verified!")
-`,
-        predictQuestion: {
-          prompt: "In a cohort of 10 diabetic patients, if the model correctly identifies 8 and misses 2, what is the clinical sensitivity?",
-          options: [
-            "0.80 (80% sensitivity = 8 / (8 + 2))",
-            "0.20 (20%)",
-            "1.00 (100%)",
-            "0.50 (50%)",
-          ],
-          correctIndex: 0,
-          explanation: "Sensitivity = TP / (TP + FN) = 8 / (8 + 2) = 0.80.",
-        },
-        checkQuestion: {
-          prompt: "Why is a False Negative considered far more dangerous than a False Positive in disease diagnosis?",
-          options: [
-            "A false negative leaves a sick patient untreated, while a false positive triggers a safe confirmatory check.",
-            "False negatives use more computer RAM.",
-            "False positives cause the program to crash.",
-            "Because medical laws prohibit false negatives only.",
-          ],
-          correctIndex: 0,
-          explanation: "Missing an active pathology (false negative) leads to disease progression; false alarms are resolved safely by second-opinion tests.",
-        },
-      },
-      {
-        id: "inference-pipeline",
-        title: "Interactive Clinical Deployment: Complete Inference Engine",
-        prereqs: ["model-evaluation"],
-        difficulty: 4,
-        hook: "We have normalized vitals, weighted logits, sigmoid probability, and clinical triage. How do we package this into a live interactive pipeline that doctors can test on any new patient?",
-        explanationSummary: "An end-to-end inference pipeline takes raw patient measurements (e.g. glucose, BMI, age), normalizes them against clinical bounds, calculates the linear logit, evaluates the sigmoid probability, and returns the actionable triage diagnosis in a structured report.",
-        corePrinciple: "Raw Patient Data -> Pipeline Vectorizer -> Model Scoring -> Sigmoid Risk Probability -> Clinical Triage Decision.",
-        whyItMatters: "Deploying machine learning to healthcare requires a deterministic, end-to-end pipeline that safely validates inputs and produces transparent, auditable clinical decisions.",
-        buildStep: "Package the complete end-to-end clinical inference pipeline function for live patient testing.",
-        starterCode: `# Step 8: Complete End-to-End Clinical Inference Engine
-import math
-
-def run_patient_diagnosis(glucose: float, bmi: float, age: float, threshold: float = 0.40) -> dict:
-    # 1. Normalize vitals to [0, 1]
-    norm_glucose = max(0.0, min(1.0, (glucose - 70.0) / 130.0))
-    norm_bmi = max(0.0, min(1.0, (bmi - 18.5) / 16.5))
-    norm_age = max(0.0, min(1.0, (age - 20.0) / 60.0))
-    
-    # 2. Linear logit with clinical weights [2.2, 1.3, 0.9] and bias -1.8
-    logit = (2.2 * norm_glucose) + (1.3 * norm_bmi) + (0.9 * norm_age) - 1.8
-    
-    # 3. Sigmoid risk probability
-    # Complete the blank: 1.0 / (1.0 + math.exp(-logit))
-    risk_prob = ___                             # TODO: 1.0 / (1.0 + math.exp(-logit))
-    
-    # 4. Clinical triage decision
-    is_positive = risk_prob >= threshold
-    return {
-        "glucose": glucose,
-        "bmi": bmi,
-        "age": age,
-        "risk_probability": round(risk_prob, 4),
-        "diagnosis": "POSITIVE" if is_positive else "NEGATIVE",
-        "threshold": threshold,
-        "recommendation": "Urgent HbA1c & clinical review" if is_positive else "Standard routine monitoring"
-    }
-
-print("Live Patient 1:", run_patient_diagnosis(glucose=175, bmi=33.5, age=58))
-print("Live Patient 2:", run_patient_diagnosis(glucose=88, bmi=21.0, age=25))
-`,
-        solutionCode: `import math
-
-def run_patient_diagnosis(glucose: float, bmi: float, age: float, threshold: float = 0.40) -> dict:
-    norm_glucose = max(0.0, min(1.0, (glucose - 70.0) / 130.0))
-    norm_bmi = max(0.0, min(1.0, (bmi - 18.5) / 16.5))
-    norm_age = max(0.0, min(1.0, (age - 20.0) / 60.0))
-    logit = (2.2 * norm_glucose) + (1.3 * norm_bmi) + (0.9 * norm_age) - 1.8
-    risk_prob = 1.0 / (1.0 + math.exp(-logit))
-    is_positive = risk_prob >= threshold
-    return {
-        "glucose": glucose,
-        "bmi": bmi,
-        "age": age,
-        "risk_probability": round(risk_prob, 4),
-        "diagnosis": "POSITIVE" if is_positive else "NEGATIVE",
-        "threshold": threshold,
-        "recommendation": "Urgent HbA1c & clinical review" if is_positive else "Standard routine monitoring"
-    }
-
-print("Live Patient 1:", run_patient_diagnosis(glucose=175, bmi=33.5, age=58))
-print("Live Patient 2:", run_patient_diagnosis(glucose=88, bmi=21.0, age=25))
-`,
-        testAssertion: `p_high = run_patient_diagnosis(175, 33.5, 58, threshold=0.40)
-assert p_high["diagnosis"] == "POSITIVE", f"Expected POSITIVE for high-risk patient, got {p_high['diagnosis']}"
-assert p_high["risk_probability"] > 0.60, f"Expected risk > 60%, got {p_high['risk_probability']}"
-
-p_low = run_patient_diagnosis(88, 21.0, 25, threshold=0.40)
-assert p_low["diagnosis"] == "NEGATIVE", f"Expected NEGATIVE for healthy baseline, got {p_low['diagnosis']}"
-assert p_low["risk_probability"] < 0.30, f"Expected risk < 30%, got {p_low['risk_probability']}"
-print("Assertion Passed: Full clinical deployment pipeline verified operational!")
-`,
-        predictQuestion: {
-          prompt: "What is the primary architectural purpose of the complete inference pipeline in a production clinical AI system?",
-          options: [
-            "It chains feature normalization, weight scoring, probability mapping, and triage logic into a unified, reproducible function for live patient testing.",
-            "It erases patient data to preserve database disk space.",
-            "It retrains all model weights on every single prediction query.",
-            "It generates random numbers when the model is unsure.",
-          ],
-          correctIndex: 0,
-          explanation: "The inference pipeline executes the complete, deterministic transform chain from raw inputs to calibrated clinical triage decisions.",
-        },
-        checkQuestion: {
-          prompt: "Once the inference pipeline passes assertion testing, where can you test it live with custom patient inputs in Socrates?",
-          options: [
-            "In the 'Model Tester' tab with interactive vital sliders and the live clinical risk gauge.",
-            "By writing letters to the hospital.",
-            "Nowhere, AI models cannot be tested live.",
-            "By restarting the entire course.",
-          ],
-          correctIndex: 0,
-          explanation: "The Model Tester tab lets you interactively adjust patient vitals and thresholds live to observe real-time risk predictions.",
+          explanation: `Overfitting = memorisation without generalisation. High training accuracy + low test accuracy reveals the model cannot generalise to new real-world inputs.`,
         },
       },
     ];
   }
+  // General Custom Machine Learning Project
+  // Detect domain keywords to generate real, grounded feature names
+  const isCustomerChurn =
+    lower.includes("customer churn") ||
+    lower.includes("subscriber churn") ||
+    lower.includes("customer retention") ||
+    lower.includes("attrition") ||
+    lower.includes("churn");
 
-  // General Custom Machine Learning Project (Grounded in their exact goal!)
+  const isRecommender =
+    lower.includes("recommend") ||
+    lower.includes("movie") ||
+    lower.includes("netflix") ||
+    lower.includes("spotify") ||
+    lower.includes("song") ||
+    lower.includes("book") ||
+    lower.includes("collaborative filtering");
+
+  const isObjectDetection =
+    lower.includes("object detect") ||
+    lower.includes("pedestrian") ||
+    lower.includes("obstacle") ||
+    lower.includes("self-driving") ||
+    lower.includes("autonomous") ||
+    lower.includes("yolo") ||
+    lower.includes("bounding box") ||
+    lower.includes("traffic sign") ||
+    lower.includes("vehicle detect");
+
+  const isCybersecurity =
+    lower.includes("cyber") ||
+    lower.includes("intrusion") ||
+    lower.includes("ddos") ||
+    lower.includes("packet") ||
+    lower.includes("malware") ||
+    lower.includes("network attack") ||
+    lower.includes("firewall");
+
+  const isFakeNews =
+    lower.includes("fake news") ||
+    lower.includes("misinformation") ||
+    lower.includes("clickbait") ||
+    lower.includes("fact check") ||
+    lower.includes("rumor") ||
+    lower.includes("disinformation");
+
+  const isAudioOrSpeech =
+    lower.includes("audio") ||
+    lower.includes("speech") ||
+    lower.includes("voice") ||
+    lower.includes("sound") ||
+    lower.includes("acoustic") ||
+    lower.includes("speaker");
+
+  const isSalesDemand =
+    lower.includes("sales") ||
+    lower.includes("demand") ||
+    lower.includes("inventory") ||
+    lower.includes("retail");
+
+  const isWeather =
+    lower.includes("weather") ||
+    lower.includes("rain") ||
+    lower.includes("forecast") ||
+    lower.includes("temperature") ||
+    lower.includes("humidity") ||
+    lower.includes("climate");
+
+  const isHouseOrProperty =
+    lower.includes("house") ||
+    lower.includes("home") ||
+    lower.includes("real estate") ||
+    lower.includes("property") ||
+    lower.includes("apartment");
+
+  const isStock =
+    lower.includes("stock") ||
+    lower.includes("price") ||
+    lower.includes("market") ||
+    lower.includes("finance") ||
+    lower.includes("trading");
+
+  // Determine real features for the project domain
+  let domainFeatures: string[];
+  let targetName: string;
+  let taskType: string;
+  let sampleRows: string;
+  let sklearnModel: string;
+  let testSamples: string;
+
+  if (isCustomerChurn) {
+    domainFeatures = ["tenure_months", "monthly_charges_usd", "total_charges_usd", "support_calls", "contract_type_years"];
+    targetName = "will_churn";
+    taskType = "classification";
+    sampleRows = `# [tenure_mo, monthly_$, total_$, support_calls, contract_yrs] -> will_churn(0=Stay, 1=Cancel)
+X_train = [
+    [2,   85.0, 170.0,  4, 0],
+    [36,  45.0, 1620.0, 0, 2],
+    [5,   90.0, 450.0,  5, 0],
+    [48,  55.0, 2640.0, 1, 2],
+    [12,  70.0, 840.0,  2, 1],
+    [1,   95.0, 95.0,   3, 0],
+]
+y_train = [1, 0, 1, 0, 0, 1]  # 1=Churned (canceled), 0=Retained`;
+    sklearnModel = `from sklearn.ensemble import GradientBoostingClassifier
+model = GradientBoostingClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_customers = [
+    [3,  88.0, 264.0, 4, 0],   # New customer with multiple complaints (high risk)
+    [60, 40.0, 2400.0, 0, 2],  # Long-term loyal subscriber (low risk)
+]`;
+  } else if (isRecommender) {
+    domainFeatures = ["user_avg_rating", "genre_affinity_score", "item_popularity", "release_recency", "critic_score"];
+    targetName = "predicted_rating_stars";
+    taskType = "regression";
+    sampleRows = `# [user_avg(1-5), genre_affinity(0-1), popularity(0-1), recency(0-1), critic_score(0-100)] -> rating
+X_train = [
+    [4.5, 0.95, 0.85, 0.90, 88.0],
+    [2.2, 0.10, 0.40, 0.30, 42.0],
+    [4.0, 0.80, 0.70, 0.60, 78.0],
+    [1.8, 0.25, 0.90, 0.40, 35.0],
+    [3.8, 0.65, 0.50, 0.85, 82.0],
+    [4.8, 0.98, 0.95, 0.95, 94.0],
+]
+y_train = [4.8, 1.5, 4.0, 2.0, 3.7, 5.0]  # User stars out of 5.0`;
+    sklearnModel = `from sklearn.ensemble import RandomForestRegressor
+model = RandomForestRegressor(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_candidate_items = [
+    [4.2, 0.92, 0.80, 0.90, 86.0],  # Strong match with user favorite genre
+    [2.0, 0.15, 0.50, 0.20, 50.0],  # Poor genre alignment
+]`;
+  } else if (isObjectDetection) {
+    domainFeatures = ["bbox_area_px", "aspect_ratio", "relative_speed_kmh", "distance_meters", "edge_density"];
+    targetName = "obstacle_type";
+    taskType = "classification";
+    sampleRows = `# [area_px, aspect_ratio, speed_kmh, distance_m, edge_density] -> obstacle(0=Road, 1=Vehicle, 2=Pedestrian)
+X_train = [
+    [14000.0, 1.85, 55.0, 35.0, 0.82],
+    [1800.0,  0.42, 4.0,  12.0, 0.75],
+    [250.0,   1.00, 0.0,  80.0, 0.15],
+    [16500.0, 1.70, 60.0, 28.0, 0.88],
+    [2100.0,  0.38, 5.5,  15.0, 0.78],
+    [400.0,   1.10, 0.0,  65.0, 0.20],
+]
+y_train = [1, 2, 0, 1, 2, 0]  # 0=Clear road, 1=Vehicle ahead, 2=Pedestrian`;
+    sklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_camera_detections = [
+    [1950.0,  0.40, 3.5, 10.0, 0.72],  # Narrow tall bounding box close by (pedestrian)
+    [15200.0, 1.80, 52.0, 30.0, 0.85],  # Wide box moving at 52 km/h (vehicle)
+]`;
+  } else if (isCybersecurity) {
+    domainFeatures = ["packet_length_bytes", "packets_per_second", "failed_logins", "session_duration_sec", "foreign_port_flag"];
+    targetName = "is_malicious_attack";
+    taskType = "classification";
+    sampleRows = `# [packet_len, pkts_per_sec, failed_logins, duration_sec, foreign_port(0/1)] -> attack(0=Safe, 1=Attack)
+X_train = [
+    [1450, 1500, 8, 2, 1],
+    [480,  12,   0, 350, 0],
+    [1500, 2200, 15, 1, 1],
+    [520,  20,   0, 600, 0],
+    [1200, 950,  6, 3, 1],
+    [390,  8,    0, 240, 0],
+]
+y_train = [1, 0, 1, 0, 1, 0]  # 1=Intrusion / DDoS threat, 0=Benign user traffic`;
+    sklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_network_sessions = [
+    [1480, 1800, 12, 1, 1],  # Massive packet burst with failed logins (attack)
+    [420,  15,   0,  450, 0], # Normal web browsing session (benign)
+]`;
+  } else if (isFakeNews) {
+    domainFeatures = ["sensational_word_density", "uppercase_letter_ratio", "exclamation_mark_freq", "source_credibility_score", "quote_count"];
+    targetName = "is_fake_news";
+    taskType = "classification";
+    sampleRows = `# [sensational_pct, caps_ratio, exclamations, source_cred(0-1), quotes] -> fake(0=Verified, 1=Fake)
+X_train = [
+    [0.85, 0.45, 7, 0.15, 0],
+    [0.08, 0.02, 0, 0.95, 5],
+    [0.92, 0.50, 9, 0.10, 0],
+    [0.05, 0.01, 0, 0.98, 4],
+    [0.78, 0.38, 5, 0.20, 1],
+    [0.12, 0.03, 1, 0.90, 6],
+]
+y_train = [1, 0, 1, 0, 1, 0]  # 1=Unverified / sensationalist fake news, 0=Credible report`;
+    sklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_articles = [
+    [0.88, 0.48, 8, 0.12, 0],  # "SHOCKING SECRET REVEALED!!!" (fake)
+    [0.06, 0.02, 0, 0.94, 4],  # Balanced investigative journalism (verified)
+]`;
+  } else if (isAudioOrSpeech) {
+    domainFeatures = ["pitch_hz", "spectral_centroid_hz", "zero_crossing_rate", "energy_rms", "duration_seconds"];
+    targetName = "voice_command_class";
+    taskType = "classification";
+    sampleRows = `# [pitch_hz, centroid_hz, zcr, energy_rms, duration_s] -> command(0=Stop, 1=Play, 2=Next)
+X_train = [
+    [120.0, 1400.0, 0.06, 0.35, 0.60],
+    [210.0, 2600.0, 0.14, 0.75, 0.85],
+    [165.0, 1950.0, 0.09, 0.55, 0.70],
+    [115.0, 1350.0, 0.05, 0.32, 0.55],
+    [220.0, 2700.0, 0.15, 0.78, 0.90],
+    [170.0, 2000.0, 0.10, 0.58, 0.75],
+]
+y_train = [0, 1, 2, 0, 1, 2]  # 0="Stop", 1="Play", 2="Next"`;
+    sklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_audio_recordings = [
+    [215.0, 2650.0, 0.14, 0.76, 0.88],  # Bright energetic vocal acoustics ("Play")
+    [118.0, 1380.0, 0.06, 0.34, 0.58],  # Low abrupt vocal acoustics ("Stop")
+]`;
+  } else if (isSalesDemand) {
+    domainFeatures = ["prev_week_sales", "promotional_discount_pct", "holiday_flag", "store_footfall", "marketing_spend_usd"];
+    targetName = "units_sold";
+    taskType = "regression";
+    sampleRows = `# [prev_sales, discount%, holiday(0/1), footfall, mktg_$] -> units_sold
+X_train = [
+    [350, 15, 1, 1200, 800],
+    [180, 0,  0, 600,  150],
+    [420, 25, 1, 1500, 1200],
+    [200, 5,  0, 680,  200],
+    [310, 10, 0, 950,  500],
+    [480, 30, 1, 1800, 1500],
+]
+y_train = [385, 175, 460, 210, 320, 520]  # Actual units sold`;
+    sklearnModel = `from sklearn.ensemble import GradientBoostingRegressor
+model = GradientBoostingRegressor(n_estimators=50, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_sales_weeks = [
+    [360, 20, 1, 1300, 900],   # Holiday week with 20% discount promotion
+    [190, 0,  0, 620,  150],   # Standard baseline off-peak week
+]`;
+  } else if (isWeather) {
+    domainFeatures = ["temperature_c", "humidity_pct", "pressure_hpa", "wind_speed_kmh", "cloud_cover_pct"];
+    targetName = "will_rain_tomorrow";
+    taskType = "classification";
+    sampleRows = `# [temp_c, humidity%, pressure_hpa, wind_kmh, cloud%] -> rain_tomorrow
+X_train = [
+    [30, 65, 1012, 12, 40],
+    [25, 88, 1005, 18, 90],
+    [22, 55, 1018, 8,  20],
+    [28, 91, 1003, 22, 95],
+    [32, 60, 1015, 5,  10],
+    [18, 85, 1000, 25, 98],
+]
+y_train = [0, 1, 0, 1, 0, 1]  # 0=No rain, 1=Rain tomorrow`;
+    sklearnModel = `from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(n_estimators=10, random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `# New unseen weather observations to predict
+new_readings = [
+    [26, 85, 1007, 15, 80],   # Humid & cloudy
+    [34, 45, 1020, 6,  5],    # Dry & sunny
+]`;
+  } else if (isHouseOrProperty) {
+    domainFeatures = ["sqft", "bedrooms", "bathrooms", "garage_spaces", "distance_to_city_km"];
+    targetName = "price_usd";
+    taskType = "regression";
+    sampleRows = `# [sqft, bedrooms, bathrooms, garage, distance_km] -> price_usd
+X_train = [
+    [1200, 2, 1, 0, 15],
+    [1800, 3, 2, 1, 8],
+    [2400, 4, 2, 2, 5],
+    [3000, 4, 3, 2, 3],
+    [900,  1, 1, 0, 22],
+]
+y_train = [180000, 265000, 380000, 520000, 125000]`;
+    sklearnModel = `from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(X_train, y_train)`;
+    testSamples = `new_houses = [
+    [1500, 3, 2, 1, 10],
+    [3500, 5, 4, 3, 2],
+]`;
+  } else if (isStock) {
+    domainFeatures = ["open_price", "volume", "day_of_week", "prev_close", "market_index"];
+    targetName = "close_price";
+    taskType = "regression";
+    sampleRows = `# [open, volume_M, day(0-4), prev_close, market_index] -> close_price
+X_train = [
+    [150.0, 5.2, 0, 148.5, 4500],
+    [152.0, 6.1, 1, 150.0, 4510],
+    [149.0, 4.8, 2, 152.0, 4490],
+    [151.0, 7.3, 3, 149.0, 4520],
+    [153.0, 5.5, 4, 151.0, 4530],
+]
+y_train = [151.5, 153.0, 148.0, 152.5, 155.0]`;
+    sklearnModel = `from sklearn.linear_model import Ridge
+model = Ridge(alpha=1.0)
+model.fit(X_train, y_train)`;
+    testSamples = `new_days = [
+    [154.0, 6.0, 0, 153.0, 4540],
+    [148.0, 4.5, 2, 149.5, 4475],
+]`;
+  } else {
+    // Generic custom goal — derive contextual names from goal string
+    const words = safeGoal.toLowerCase().split(/[\s_-]+/).filter(w => w.length > 3);
+    domainFeatures = words.slice(0, 3).map(w => `${w}_score`).concat(["value_1", "value_2"]).slice(0, 4);
+    targetName = "prediction";
+    taskType = "classification";
+    sampleRows = `# Auto-generated training samples for ${safeGoal}
+X_train = [[1.2, 0.5, 3.1, 0.9], [0.3, 2.1, 1.5, 0.2], [2.8, 0.8, 0.4, 1.7],
+           [0.1, 1.9, 2.0, 0.5], [3.2, 0.3, 1.1, 2.0], [0.6, 2.7, 0.8, 1.3]]
+y_train = [1, 0, 1, 0, 1, 0]  # 1 = positive outcome`;
+    sklearnModel = `from sklearn.linear_model import LogisticRegression
+model = LogisticRegression(random_state=42)
+model.fit(X_train, y_train)`;
+    testSamples = `new_samples = [[2.0, 0.4, 1.5, 1.1], [0.2, 2.5, 0.9, 0.4]]`;
+  }
+
+  const featuresStr = JSON.stringify(domainFeatures);
+  const featuresComment = domainFeatures.map((f, i) => `# ${i}: ${f}`).join("\n");
+  const testVarName = testSamples.match(/^([a-zA-Z0-9_]+)\s*=/m)?.[1] || "new_samples";
+
   return [
     {
       id: "problem-framing",
       title: `Problem Formulation: ${safeGoal}`,
       prereqs: [],
       difficulty: 1,
-      hook: `Before writing code for ${safeGoal}, what features does the model observe and what single target quantity does it predict?`,
-      explanationSummary: `Every machine learning project begins by defining an input/output contract: observable features serve as inputs (X), and the learned quantity serves as the target outcome (Y).`,
-      corePrinciple: `Supervised learning learns f(X) -> Y. Features in X must be known prior to prediction, and target Y must never leak into X.`,
-      whyItMatters: `Defining the data contract upfront prevents target leakage and establishes whether the task requires classification or regression.`,
-      buildStep: `Define the input/output specification contract for ${safeGoal}.`,
-      starterCode: `# Step 1: Input/Output Contract for ${safeGoal}
-# Fill in the blanks:
-# 1. Is this "regression" or "classification"?
-# 2. What input features does the model observe?
-# 3. What is the target to predict?
+      hook: `Before writing code for ${safeGoal}, what real-world measurements will the model use as inputs, and what single outcome does it need to predict?`,
+      explanationSummary: `Every machine learning project starts with a data contract: define what observable facts go IN (features) and what the model must output (target). For ${safeGoal} the features are things like ${domainFeatures.slice(0,3).join(", ")} and the target is ${targetName}.`,
+      corePrinciple: `Supervised learning: f(X) -> Y. Features X are measured before prediction. Target Y is what we learn to predict.`,
+      whyItMatters: `Mixing the target into the inputs causes "target leakage" — the model cheats on training but fails completely on real data.`,
+      buildStep: `Define the exact input features and target for ${safeGoal}.`,
+      starterCode: `# Step 1: Define the Data Contract for ${safeGoal}
+# These are the REAL features your model will learn from:
+${featuresComment}
+# Target: ${targetName}
 
 def define_project_spec():
     return {
         "project": "${safeGoal}",
-        "task_type": ___,        # TODO: "regression" or "classification"?
-        "inputs": [___],         # TODO: list the input feature names as strings
-        "target": ___            # TODO: what single value is it predicting?
+        "task_type": ___,             # TODO: "${taskType}"
+        "features": ___,              # TODO: ${featuresStr}
+        "target": ___                 # TODO: "${targetName}"
     }
 
-print("Spec:", define_project_spec())
+spec = define_project_spec()
+print("Project Spec:", spec)
 `,
-      solutionCode: `def define_project_spec():
+      solutionCode: `# Step 1: Data Contract for ${safeGoal}
+def define_project_spec():
     return {
         "project": "${safeGoal}",
-        "task_type": "classification",
-        "inputs": ["feature_1", "feature_2"],
-        "target": "target_value"
+        "task_type": "${taskType}",
+        "features": ${featuresStr},
+        "target": "${targetName}"
     }
 
-print("Spec:", define_project_spec())
+spec = define_project_spec()
+print("Project Spec:", spec)
 `,
       testAssertion: `spec = define_project_spec()
-assert isinstance(spec, dict), "define_project_spec() must return a dictionary"
+assert isinstance(spec, dict), "Must return a dict"
 task_type = str(spec.get("task_type", "")).lower().strip()
-assert task_type != "___" and task_type != "", "Blank 'task_type' is not filled in yet. Choose 'regression' or 'classification'."
-inputs = spec.get("inputs", [])
-assert isinstance(inputs, list), "'inputs' must be a list of feature names"
-assert len(inputs) > 0 and inputs != ["___"], "Blank 'inputs' is not filled in yet."
-target = str(spec.get("target", "")).lower().strip()
-assert target != "___" and target != "", "Blank 'target' is not filled in yet."
-assert target not in [str(x).lower() for x in inputs], "TARGET_LEAKAGE: Target cannot be in the inputs list!"
-print("Assertion Passed: Project specification verified!")
+assert task_type != "___" and task_type != "", "Fill in task_type: '${taskType}'"
+features = spec.get("features", [])
+assert isinstance(features, list) and len(features) > 0, "features must be a non-empty list"
+assert features != ["___"], "Replace blank with the actual feature list"
+target = str(spec.get("target", "")).strip()
+assert target != "___" and target != "", "Fill in target: '${targetName}'"
+assert target not in [str(f).lower() for f in features], "TARGET LEAKAGE: target cannot be in the features list!"
+print("Assertion Passed: Data contract verified!")
 `,
       predictQuestion: {
-        prompt: `For ${safeGoal}, what should go into the model's 'inputs' list, and what should the 'target' be?`,
+        prompt: `For "${safeGoal}", which of these correctly describes the input features vs the target?`,
         options: [
-          "inputs: observable features known beforehand, target: outcome to predict",
-          "inputs: outcome to predict, target: observable features",
-          "inputs: model weights, target: gradient loss",
-          "inputs: training code, target: compiler output",
+          `Features = [${domainFeatures.slice(0,2).join(", ")},...] (things we measure BEFORE prediction). Target = ${targetName} (what we predict).`,
+          `Features = ${targetName} (the thing to predict). Target = the model's weights.`,
+          `Features = model accuracy. Target = number of training rows.`,
+          `Features and target are the same thing.`,
         ],
         correctIndex: 0,
-        explanation: "Inputs are the observable features known beforehand; target is what the model learns to predict.",
+        explanation: `Features are observable measurements available before prediction. Target is the outcome the model learns to output.`,
       },
       checkQuestion: {
-        prompt: `What is the danger of including the target variable inside the model's input features list?`,
+        prompt: `What is "target leakage" and why is it dangerous?`,
         options: [
-          "Target leakage: the model cheats by looking at the target directly during training and fails on new real-world data.",
-          "It makes the program run out of memory.",
-          "Python prohibits duplicate variables.",
-          "The output will always be zero.",
+          "Including the target inside the feature list — the model memorizes it during training but fails on real unseen data.",
+          "Having too many rows in the training dataset.",
+          "Using a learning rate that is too high.",
+          "Training the model for too many epochs.",
         ],
         correctIndex: 0,
-        explanation: "Target leakage ruins model generalization because the target is unavailable at inference time.",
+        explanation: "Target leakage lets the model cheat during training. It then collapses completely on new real-world examples where the target is unknown.",
       },
     },
     {
       id: "feature-engineering",
-      title: `Feature Vectorization & Preprocessing: ${safeGoal}`,
+      title: `Build the Training Dataset: ${safeGoal}`,
       prereqs: ["problem-framing"],
       difficulty: 2,
-      hook: `Raw data for ${safeGoal} arrives in diverse formats. How do we convert messy inputs into clean numerical float vectors?`,
-      explanationSummary: `Machine learning models operate on numerical matrices. Transforming raw inputs into structured float vectors is required for matrix multiplication and gradient optimization.`,
-      corePrinciple: `Feature Vectorization maps domain measurements to standard numeric floats [x_1, x_2, ..., x_n].`,
-      whyItMatters: `Mathematical optimization algorithms cannot compute gradients on missing markers or unparsed strings.`,
-      buildStep: `Build the normalization and numerical vectorization transform for incoming project data.`,
-      starterCode: `# Step 2: Numerical Feature Vectorization
-# Complete the blank to convert raw inputs into float values:
+      hook: `A machine learning model can only learn if it has historical examples. Where do those examples come from, and how do we format them for ${safeGoal}?`,
+      explanationSummary: `A training dataset is a table of historical observations. Each row is one past example with measured feature values and the known correct answer. For ${safeGoal}, each row contains [${domainFeatures.join(", ")}] and the known target: ${targetName}.`,
+      corePrinciple: `X_train = [[features of example 1], [features of example 2], ...]. y_train = [target1, target2, ...]. Same index = same example.`,
+      whyItMatters: `Without a real dataset the model has nothing to learn from. Manually picking weights is NOT learning — it is just a formula.`,
+      buildStep: `Build X_train (feature matrix) and y_train (targets) for ${safeGoal} using realistic domain values.`,
+      starterCode: `# Step 2: Build the Training Dataset for ${safeGoal}
+# Each row in X_train = one historical observation
+# Columns order: ${domainFeatures.join(" | ")}
 
-def vectorize_features(raw_data: list) -> list[float]:
-    # Extract numerical vector by converting each valid item to float
-    clean_vector = [___ for x in raw_data if isinstance(x, (int, float))]  # TODO: float(x)
-    return clean_vector
+${sampleRows}
 
-print("Vector:", vectorize_features([10, 20.5, "ignore", 30]))
+# Explore the data shape
+print(f"Training samples: {len(X_train)} rows x {len(X_train[0])} features")
+print(f"Target values: {y_train}")
+
+# TODO: Add 2 more realistic rows to X_train and y_train
+# Hint: Copy the pattern above using real domain-appropriate values
 `,
-      solutionCode: `def vectorize_features(raw_data: list) -> list[float]:
-    clean_vector = [float(x) for x in raw_data if isinstance(x, (int, float))]
-    return clean_vector
+      solutionCode: `# Step 2: Training Dataset for ${safeGoal}
+${sampleRows}
 
-print("Vector:", vectorize_features([10, 20.5, "ignore", 30]))
+print(f"Training samples: {len(X_train)} rows x {len(X_train[0])} features")
+print(f"Feature columns: ${domainFeatures.join(', ')}")
+print(f"Target ({targetName}): {y_train}")
 `,
-      testAssertion: `res = vectorize_features([1, 2, "a", 3.5])
-assert res == [1.0, 2.0, 3.5], f"Expected [1.0, 2.0, 3.5], got {res}"
-print("Assertion Passed: Feature vectorizer operational!")
+      testAssertion: `assert len(X_train) >= 4, f"Need at least 4 training rows, got {len(X_train)}"
+assert all(len(row) == ${domainFeatures.length} for row in X_train), "Each row must have ${domainFeatures.length} features: ${domainFeatures.join(', ')}"
+assert len(X_train) == len(y_train), "X_train and y_train must have the same number of rows"
+print(f"Assertion Passed: Dataset has {len(X_train)} examples with ${domainFeatures.length} real features each!")
 `,
       predictQuestion: {
-        prompt: "Why must non-numeric values be converted or filtered during feature vectorization?",
+        prompt: `In the training dataset for ${safeGoal}, what does each ROW represent?`,
         options: [
-          "Matrix multiplication and gradient updates require pure numerical floats",
-          "Text uses more disk storage than floats",
-          "Python prohibits mixing strings and numbers in lists",
-          "Neural networks can only run on integers",
+          `One historical real-world observation — e.g. one day's weather readings [${domainFeatures.slice(0,2).join(", ")}, ...] paired with the known outcome.`,
+          `A single weight value learned during gradient descent.`,
+          `A Python function that runs the prediction.`,
+          `A random number generated by the model.`,
         ],
         correctIndex: 0,
-        explanation: "Mathematical optimization algorithms require numerical tensors to compute dot products and derivatives.",
+        explanation: `Each row is one complete historical example: all measured features + the correct answer the model should learn to predict.`,
       },
       checkQuestion: {
-        prompt: "What is the primary benefit of feature vectorization in machine learning?",
+        prompt: `Why can't we just make up weights ourselves instead of training on real data?`,
         options: [
-          "It maps diverse real-world domain inputs into a uniform mathematical coordinate space.",
-          "It deletes noisy rows from memory permanently.",
-          "It eliminates the need for test datasets.",
-          "It converts the script into C++ binary code.",
+          `Handpicked weights are just a formula — they cannot adapt to patterns hidden in data that humans cannot see.`,
+          `sklearn does not accept manually set weights.`,
+          `Python crashes when you write numbers directly.`,
+          `Training data always makes the model worse.`,
         ],
         correctIndex: 0,
-        explanation: "Vectorization creates numerical coordinates for geometrical pattern matching and optimization.",
+        explanation: `An ML model finds optimal weights by minimising error across hundreds of examples. A human guessing weights cannot discover subtle multi-feature interactions.`,
       },
     },
     {
       id: "model-architecture",
-      title: `Core Decision Function & Scoring: ${safeGoal}`,
+      title: `Train a Real ML Model: ${safeGoal}`,
       prereqs: ["feature-engineering"],
       difficulty: 3,
-      hook: `Once features are numbers, what mathematical function calculates the model's prediction score?`,
-      explanationSummary: `Linear scoring computes the dot product of learned weights with input features, then adds a bias term: score = sum(w_i * x_i) + bias.`,
-      corePrinciple: `Decision Score = dot_product(Weights, Features) + Bias.`,
-      whyItMatters: `The scoring function forms the computational heart of linear models, logistic regression, and neural network layers.`,
-      buildStep: `Implement the parameterized scoring function that maps features to class scores.`,
-      starterCode: `# Step 3: Parameterized Decision Function
-# Formula: score = sum(feature * weight) + bias
+      hook: `You now have real data. How does sklearn actually LEARN the weights — and what does model.fit() do under the hood?`,
+      explanationSummary: `model.fit(X_train, y_train) iterates over the training data, computes prediction errors, and mathematically adjusts weights to minimise those errors. After .fit(), the model has LEARNED — the weights are no longer manually set, they were computed from data.`,
+      corePrinciple: `Training loop: Predict → Measure Error → Compute Gradient → Update Weights → Repeat. sklearn automates all of this in one .fit() call.`,
+      whyItMatters: `This is the core of machine learning. Without .fit() it is just a formula with hardcoded numbers — not a model that learned anything.`,
+      buildStep: `Train a real sklearn model on your ${safeGoal} dataset and make predictions on new unseen examples.`,
+      starterCode: `# Step 3: Train a Real ML Model for ${safeGoal}
+# We already built our dataset in Step 2
+${sampleRows}
 
-def predict_score(features: list[float], weights: list[float], bias: float = 0.0) -> float:
-    # Fill in the blanks:
-    # 1. Compute dot product
-    # 2. Add bias intercept
-    weighted_sum = ___           # TODO: sum(f * w for f, w in zip(features, weights))
-    score = ___                  # TODO: weighted_sum + bias
-    return round(score, 4)
+# Import the right sklearn model
+${sklearnModel.split("\n")[0]}           # <-- import
+model = ___                              # TODO: create the model instance (e.g. RandomForestClassifier())
+model.fit(___, ___)                      # TODO: train on X_train, y_train
 
-print("Score:", predict_score([1.0, 2.0], [0.5, 1.5], 0.1))
+# Now predict on NEW unseen examples
+${testSamples}
+predictions = model.predict(___)
+print("New predictions:", predictions)
 `,
-      solutionCode: `def predict_score(features: list[float], weights: list[float], bias: float = 0.0) -> float:
-    weighted_sum = sum(f * w for f, w in zip(features, weights))
-    score = weighted_sum + bias
-    return round(score, 4)
+      solutionCode: `# Step 3: Train a Real ML Model for ${safeGoal}
+${sampleRows}
 
-print("Score:", predict_score([1.0, 2.0], [0.5, 1.5], 0.1))
+${sklearnModel}
+
+# Predict on new unseen examples the model has never seen
+${testSamples}
+predictions = model.predict(${testVarName})
+print("Model was trained on", len(X_train), "historical examples")
+print("Predictions for new data:", predictions)
+print("\n✅ The model LEARNED these patterns — no hardcoded weights!")
 `,
-      testAssertion: `s = predict_score([1.0, 2.0], [0.5, 1.5], 0.1)
-assert round(s, 2) == 3.6, f"Expected 3.6 for (1*0.5 + 2*1.5 + 0.1), got {s}"
-print("Assertion Passed: Decision function operational!")
+      testAssertion: `try:
+    preds = model.predict(${testVarName})
+    assert preds is not None and len(preds) > 0, "model.predict() must return at least one prediction"
+    assert hasattr(model, "fit"), "Model must be a proper sklearn estimator with .fit()"
+    print(f"Assertion Passed: Real ML model trained! Got {len(preds)} predictions: {preds}")
+except NameError:
+    print("⚠ Model not trained yet — make sure to call model.fit(X_train, y_train)")
+    raise
 `,
       predictQuestion: {
-        prompt: "In the decision function score = sum(w * x) + bias, what is the role of the bias term?",
+        prompt: `What is the difference between model.fit() and just writing a formula like score = 0.5*x1 + 1.5*x2?`,
         options: [
-          "It shifts the decision boundary independently of feature inputs (baseline intercept)",
-          "It randomly introduces noise to test model stability",
-          "It multiplies all features by a constant scaling factor",
-          "It records how long the model has been training",
+          `model.fit() LEARNS the best weights from real historical data. A formula uses weights you manually guessed — no learning happened.`,
+          `model.fit() is slower but produces identical results to a manual formula.`,
+          `A manual formula uses sklearn internally.`,
+          `model.fit() only works with images, not tabular data.`,
         ],
         correctIndex: 0,
-        explanation: "The bias allows the model to predict a non-zero baseline even when all input features are zero.",
+        explanation: `Training discovers optimal weights by minimising prediction error across the entire dataset. Manual formulas cannot discover hidden feature interactions.`,
       },
       checkQuestion: {
-        prompt: "If all features x are zero, what does predict_score(features, weights, bias) return?",
+        prompt: `After model.fit(X_train, y_train) is called, what has happened inside the model?`,
         options: [
-          "The bias value",
-          "0.0 always",
-          "An error",
-          "Infinity",
+          `The model has adjusted its internal weights/parameters so its predictions are as accurate as possible on the training data.`,
+          `The model deleted the training data to save memory.`,
+          `The model printed all training rows to the terminal.`,
+          `Nothing — .fit() only validates the input format.`,
         ],
         correctIndex: 0,
-        explanation: "sum(0 * w) = 0, so 0 + bias = bias.",
+        explanation: `fit() optimises the model's internal parameters (weights, decision boundaries, leaf splits, etc.) to minimise error on the training examples.`,
       },
     },
     {
       id: "decision-boundary",
-      title: `Decision Boundary & Evaluation: ${safeGoal}`,
+      title: `Evaluate & Test the Model: ${safeGoal}`,
       prereqs: ["model-architecture"],
       difficulty: 3,
-      hook: `How does the system decide whether a score warrants a positive or negative prediction for ${safeGoal}?`,
-      explanationSummary: `A decision threshold partitions the continuous score space into discrete predictions. Comparing predictions against ground truth labels yields evaluation metrics like Precision, Recall, and Accuracy.`,
-      corePrinciple: `Prediction = 1 if score >= threshold else 0.`,
-      whyItMatters: `Threshold tuning lets you adapt your system to real-world costs — such as prioritizing recall to avoid missed detections.`,
-      buildStep: `Implement the decision thresholding rule and evaluate prediction accuracy against ground truth labels.`,
-      starterCode: `# Step 4: Decision Threshold & Accuracy Evaluation
+      hook: `Your model was trained on past data. But how do you know if it will work on NEW data it has never seen?`,
+      explanationSummary: `After training, we hold back some data (the test set) that the model never saw during training. We compare model predictions to the real answers on this unseen test set. This gives an honest accuracy score — not a score inflated by memorising training examples.`,
+      corePrinciple: `Train/Test Split: train on 80% of data, evaluate on the remaining 20%. Accuracy = correct_predictions / total_test_examples.`,
+      whyItMatters: `A model can memorise all training data and get 100% training accuracy but fail completely on new real-world inputs. Test-set evaluation reveals the truth.`,
+      buildStep: `Split your dataset into training and test sets, train the model, then measure real accuracy on the held-out test examples.`,
+      starterCode: `# Step 4: Train/Test Split & Honest Evaluation
+${sampleRows}
 
-def evaluate_predictions(scores: list[float], targets: list[int], threshold: float = 0.50) -> dict:
-    # Fill in the blanks:
-    # 1. Convert each continuous score to 1 if score >= threshold else 0
-    # 2. Count correct matches
-    predictions = [___ for s in scores]         # TODO: 1 if s >= threshold else 0
-    correct = sum(1 for p, t in zip(predictions, targets) if p == t)
-    accuracy = round(correct / len(targets), 4) if targets else 0.0
-    return {"accuracy": accuracy, "predictions": predictions}
+# Split: first 4 rows for training, last 2 rows for testing
+X_train_split = X_train[:4]
+y_train_split = y_train[:4]
+X_test = X_train[4:]          # Model will NEVER see these during training
+y_test = y_train[4:]          # True answers for the test rows
 
-print("Evaluation:", evaluate_predictions([0.8, 0.3, 0.6], [1, 0, 1], threshold=0.50))
+${sklearnModel.replace("X_train", "X_train_split").replace("y_train", "y_train_split")}
+
+# Evaluate on the held-out test set
+predictions = model.predict(___)
+correct = sum(1 for p, t in zip(predictions, ___) if p == t)
+accuracy = round(correct / len(y_test), 2)
+print(f"Test accuracy: {accuracy * 100}%")
 `,
-      solutionCode: `def evaluate_predictions(scores: list[float], targets: list[int], threshold: float = 0.50) -> dict:
-    predictions = [1 if s >= threshold else 0 for s in scores]
-    correct = sum(1 for p, t in zip(predictions, targets) if p == t)
-    accuracy = round(correct / len(targets), 4) if targets else 0.0
-    return {"accuracy": accuracy, "predictions": predictions}
+      solutionCode: `# Step 4: Train/Test Split & Evaluation for ${safeGoal}
+${sampleRows}
 
-print("Evaluation:", evaluate_predictions([0.8, 0.3, 0.6], [1, 0, 1], threshold=0.50))
+X_train_split = X_train[:4]
+y_train_split = y_train[:4]
+X_test  = X_train[4:]
+y_test  = y_train[4:]
+
+${sklearnModel.replace("X_train", "X_train_split").replace("y_train", "y_train_split")}
+
+predictions = model.predict(X_test)
+correct = sum(1 for p, t in zip(predictions, y_test) if p == t)
+accuracy = round(correct / len(y_test), 2)
+print(f"Held-out test predictions: {predictions}")
+print(f"True labels:               {y_test}")
+print(f"Test accuracy:             {accuracy * 100}%")
 `,
-      testAssertion: `res = evaluate_predictions([0.8, 0.3, 0.6], [1, 0, 1], 0.50)
-assert res["accuracy"] == 1.0, f"Expected 1.0 accuracy, got {res['accuracy']}"
-assert res["predictions"] == [1, 0, 1], f"Expected [1, 0, 1], got {res['predictions']}"
-res2 = evaluate_predictions([0.4, 0.3], [1, 0], 0.50)
-assert res2["accuracy"] == 0.5, f"Expected 0.5 accuracy, got {res2['accuracy']}"
-print("Assertion Passed: Decision boundary evaluation operational!")
+      testAssertion: `preds = model.predict(X_test)
+assert len(preds) == len(y_test), f"Expected {len(y_test)} predictions, got {len(preds)}"
+correct = sum(1 for p, t in zip(preds, y_test) if p == t)
+print(f"Assertion Passed: Model evaluated on {len(y_test)} unseen examples. Correct: {correct}/{len(y_test)}")
 `,
       predictQuestion: {
-        prompt: "If a model outputs probability 0.72 and the decision threshold is 0.50, what is the classified output?",
+        prompt: `Why do we evaluate on a TEST set instead of the same data we trained on?`,
         options: [
-          "Class 1 (Positive) because 0.72 >= 0.50",
-          "Class 0 (Negative) because 0.72 is not 1.00",
-          "Undecided",
-          "Error: scores must be integers",
+          `Training accuracy can be faked by memorisation. Test accuracy on unseen data reveals how the model really performs in the real world.`,
+          `sklearn requires a separate test set or it crashes.`,
+          `The test set is always larger than the training set.`,
+          `Training data is deleted automatically after .fit().`,
         ],
         correctIndex: 0,
-        explanation: "Any score greater than or equal to the decision threshold is mapped to the positive class.",
+        explanation: `A model that memorises training examples will score 100% on training data but fail on new examples. The test set simulates real-world unseen data.`,
       },
       checkQuestion: {
-        prompt: "Why is accuracy sometimes a misleading metric when evaluating imbalanced datasets?",
+        prompt: `If a model gets 100% accuracy on training data but 50% on test data, what does this tell you?`,
         options: [
-          "A naive model predicting only the majority class can get 99% accuracy while finding zero positive cases.",
-          "Accuracy only works for regression problems.",
-          "Accuracy cannot be computed with Python floats.",
-          "Accuracy is always lower than precision.",
+          `The model is overfitting — it memorised the training examples instead of learning general patterns.`,
+          `The model is performing perfectly.`,
+          `The test set has errors.`,
+          `100% training accuracy always means the model is excellent.`,
         ],
         correctIndex: 0,
-        explanation: "On skewed data (e.g. 99% negative cases), a model that predicts negative 100% of the time gets 99% accuracy but fails its mission.",
+        explanation: `Overfitting = model learned the training data by heart, not the underlying patterns. It fails to generalise to new unseen examples.`,
       },
     },
   ];

@@ -152,12 +152,23 @@ export async function POST(req: NextRequest) {
     const systemPrompt = `You are Socrates, an expert AI tutor. A learner wants to build: "${goal}".
 Learner coding background: "${background || "beginner"}".
 Learner personal interests: "${interests || "general tech"}".
-Generate a DAG concept plan (5 to 8 nodes).
-RULES:
-1. Every concept must be directly required for their project: "${goal}". Do NOT output a generic spam classifier unless their project is actually about spam!
-2. Hook questions must create curiosity gaps, NEVER start with an abstract definition.
-3. Every step has a concrete build task with starterCode in Python and a working testAssertion.
-4. Output MUST strictly match the PlanOutputSchema.`;
+Generate a beginner-friendly DAG concept plan (5 to 8 nodes).
+
+CRITICAL RULES (MUST FOLLOW, NO EXCEPTIONS):
+1. DOMAIN-SPECIFIC FEATURES ONLY: Every concept's starterCode and solutionCode must use REAL, named features specific to "${goal}".
+   - If goal is "weather predictor" → use temperature, humidity, pressure, wind_speed, cloud_cover
+   - If goal is "house price predictor" → use sqft, bedrooms, bathrooms, location_score
+   - NEVER use placeholder names like "feature_1", "feature_2", "target_value", "inputs", or any generic names.
+2. REAL TRAINING REQUIRED: The model-building step MUST actually train a model on a real synthetic dataset using sklearn.
+   - Use sklearn.linear_model, sklearn.ensemble, or sklearn.tree based on what is appropriate.
+   - Generate synthetic training data (X_train, y_train) with realistic, domain-specific values.
+   - Call model.fit(X_train, y_train) — do NOT just hand-supply weights to a formula.
+   - Show model.predict() on new unseen examples.
+3. BEGINNER FRIENDLY: Avoid advanced concepts not needed for the project. No abstract math unless essential.
+4. Hook questions must create curiosity gaps, NEVER start with an abstract definition.
+5. Every step has a concrete build task with starterCode in Python and a working testAssertion.
+6. Output MUST strictly match the PlanOutputSchema.`;
+
 
     const plan = await generateStructuredLLM({
       systemPrompt,
