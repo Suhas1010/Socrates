@@ -11,7 +11,9 @@
 | **Test Suite** | ✅ **31 / 31 Passing** | Vitest suite covering diagnostics, learner mastery, model priority cascade, evaluation agreement (95%), and concept graphs. |
 | **TypeScript / Build** | ✅ **0 Errors** | `npx tsc --noEmit` clean; `npm run build` static generation passes for all 10 app routes. |
 | **Domain Grounding** | ✅ **7 Real ML Domains** | Grounded in authentic scikit-learn architectures (Vision, NLP, Recommenders, Audio/Voice, Cybersecurity, Sales Forecasting, Customer Churn). |
-| **Typography & Layout** | 🔄 **In Progress** | Phase 1 Theory Masterclass upgraded with dynamic bullet cards and code badges; Phase 2 & 3 being standardized. |
+| **Typography & Layout** | ✅ **Complete** | Formatted bullet cards, variable badges, generous padding, and high contrast across Phase 1, Phase 2, and Assembly views. |
+| **Project Exporter** | ✅ **Complete** | 1-Click standalone `.py`, Google Colab `.ipynb` notebook generator, and `requirements.txt` download. |
+| **Pyodide Resilience** | ✅ **Complete** | In-browser WebAssembly runner with fallback engine and beginner-friendly Python error translator. |
 
 ---
 
