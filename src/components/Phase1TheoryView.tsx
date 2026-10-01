@@ -18,6 +18,109 @@ import {
 import { Concept, TechnicalTerm } from "@/lib/types";
 import { enrichConceptWithDeepTheory } from "@/lib/technicalDictionary";
 
+function renderFormattedInlineText(text: string): React.ReactNode {
+  // Regex to match code tokens like X_train, y_train, model.fit(), [x1, x2], etc., or `code`
+  const codeRegex = /(`[^`]+`|\bX_train\b|\by_train\b|\bX_test\b|\by_test\b|\bmodel\.fit\b|\bmodel\.predict\b|\[[a-zA-Z0-9_, -]+\])/g;
+  const parts = text.split(codeRegex);
+
+  return parts.map((part, i) => {
+    if (!part) return null;
+    if (
+      (part.startsWith("`") && part.endsWith("`")) ||
+      part === "X_train" ||
+      part === "y_train" ||
+      part === "X_test" ||
+      part === "y_test" ||
+      part === "model.fit" ||
+      part === "model.predict" ||
+      (part.startsWith("[") && part.endsWith("]"))
+    ) {
+      const clean = part.replace(/^`|`$/g, "");
+      return (
+        <code
+          key={i}
+          className="px-2 py-0.5 mx-0.5 rounded-md bg-zinc-900 border border-amber-400/30 text-amber-300 font-mono text-xs font-semibold shadow-sm inline-block"
+        >
+          {clean}
+        </code>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
+function FormattedContent({ text }: { text: string }) {
+  if (!text) return null;
+
+  // Split into paragraphs by double newlines or single newlines
+  const paragraphs = text.split(/\n\s*\n/);
+
+  return (
+    <div className="space-y-4 text-sm md:text-[15px] leading-relaxed md:leading-7 text-zinc-200 font-sans">
+      {paragraphs.map((para, pIdx) => {
+        const lines = para.split("\n").map((l) => l.trim()).filter(Boolean);
+
+        // Check if this paragraph contains bullet items
+        const hasBullets = lines.some((l) => l.startsWith("•") || l.startsWith("-") || /^\d+\.\s/.test(l));
+
+        if (hasBullets) {
+          const introLines: string[] = [];
+          const listItems: string[] = [];
+
+          for (const line of lines) {
+            if (line.startsWith("•") || line.startsWith("-") || /^\d+\.\s/.test(line)) {
+              listItems.push(line.replace(/^[•\-\*]\s*|^\d+\.\s*/, ""));
+            } else {
+              introLines.push(line);
+            }
+          }
+
+          return (
+            <div key={pIdx} className="space-y-2.5">
+              {introLines.length > 0 && (
+                <p className="font-semibold text-white text-sm md:text-[15px] tracking-wide">
+                  {renderFormattedInlineText(introLines.join(" "))}
+                </p>
+              )}
+              <ul className="space-y-2 pt-0.5">
+                {listItems.map((item, itemIdx) => (
+                  <li
+                    key={itemIdx}
+                    className="flex items-start gap-3 bg-zinc-900/60 p-3 rounded-xl border border-white/5 shadow-sm"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 flex-shrink-0 shadow-sm shadow-amber-400/60" />
+                    <span className="flex-1 text-zinc-100 text-sm md:text-[15px] leading-relaxed">
+                      {renderFormattedInlineText(item)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+
+        // Standard paragraph or heading
+        const isHeading =
+          lines.length === 1 && (para.endsWith(":") || para.startsWith("🎓") || para.startsWith("💡"));
+
+        if (isHeading) {
+          return (
+            <p key={pIdx} className="font-semibold text-amber-300 text-sm md:text-[15px] tracking-wide pt-1">
+              {renderFormattedInlineText(para)}
+            </p>
+          );
+        }
+
+        return (
+          <p key={pIdx} className="leading-relaxed">
+            {renderFormattedInlineText(para.replace(/\n/g, " "))}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 interface Phase1TheoryViewProps {
   concept: Concept;
   goal: string;
@@ -234,39 +337,49 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
       {/* 3. Tab Contents: Focused & Breathing Room */}
       {activeTab === "intuition" && (
-        <div className="glass-panel p-6 rounded-3xl border border-white/10 shadow-xl space-y-5 animate-in fade-in duration-150">
+        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6 animate-in fade-in duration-150">
           {/* Plain English Breakdown */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
-              Why We Are Doing This (In Plain English)
-            </h3>
-            <p className="text-sm text-zinc-200 leading-relaxed font-sans">
-              {concept.explanationSummary ||
-                "Computers cannot feel emotions or understand images directly. They need numbers. In this step, we extract physical measurements from the data so our Python code has something to calculate with."}
-            </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
+              <h3 className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
+                Why We Are Doing This (In Plain English)
+              </h3>
+            </div>
+            <div className="pt-1">
+              <FormattedContent
+                text={
+                  concept.explanationSummary ||
+                  "Computers cannot feel emotions or understand images directly. They need numbers. In this step, we extract physical measurements from the data so our Python code has something to calculate with."
+                }
+              />
+            </div>
           </div>
 
           {/* Everyday Analogy Card */}
           {concept.corePrinciple && (
-            <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/20 flex items-start gap-3">
-              <span className="text-xl">💡</span>
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-amber-300 block">
-                  The Everyday Real-World Analogy:
+            <div className="p-5 md:p-6 rounded-2xl bg-amber-950/20 border border-amber-500/25 flex items-start gap-4 shadow-inner shadow-amber-950/20">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+                💡
+              </div>
+              <div className="space-y-2 flex-1 min-w-0">
+                <span className="text-xs font-mono font-bold text-amber-300 uppercase tracking-wider block">
+                  The Everyday Real-World Analogy
                 </span>
-                <p className="text-xs text-zinc-300 leading-relaxed">
-                  {concept.corePrinciple}
-                </p>
+                <FormattedContent text={concept.corePrinciple} />
               </div>
             </div>
           )}
 
           {/* Jargon Buster Clickable Pills */}
           {concept.technicalTerms && concept.technicalTerms.length > 0 && (
-            <div className="space-y-2.5 pt-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block">
-                Click Any Term to See Simple Meaning (0 Jargon):
-              </span>
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block">
+                  Click Any Term to See Simple Meaning (0 Jargon):
+                </span>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {concept.technicalTerms.filter(Boolean).map((termItem) => {
                   const isSelected = selectedTerm?.term === termItem.term;
@@ -275,13 +388,13 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
                       key={termItem.term}
                       type="button"
                       onClick={() => setSelectedTerm(isSelected ? null : termItem)}
-                      className={`px-3 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-2 ${
                         isSelected
                           ? "bg-amber-400 text-zinc-950 font-bold shadow-md scale-[1.02]"
-                          : "bg-zinc-900/90 text-zinc-300 hover:text-white border border-white/10"
+                          : "bg-zinc-900/90 text-zinc-300 hover:text-white border border-white/10 hover:border-amber-400/30"
                       }`}
                     >
-                      <BookOpen className="w-3 h-3 opacity-70" />
+                      <BookOpen className="w-3.5 h-3.5 opacity-70" />
                       <span>{termItem.term.split("(")[0].trim()}</span>
                     </button>
                   );
@@ -290,23 +403,23 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
               {/* Term Detail Box */}
               {selectedTerm && (
-                <div className="p-4 rounded-2xl bg-zinc-950 border border-amber-400/30 space-y-2 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <strong className="text-xs font-bold text-amber-300">
+                <div className="p-4 md:p-5 rounded-2xl bg-zinc-950 border border-amber-400/30 space-y-2.5 animate-in fade-in duration-150 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <strong className="text-sm font-bold text-amber-300">
                       {selectedTerm.term}
                     </strong>
                     <button
                       type="button"
                       onClick={() => setSelectedTerm(null)}
-                      className="text-zinc-500 hover:text-white text-xs"
+                      className="text-zinc-400 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 transition-colors"
                     >
                       Close ✕
                     </button>
                   </div>
-                  <p className="text-xs text-zinc-200 leading-relaxed">
+                  <p className="text-sm text-zinc-200 leading-relaxed">
                     {selectedTerm.definition}
                   </p>
-                  <p className="text-xs text-amber-200/90 italic">
+                  <p className="text-sm text-amber-200/90 italic bg-amber-950/20 p-3 rounded-xl border border-amber-500/15">
                     💡 <strong>Analogy:</strong> {selectedTerm.analogy}
                   </p>
                 </div>
@@ -317,50 +430,50 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
       )}
 
       {activeTab === "math" && (
-        <div className="glass-panel p-6 rounded-3xl border border-white/10 shadow-xl space-y-4 animate-in fade-in duration-150">
-          <div className="space-y-1">
-            <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
+        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-5 animate-in fade-in duration-150">
+          <div className="space-y-1 pb-1 border-b border-white/5">
+            <h3 className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
               The Math in Real Numbers (No Fluff)
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs md:text-sm text-zinc-300">
               Here is what happens to actual numbers when they pass through this step:
             </p>
           </div>
 
           {concept.deepMath ? (
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               {/* Formula */}
-              <div className="p-3.5 rounded-2xl bg-zinc-950 border border-white/10 text-center font-mono text-sm md:text-base font-bold text-amber-300">
+              <div className="p-4 rounded-2xl bg-zinc-950 border border-white/10 text-center font-mono text-base md:text-lg font-bold text-amber-300 tracking-wide shadow-inner">
                 {concept.deepMath.formulaLatex}
               </div>
 
               {/* Given Inputs */}
-              <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/5 text-xs font-mono text-zinc-300">
-                <strong className="text-white">Sample Inputs: </strong>
+              <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/5 text-sm font-mono text-zinc-200">
+                <strong className="text-amber-400 font-semibold">Sample Inputs: </strong>
                 {concept.deepMath.numericalExample.givenInputs}
               </div>
 
               {/* Steps */}
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2.5 pt-1">
                 {concept.deepMath.numericalExample.stepByStepArithmetic.map((step, idx) => (
                   <div
                     key={idx}
-                    className="p-2.5 rounded-xl bg-zinc-950/70 border border-white/5 text-xs font-mono text-zinc-300 flex items-start gap-2"
+                    className="p-3 rounded-xl bg-zinc-950/70 border border-white/5 text-sm font-mono text-zinc-200 flex items-start gap-3"
                   >
-                    <span className="text-amber-400 font-bold">Step {idx + 1}:</span>
-                    <span>{step}</span>
+                    <span className="text-amber-400 font-bold flex-shrink-0">Step {idx + 1}:</span>
+                    <span className="leading-relaxed">{step}</span>
                   </div>
                 ))}
               </div>
 
               {/* Final Result */}
-              <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold text-emerald-300 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-sm font-mono font-bold text-emerald-300 flex items-center justify-between">
                 <span>Output Result:</span>
-                <span className="text-white text-sm">{concept.deepMath.numericalExample.finalResult}</span>
+                <span className="text-white text-base">{concept.deepMath.numericalExample.finalResult}</span>
               </div>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-zinc-950 text-xs font-mono text-zinc-300">
+            <div className="p-4 rounded-2xl bg-zinc-950 text-sm font-mono text-zinc-300">
               Passes input features directly into the model tensor.
             </div>
           )}
@@ -368,35 +481,35 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
       )}
 
       {activeTab === "check" && (
-        <div className="glass-panel p-6 rounded-3xl border border-white/10 shadow-xl space-y-4 animate-in fade-in duration-150">
-          <div className="space-y-1">
-            <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
+        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-5 animate-in fade-in duration-150">
+          <div className="space-y-1 pb-1 border-b border-white/5">
+            <h3 className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
               Quick Concept Intuition Check
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs md:text-sm text-zinc-300">
               Check your understanding before moving to Python code:
             </p>
           </div>
 
           {concept.predictQuestion && (
-            <div className="p-4 rounded-2xl bg-zinc-950 border border-white/10 space-y-3">
-              <p className="text-sm font-semibold text-white">
+            <div className="p-5 md:p-6 rounded-2xl bg-zinc-950 border border-white/10 space-y-4">
+              <p className="text-base font-bold text-white leading-relaxed">
                 {concept.predictQuestion.prompt}
               </p>
 
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {concept.predictQuestion.options.map((opt, optIdx) => {
                   const isSelected = selectedPredictOption === optIdx;
                   const isCorrect = optIdx === concept.predictQuestion?.correctIndex;
 
-                  let style = "bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border-white/10";
+                  let style = "bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-white/10";
                   if (selectedPredictOption !== null) {
                     if (isSelected) {
                       style = isCorrect
-                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-200"
-                        : "bg-red-500/20 border-red-500 text-red-200";
+                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-100"
+                        : "bg-red-500/20 border-red-500 text-red-100";
                     } else if (isCorrect) {
-                      style = "bg-emerald-500/10 border-emerald-500/30 text-emerald-300";
+                      style = "bg-emerald-500/10 border-emerald-500/30 text-emerald-200";
                     }
                   }
 
@@ -405,12 +518,12 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
                       key={optIdx}
                       type="button"
                       onClick={() => handlePredictSelect(optIdx)}
-                      className={`w-full text-left p-3 rounded-xl border text-xs transition-all flex items-start gap-2.5 ${style}`}
+                      className={`w-full text-left p-3.5 rounded-xl border text-sm transition-all flex items-start gap-3 ${style}`}
                     >
-                      <span className="font-mono text-zinc-500 font-bold">
+                      <span className="font-mono text-zinc-400 font-bold mt-0.5">
                         {String.fromCharCode(65 + optIdx)}.
                       </span>
-                      <span className="flex-1">{opt}</span>
+                      <span className="flex-1 leading-relaxed">{opt}</span>
                     </button>
                   );
                 })}
@@ -418,14 +531,14 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
               {predictFeedback && (
                 <div
-                  className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                  className={`p-3.5 rounded-xl border text-sm flex items-center gap-3 ${
                     predictFeedback.correct
                       ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-200"
                       : "bg-amber-950/40 border-amber-500/40 text-amber-200"
                   }`}
                 >
-                  <span>{predictFeedback.correct ? "✅" : "💡"}</span>
-                  <span>{predictFeedback.explanation}</span>
+                  <span className="text-lg">{predictFeedback.correct ? "✅" : "💡"}</span>
+                  <span className="leading-relaxed">{predictFeedback.explanation}</span>
                 </div>
               )}
             </div>
