@@ -250,7 +250,13 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
               <pre className="text-red-400 whitespace-pre-wrap">{result.stderr}</pre>
             )}
             {result.error && (
-              <div className="text-red-400 font-semibold">{result.error}</div>
+              <div className="text-rose-400 font-semibold">{result.error}</div>
+            )}
+            {result.friendlyTip && (
+              <div className="mt-2 p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2">
+                <span className="text-sm">💡</span>
+                <span className="leading-relaxed">{result.friendlyTip}</span>
+              </div>
             )}
           </div>
         ) : (

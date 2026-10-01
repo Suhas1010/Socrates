@@ -123,22 +123,25 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
       ) : (
         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Left Column: Build Spec Guide */}
-          <div className="lg:col-span-4 flex flex-col space-y-3 overflow-y-auto pr-1">
+          <div className="lg:col-span-4 flex flex-col space-y-4 overflow-y-auto pr-1">
             {/* Build Objective Box */}
-            <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 space-y-3">
-              <span className="text-[11px] font-mono uppercase text-amber-400 font-bold tracking-wider block">
-                🛠️ Coding Objective:
-              </span>
-              <p className="text-xs text-zinc-200 leading-relaxed font-sans">
+            <div className="p-5 rounded-2xl bg-zinc-950/80 border border-white/10 space-y-3.5 shadow-lg">
+              <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                <span className="w-2 h-2 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
+                <span className="text-xs md:text-sm font-mono uppercase text-amber-400 font-bold tracking-wider block">
+                  🛠️ Coding Objective
+                </span>
+              </div>
+              <p className="text-sm md:text-[15px] text-zinc-200 leading-relaxed font-sans">
                 {concept.buildStep}
               </p>
 
               {concept.corePrinciple && (
-                <div className="p-3 rounded-xl bg-zinc-900/80 border border-white/5 space-y-1">
-                  <span className="text-[10px] font-mono uppercase text-zinc-400 font-bold block">
-                    Mathematical Principle:
+                <div className="p-3.5 rounded-xl bg-amber-950/20 border border-amber-500/20 space-y-1">
+                  <span className="text-[11px] font-mono uppercase text-amber-300 font-bold block">
+                    Mathematical Principle
                   </span>
-                  <p className="text-xs text-amber-200 font-mono">
+                  <p className="text-xs md:text-sm text-amber-100 font-mono">
                     {concept.corePrinciple}
                   </p>
                 </div>
@@ -146,28 +149,43 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
             </div>
 
             {/* Blanks Guided Checklist */}
-            <div className="p-4 rounded-2xl bg-zinc-950/80 border border-white/10 space-y-2.5">
-              <span className="text-[11px] font-mono uppercase text-zinc-400 font-bold tracking-wider block">
-                📝 Blanks Checklist:
+            <div className="p-5 rounded-2xl bg-zinc-950/80 border border-white/10 space-y-3 shadow-lg">
+              <span className="text-xs md:text-sm font-mono uppercase text-zinc-300 font-bold tracking-wider block">
+                📝 Implementation Checklist:
               </span>
-              <p className="text-xs text-zinc-300">
-                Look for <code className="text-amber-300 font-mono px-1 py-0.5 rounded bg-zinc-900">___</code> placeholders in the Python editor on the right:
+              <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
+                Find the <code className="px-2 py-0.5 rounded-md bg-zinc-900 border border-amber-400/30 text-amber-300 font-mono text-xs font-semibold">___</code> blanks in the code editor:
               </p>
-              <ul className="text-xs text-zinc-300 space-y-1.5 pl-2 list-disc list-inside">
-                <li>Replace every blank with valid Python syntax or numerical logic.</li>
-                <li>Read the inline <code className="text-zinc-400 font-mono"># TODO:</code> comments for explicit hints.</li>
-                <li>Click <strong>Run Code in Pyodide</strong> to verify test assertions in-browser.</li>
-              </ul>
+              <div className="space-y-2 pt-1">
+                <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-zinc-900/60 border border-white/5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 flex-shrink-0" />
+                  <span className="text-xs md:text-sm text-zinc-200 leading-relaxed">
+                    Replace every <code className="text-amber-300 font-mono text-xs">___</code> blank with Python logic.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-zinc-900/60 border border-white/5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 flex-shrink-0" />
+                  <span className="text-xs md:text-sm text-zinc-200 leading-relaxed">
+                    Read the inline <code className="text-zinc-400 font-mono text-xs"># TODO:</code> comments for step-by-step hints.
+                  </span>
+                </div>
+                <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-zinc-900/60 border border-white/5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
+                  <span className="text-xs md:text-sm text-zinc-200 leading-relaxed">
+                    Click <strong>Run Code</strong> to test assertions in Pyodide.
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Status & Feynman Action */}
             {isCodePassed && (
-              <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-3 animate-in fade-in duration-200">
-                <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs">
+              <div className="p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-3.5 animate-in fade-in duration-200 shadow-xl">
+                <div className="flex items-center gap-2 text-emerald-300 font-bold text-sm">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>Step {currentIndex + 1} Passed!</span>
                 </div>
-                <p className="text-xs text-zinc-300">
+                <p className="text-xs md:text-sm text-zinc-300 leading-relaxed">
                   Your function has passed all unit tests and is automatically wired into the cumulative model pipeline.
                 </p>
 
@@ -175,9 +193,9 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
                   <button
                     type="button"
                     onClick={onOpenTeachBack}
-                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm shadow-md transition-all flex items-center justify-center gap-1.5"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Sparkles className="w-4 h-4" />
                     <span>Teach Socrates (Feynman Check)</span>
                   </button>
                 )}
