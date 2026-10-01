@@ -22,6 +22,7 @@ import {
   Compass,
   Check,
   RotateCcw,
+  X,
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 import { ConceptMap } from "./ConceptMap";
@@ -53,6 +54,7 @@ export const LessonView: React.FC = () => {
   const [isMapCollapsed, setIsMapCollapsed] = useState(false);
   const [showVisualMap, setShowVisualMap] = useState(false);
   const [isTeachBackOpen, setIsTeachBackOpen] = useState(false);
+  const [isSocratesDrawerOpen, setIsSocratesDrawerOpen] = useState(false);
 
   // Socrates AI Question & Answer state
   const [askQuestionText, setAskQuestionText] = useState("");
@@ -64,6 +66,21 @@ export const LessonView: React.FC = () => {
     takeaway?: string;
   } | null>(null);
 
+  // Grounded Prediction State
+  const [predInputs, setPredInputs] = useState("");
+  const [predTarget, setPredTarget] = useState("");
+  const [isPredictChecked, setIsPredictChecked] = useState(false);
+  const [predictSuccess, setPredictSuccess] = useState<string | null>(null);
+
+  // Active Diagnosis Callout (from prediction or code run)
+  const [activeDiagnosis, setActiveDiagnosis] = useState<{
+    errorType: ErrorType;
+    diagnosis: string;
+    strategy: ExplanationStrategy;
+    matchedExplanation: string;
+    rootCauseId?: string;
+  } | null>(null);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -73,25 +90,15 @@ export const LessonView: React.FC = () => {
     }
   }, []);
 
-  // Predict question state
-  const [selectedPredictOption, setSelectedPredictOption] = useState<number | null>(null);
-  const [isPredictSubmitted, setIsPredictSubmitted] = useState(false);
-  const [predictResult, setPredictResult] = useState<{
-    correct: boolean;
-    errorType: ErrorType;
-    diagnosis: string;
-    strategy: ExplanationStrategy;
-    matchedExplanation: string;
-    rootCauseId?: string;
-  } | null>(null);
-
   const currentConcept =
     concepts.find((c) => c.id === currentConceptId) || concepts[0];
 
   useEffect(() => {
-    setSelectedPredictOption(null);
-    setIsPredictSubmitted(false);
-    setPredictResult(null);
+    setPredInputs("");
+    setPredTarget("");
+    setIsPredictChecked(false);
+    setPredictSuccess(null);
+    setActiveDiagnosis(null);
     setSocratesAnswer(null);
     setAskQuestionText("");
   }, [currentConceptId]);
@@ -116,15 +123,15 @@ export const LessonView: React.FC = () => {
   const getFriendlyErrorTitle = (err: ErrorType) => {
     switch (err) {
       case "CONCEPTUAL_GAP":
-        return "Tutor Coaching: Key Concept Clarification";
+        return "Diagnosis: CONCEPTUAL GAP";
       case "TERMINOLOGY_CONFUSION":
-        return "Tutor Coaching: Word & Term Clarification";
+        return "Diagnosis: TERMINOLOGY CONFUSION";
       case "CALCULATION_SLIP":
-        return "Tutor Coaching: Quick Math / Number Check";
+        return "Diagnosis: CALCULATION SLIP";
       case "OVERCONFIDENT_MISCONCEPTION":
-        return "Tutor Coaching: Common Misconception Alert";
+        return "Diagnosis: OVERCONFIDENT MISCONCEPTION";
       default:
-        return "Tutor Coaching Tip";
+        return "Diagnosis: COACHING TIP";
     }
   };
 
@@ -135,92 +142,80 @@ export const LessonView: React.FC = () => {
       case "contrast":
         return "Compare & Contrast";
       case "worked_example":
-        return "Step-by-Step Example";
+        return "Worked Example";
       case "counterexample":
-        return "Clarifying Example";
+        return "Clarifying Counterexample";
       default:
         return "Intuitive Tip";
     }
   };
 
-  const predictQuestion = currentConcept.predictQuestion || {
-    prompt: `What is the key intuition behind ${currentConcept.title}?`,
-    options: [
-      "It transforms inputs into mathematically bounded evidence.",
-      "It is an arbitrary trick that only applies to small numbers.",
-      "It requires infinite compute to run.",
-      "It eliminates the need for any training data.",
-    ],
-    correctIndex: 0,
-    explanation:
-      "Every machine learning component converts unstructured inputs into bounded mathematical evidence.",
-  };
+  // Grounded Prediction Submission Handler
+  const handleCheckPrediction = async () => {
+    setIsPredictChecked(true);
+    setPredictSuccess(null);
+    setActiveDiagnosis(null);
 
-  const handlePredictSubmit = async (optionIdx: number) => {
-    setSelectedPredictOption(optionIdx);
-    setIsPredictSubmitted(true);
+    const inputVal = predInputs.trim().toLowerCase();
+    const targetVal = predTarget.trim().toLowerCase();
 
-    const isCorrect = optionIdx === predictQuestion.correctIndex;
-    const chosenText = predictQuestion.options[optionIdx];
+    // Check for target leakage
+    if (inputVal.includes("price") || inputVal.includes("target")) {
+      const diag = {
+        errorType: "CONCEPTUAL_GAP" as ErrorType,
+        diagnosis: "Target Leakage: 'price' is the prediction target, so it cannot be provided in the inputs!",
+        strategy: "analogy" as ExplanationStrategy,
+        matchedExplanation: "Think of taking an exam with the answers already printed on the test sheet. If the model is fed 'price' as an input, it never learns how square footage or bedrooms influence value — it simply reads the answer key!",
+      };
+      setActiveDiagnosis(diag);
+      return;
+    }
 
+    // Check for classification confusion
+    if (targetVal.includes("classification") || targetVal.includes("category")) {
+      const diag = {
+        errorType: "TERMINOLOGY_CONFUSION" as ErrorType,
+        diagnosis: "Terminology Confusion: Home prices are continuous numbers along a spectrum (regression), not discrete categories (classification).",
+        strategy: "contrast" as ExplanationStrategy,
+        matchedExplanation: "Contrast regression with classification: Classification sorts inputs into discrete buckets (like Spam or Ham). Regression predicts a continuous numeric quantity along an open-ended scale (like $250,000 for a house). Because prices can take any numeric dollar amount, this project is regression.",
+      };
+      setActiveDiagnosis(diag);
+      return;
+    }
+
+    // Check for correct answer
+    const hasInputs = inputVal.includes("sqft") || inputVal.includes("bed") || inputVal.includes("feature");
+    const hasTarget = targetVal.includes("price") || targetVal.includes("value") || targetVal.includes("cost") || targetVal.includes("dollar");
+
+    if (hasInputs && hasTarget) {
+      setPredictSuccess("Spot on intuition! The model takes in ['sqft', 'bedrooms'] and predicts the continuous 'price'. Now fill in the blanks in the code cell below!");
+      return;
+    }
+
+    // If partial or unclear, call /api/evaluate
     try {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           concept: currentConcept,
-          question: predictQuestion.prompt,
-          answer: chosenText,
+          question: `What should go in inputs and target for real estate listings: [1200, 2, 250000]?`,
+          answer: `inputs: ${predInputs}, target: ${predTarget}`,
         }),
       });
       const data = await res.json();
-
-      const evaluation = {
-        correct: isCorrect,
-        errorType: isCorrect ? ("NONE" as ErrorType) : data.errorType || "CONCEPTUAL_GAP",
-        diagnosis: isCorrect
-          ? "Spot on intuition! You grasped the foundational concept."
-          : data.diagnosis || "Identified a gap in the mental model.",
-        strategy: (data.strategy as ExplanationStrategy) || "analogy",
-        matchedExplanation:
-          data.matchedExplanation ||
-          "Let's review the concrete relationship in the project data.",
-        rootCauseId: data.rootCauseConceptId,
-      };
-
-      setPredictResult(evaluation);
-
-      submitLessonAnswer({
-        conceptId: currentConcept.id,
-        isCorrect,
-        errorType: evaluation.errorType,
-        diagnosis: evaluation.diagnosis,
-        strategy: evaluation.strategy,
-        matchedExplanation: evaluation.matchedExplanation,
-        rootCauseConceptId: evaluation.rootCauseId,
+      setActiveDiagnosis({
+        errorType: data.errorType || "CONCEPTUAL_GAP",
+        diagnosis: data.diagnosis || "Check what features are observable before the sale vs what is being predicted.",
+        strategy: data.strategy || "analogy",
+        matchedExplanation: data.matchedExplanation || "Inputs are what you observe (sqft, bedrooms) and target is the price to predict.",
       });
     } catch (err) {
-      console.error("Evaluate error:", err);
-      const evaluation = {
-        correct: isCorrect,
-        errorType: isCorrect ? ("NONE" as ErrorType) : "CONCEPTUAL_GAP",
-        diagnosis: isCorrect
-          ? "Spot on! That is the core mathematical principle."
-          : "Identified a conceptual misunderstanding of the decision rule.",
-        strategy: "analogy" as ExplanationStrategy,
-        matchedExplanation:
-          "Think of how you assess probability in daily life: you balance prior experience with new evidence.",
-        rootCauseId: currentConcept.prereqs[0],
-      };
-      setPredictResult(evaluation);
-      submitLessonAnswer({
-        conceptId: currentConcept.id,
-        isCorrect,
-        errorType: evaluation.errorType,
-        diagnosis: evaluation.diagnosis,
-        strategy: evaluation.strategy,
-        matchedExplanation: evaluation.matchedExplanation,
-        rootCauseConceptId: evaluation.rootCauseId,
+      setActiveDiagnosis({
+        errorType: "CONCEPTUAL_GAP",
+        diagnosis: "Remember: Inputs are the features you observe before prediction, and Target is the single value being predicted.",
+        strategy: "analogy",
+        matchedExplanation: "Consider the listings: you know how big the house is [1200 sqft, 2 beds], and you want the model to predict the price ($250,000).",
       });
     }
   };
@@ -241,7 +236,7 @@ export const LessonView: React.FC = () => {
           concept: currentConcept,
           question: q,
           background,
-          goal: goal || "a spam classifier",
+          goal: goal || "Real estate price prediction",
         }),
       });
 
@@ -251,14 +246,12 @@ export const LessonView: React.FC = () => {
     } catch (err) {
       console.error("Ask Socrates error:", err);
       setSocratesAnswer({
-        title: "Socrates Intuitive Coaching",
+        title: "Socrates Coaching",
         explanation:
           currentConcept.corePrinciple ||
-          "In machine learning, we transform raw unstructured data into numerical signals and evaluate likelihoods to make accurate decisions.",
-        exampleOrFormula: currentConcept.workedExample
-          ? currentConcept.workedExample.scenario
-          : "P(A | B) = P(B | A) * P(A) / P(B)",
-        takeaway: "Every AI algorithm is a pipeline turning data into certainty.",
+          "In machine learning, we map observable inputs to continuous target quantities using mathematical optimization.",
+        exampleOrFormula: "predicted_price = (w_sqft * sqft) + (w_beds * beds) + bias",
+        takeaway: "Inputs are features; target is the prediction outcome.",
       });
     } finally {
       setIsAskingSocrates(false);
@@ -268,12 +261,12 @@ export const LessonView: React.FC = () => {
   const currentIndex = concepts.findIndex((c) => c.id === currentConcept.id);
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden px-3 py-2 md:px-4 md:py-2.5 bg-[#0b0a08]">
-      {/* Top concept header bar */}
+    <div className="w-full h-full flex flex-col overflow-hidden px-3 py-2 md:px-5 md:py-3 bg-[#0b0a08] relative">
+      {/* Top Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2.5 mb-2 border-b border-gold/15 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono uppercase tracking-wider text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/25">
+            <span className="text-xs font-mono uppercase tracking-wider text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/25 font-bold">
               Step {currentIndex + 1} of {concepts.length}
             </span>
             <span
@@ -289,13 +282,22 @@ export const LessonView: React.FC = () => {
             </span>
           </div>
 
-          <h1 className="text-lg md:text-xl font-extrabold text-white truncate max-w-md sm:max-w-xl">
+          <h1 className="text-base md:text-lg font-extrabold text-white truncate max-w-md sm:max-w-xl">
             {currentConcept.title}
           </h1>
         </div>
 
-        {/* Tab switcher: Learn vs Live Test Panel + Action buttons */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Tab switcher + Ask Socrates AI Button + Advance */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsSocratesDrawerOpen(!isSocratesDrawerOpen)}
+            className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-300 font-bold text-xs border border-amber-500/30 transition-all flex items-center gap-1.5 shadow"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>Ask Socrates AI ✨</span>
+          </button>
+
           <div className="flex items-center gap-1 bg-[#14130F] p-1 rounded-xl border border-gold/15">
             <button
               type="button"
@@ -324,34 +326,29 @@ export const LessonView: React.FC = () => {
             </button>
           </div>
 
-          {/* Quick Teach Back & Next Step in header */}
-          {activeTab === "learn" && (
-            <div className="hidden md:flex items-center gap-2">
-              {isCodePassed && !isMastered && (
-                <button
-                  type="button"
-                  onClick={() => setIsTeachBackOpen(true)}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Explain &amp; Earn Mastered ✨</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={advanceToNextConcept}
-                className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 font-bold text-xs shadow-md transition-all flex items-center gap-1"
-              >
-                <span>Next</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          {isCodePassed && !isMastered && (
+            <button
+              type="button"
+              onClick={() => setIsTeachBackOpen(true)}
+              className="hidden md:flex px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all items-center gap-1.5 shadow-md"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Teach Socrates ✨</span>
+            </button>
           )}
+
+          <button
+            type="button"
+            onClick={advanceToNextConcept}
+            className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 font-bold text-xs shadow-md transition-all flex items-center gap-1"
+          >
+            <span>Next Step</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 
-      {/* Main Studio Area */}
+      {/* Main Workspace */}
       {activeTab === "test" ? (
         <div className="flex-1 overflow-y-auto">
           <LiveTestPanel />
@@ -452,20 +449,16 @@ export const LessonView: React.FC = () => {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-1">
-                              <span
-                                className={`text-xs font-semibold truncate ${
-                                  isSelected ? "text-amber-200" : "text-zinc-200"
-                                }`}
-                              >
-                                {c.title}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="text-[10px] text-zinc-400 font-mono truncate">
-                                {c.buildStep}
-                              </span>
-                            </div>
+                            <span
+                              className={`text-xs font-semibold block truncate ${
+                                isSelected ? "text-amber-200" : "text-zinc-200"
+                              }`}
+                            >
+                              {c.title}
+                            </span>
+                            <span className="text-[10px] text-zinc-400 font-mono block truncate mt-0.5">
+                              {c.buildStep}
+                            </span>
                           </div>
                         </button>
                       );
@@ -482,321 +475,255 @@ export const LessonView: React.FC = () => {
             </div>
           </div>
 
-          {/* PANE 2: Deep AI Theory, Math, Worked Examples & Ask Socrates AI */}
+          {/* ACTIVE STUDIO AREA: Attempt First -> Hook -> Grounded Prediction -> Code with Real Blanks -> Typed Diagnosis */}
           <div
-            className={`h-full flex flex-col min-h-0 overflow-y-auto pr-1 space-y-3.5 ${
-              isMapCollapsed ? "lg:col-span-6" : "lg:col-span-5"
+            className={`h-full flex flex-col min-h-0 overflow-y-auto pr-1 space-y-3 ${
+              isMapCollapsed ? "lg:col-span-11" : "lg:col-span-9"
             }`}
           >
-            {/* 1. Curiosity Warm-Up Hook */}
-            <div className="glass-panel p-4 rounded-2xl border border-gold/15 shadow-xl space-y-2 relative overflow-hidden flex-shrink-0">
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-amber-300">
-                <Lightbulb className="w-4 h-4 text-amber-300 animate-pulse flex-shrink-0" />
-                <span className="font-bold">Ponder This 🤔 (Warm-Up Intuition)</span>
-              </div>
-              <p className="text-base font-semibold text-white leading-relaxed">
-                &quot;{currentConcept.hook}&quot;
+            {/* 1. One-Line Hook (1-2 sentences max) */}
+            <div className="p-3 rounded-xl bg-[#14130F] border border-gold/15 flex items-center gap-2.5 flex-shrink-0">
+              <Lightbulb className="w-4 h-4 text-amber-300 animate-pulse flex-shrink-0" />
+              <p className="text-xs font-medium text-zinc-200">
+                <strong className="text-amber-300 mr-1.5 font-bold">Ponder This:</strong>
+                {currentConcept.hook}
               </p>
-              {currentConcept.explanationSummary && (
-                <p className="text-xs text-zinc-300 leading-relaxed border-t border-gold/10 pt-2">
-                  {currentConcept.explanationSummary}
-                </p>
-              )}
             </div>
 
-            {/* 2. Deep Core AI Principle (Rigorous AI Theory) */}
-            {currentConcept.corePrinciple && (
-              <div className="glass-panel p-4 rounded-2xl border border-gold/20 shadow-xl space-y-2.5 flex-shrink-0 bg-[#14130F]">
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-amber-300">
+            {/* 2. Grounded Prediction Card (Sitting Directly Above Code Editor) */}
+            <div className="p-4 rounded-2xl bg-[#12110D] border border-gold/20 shadow-xl space-y-3 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <Brain className="w-4 h-4 text-amber-300 flex-shrink-0" />
-                  <span className="font-bold">Core AI Mathematical Principle</span>
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    Predict Before Coding (Grounded in Project Data)
+                  </h3>
                 </div>
-                <div className="text-sm text-zinc-200 leading-relaxed">
-                  {currentConcept.corePrinciple}
+                <span className="text-[10px] font-mono text-zinc-400">
+                  Step 1 of 2
+                </span>
+              </div>
+
+              {/* Real Project Data Sample */}
+              <div className="bg-zinc-950/80 p-3 rounded-xl border border-white/5 space-y-1 text-xs">
+                <span className="text-[10px] font-mono uppercase text-zinc-400 tracking-wider block font-bold">
+                  Project Data Sample:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs text-amber-200/90 pt-1">
+                  <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                    <strong>Listing 1:</strong> 1,200 sqft, 2 beds &rarr; <span className="text-emerald-400">$250,000</span>
+                  </div>
+                  <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                    <strong>Listing 2:</strong> 2,400 sqft, 4 beds &rarr; <span className="text-emerald-400">$480,000</span>
+                  </div>
+                  <div className="bg-zinc-900/60 p-2 rounded-lg border border-white/5">
+                    <strong>Listing 3:</strong> 1,800 sqft, 3 beds &rarr; <span className="text-emerald-400">$360,000</span>
+                  </div>
                 </div>
-                {currentConcept.whyItMatters && (
-                  <div className="bg-amber-950/20 border-l-2 border-amber-400 p-2.5 rounded-r-xl text-xs text-amber-200/90 leading-relaxed">
-                    <span className="font-bold text-amber-300 block mb-0.5">
-                      Why this matters in real AI systems:
-                    </span>
-                    {currentConcept.whyItMatters}
+              </div>
+
+              {/* Grounded Question & Structured Inputs */}
+              <div className="space-y-2">
+                <p className="text-xs text-zinc-200 font-medium">
+                  Before you see the code: what should go in the model&apos;s <code className="text-amber-300 font-mono">inputs</code> list, and what single value should <code className="text-amber-300 font-mono">target</code> be?
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
+                  <div className="sm:col-span-5">
+                    <label className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
+                      Model Inputs (Features)
+                    </label>
+                    <input
+                      type="text"
+                      value={predInputs}
+                      onChange={(e) => setPredInputs(e.target.value)}
+                      placeholder="e.g. sqft, bedrooms"
+                      className="w-full bg-zinc-950 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-4">
+                    <label className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block mb-1">
+                      Target (Prediction Goal)
+                    </label>
+                    <input
+                      type="text"
+                      value={predTarget}
+                      onChange={(e) => setPredTarget(e.target.value)}
+                      placeholder="e.g. price"
+                      className="w-full bg-zinc-950 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-3 flex items-end">
+                    <button
+                      type="button"
+                      onClick={handleCheckPrediction}
+                      disabled={!predInputs.trim() && !predTarget.trim()}
+                      className="w-full px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow disabled:opacity-40"
+                    >
+                      Check Prediction
+                    </button>
+                  </div>
+                </div>
+
+                {predictSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in duration-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>{predictSuccess}</span>
                   </div>
                 )}
               </div>
-            )}
-
-            {/* 3. Step-by-Step Worked Mathematical Example with Real Dataset Numbers */}
-            {currentConcept.workedExample && (
-              <div className="glass-panel p-4 rounded-2xl border border-emerald-500/30 bg-emerald-950/10 shadow-xl space-y-2.5 flex-shrink-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold">
-                    <Calculator className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span>Worked Math Example (Dataset Calculations)</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded">
-                    Real Numbers
-                  </span>
-                </div>
-
-                <div className="text-xs text-zinc-200 font-semibold bg-zinc-950/70 p-2.5 rounded-xl border border-white/5">
-                  <span className="text-emerald-300 font-bold mr-1">Scenario:</span>
-                  {currentConcept.workedExample.scenario}
-                </div>
-
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-mono uppercase text-zinc-400 tracking-wider block">
-                    Calculation Steps:
-                  </span>
-                  <div className="space-y-1 font-mono text-xs bg-zinc-950/80 p-3 rounded-xl border border-emerald-500/20">
-                    {currentConcept.workedExample.calculationSteps.map((step, sIdx) => (
-                      <div key={sIdx} className="text-emerald-200/90 flex items-start gap-2">
-                        <span className="text-emerald-400 font-bold flex-shrink-0">›</span>
-                        <span>{step}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-emerald-900/20 border border-emerald-500/40 p-2.5 rounded-xl text-xs text-emerald-200">
-                  <span className="font-bold text-emerald-300 block mb-0.5">Takeaway:</span>
-                  {currentConcept.workedExample.takeaway}
-                </div>
-              </div>
-            )}
-
-            {/* 4. Interactive "Ask Socrates AI" (Live Gemini Guidance) */}
-            <div className="glass-panel p-4 rounded-2xl border border-gold/25 shadow-xl space-y-3 flex-shrink-0 bg-gradient-to-b from-[#181611] to-[#12110D]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                  </div>
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Ask Socrates AI (Live Tutor)
-                  </h3>
-                </div>
-                <span className="text-[10px] font-mono text-amber-300/80">
-                  Powered by Gemini 2.5
-                </span>
-              </div>
-
-              {/* Quick Prompt Chips */}
-              <div className="flex flex-wrap gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handleAskSocrates("Explain the mathematical intuition with an everyday analogy")}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
-                >
-                  💡 Analogy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAskSocrates("Show me the exact mathematical formula and step-by-step numbers")}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
-                >
-                  📐 Exact Formula
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAskSocrates("How does modern AI / ChatGPT / LLMs use this exact principle?")}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
-                >
-                  🤖 LLM Connection
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAskSocrates("Explain this step in terms of C++/Java programming paradigms")}
-                  className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
-                >
-                  ☕ C++/Java View
-                </button>
-              </div>
-
-              {/* Custom Question Input */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleAskSocrates();
-                }}
-                className="flex items-center gap-2"
-              >
-                <input
-                  type="text"
-                  value={askQuestionText}
-                  onChange={(e) => setAskQuestionText(e.target.value)}
-                  placeholder="Ask Socrates any question about this step..."
-                  className="flex-1 bg-zinc-950/80 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400"
-                />
-                <button
-                  type="submit"
-                  disabled={isAskingSocrates || !askQuestionText.trim()}
-                  className="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all disabled:opacity-50 flex items-center gap-1"
-                >
-                  {isAskingSocrates ? (
-                    <span className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Send className="w-3.5 h-3.5" />
-                  )}
-                  <span>Ask</span>
-                </button>
-              </form>
-
-              {/* Socrates Answer Bubble */}
-              {socratesAnswer && (
-                <div className="p-3.5 rounded-xl bg-[#090D15] border border-amber-500/30 space-y-2 animate-in fade-in duration-300 text-xs">
-                  <div className="flex items-center justify-between text-amber-300 font-bold">
-                    <span>{socratesAnswer.title}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSocratesAnswer(null)}
-                      className="text-zinc-500 hover:text-zinc-300 text-[10px]"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <p className="text-zinc-200 leading-relaxed">
-                    {socratesAnswer.explanation}
-                  </p>
-                  {socratesAnswer.exampleOrFormula && (
-                    <pre className="font-mono text-[11px] bg-zinc-950/80 p-2.5 rounded-lg border border-white/5 text-amber-200 whitespace-pre-wrap">
-                      {socratesAnswer.exampleOrFormula}
-                    </pre>
-                  )}
-                  {socratesAnswer.takeaway && (
-                    <div className="text-[11px] text-zinc-300 bg-amber-500/10 p-2 rounded border border-amber-500/20">
-                      <strong className="text-amber-300">Takeaway: </strong>
-                      {socratesAnswer.takeaway}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* 5. Predict Before Coding Challenge */}
-            <div className="glass-panel p-4 rounded-2xl border border-gold/15 shadow-xl space-y-3 flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-amber-300 flex-shrink-0" />
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Predict Before Coding
-                  </h3>
-                </div>
-                <span className="text-[10px] text-zinc-400">
-                  Active Recall Check
-                </span>
-              </div>
-              <p className="text-xs font-medium text-zinc-200">
-                {predictQuestion.prompt}
-              </p>
-
-              {/* Options */}
-              <div className="space-y-2">
-                {predictQuestion.options.map((opt, idx) => {
-                  const isSelected = selectedPredictOption === idx;
-                  const isCorrectAnswer = idx === predictQuestion.correctIndex;
-                  const showFeedback = isPredictSubmitted;
-
-                  let borderClass = "border-white/5 hover:border-gold/30";
-                  let bgClass = "bg-zinc-900/60";
-
-                  if (showFeedback) {
-                    if (isCorrectAnswer) {
-                      borderClass = "border-emerald-500/80 ring-1 ring-emerald-500/30";
-                      bgClass = "bg-emerald-950/40 text-emerald-200";
-                    } else if (isSelected && !isCorrectAnswer) {
-                      borderClass = "border-red-500/80 ring-1 ring-red-500/30";
-                      bgClass = "bg-red-950/40 text-red-200";
-                    }
-                  } else if (isSelected) {
-                    borderClass = "border-amber-400 ring-1 ring-amber-400/40";
-                    bgClass = "bg-amber-500/15 text-white";
-                  }
-
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      disabled={isPredictSubmitted}
-                      onClick={() => handlePredictSubmit(idx)}
-                      className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs font-medium leading-relaxed flex items-start gap-2.5 ${borderClass} ${bgClass}`}
-                    >
-                      <span className="w-4 h-4 rounded-full border border-zinc-600 flex items-center justify-center flex-shrink-0 text-[10px] font-mono mt-0.5">
-                        {String.fromCharCode(65 + idx)}
-                      </span>
-                      <span>{opt}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Error diagnosis callout if wrong */}
-            {predictResult && !predictResult.correct && (
-              <div className="p-4 rounded-2xl bg-red-950/30 border border-red-500/50 shadow-xl space-y-2.5 animate-in fade-in duration-300 flex-shrink-0">
+            {/* 3. UNMISSABLE TYPED DIAGNOSIS & MATCHED EXPLANATION CALLOUT */}
+            {activeDiagnosis && (
+              <div className="p-4 rounded-2xl bg-red-950/40 border-2 border-red-500/70 shadow-2xl space-y-3 animate-in fade-in duration-300 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-400" />
-                    <span className="text-xs font-mono uppercase font-bold text-red-300">
-                      {getFriendlyErrorTitle(predictResult.errorType)}
+                    <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                    <span className="text-sm font-mono font-bold uppercase tracking-wide text-red-300">
+                      {getFriendlyErrorTitle(activeDiagnosis.errorType)}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono uppercase bg-red-900/60 text-red-200 px-2 py-0.5 rounded border border-red-500/40">
-                    {getFriendlyStrategy(predictResult.strategy)}
+                  <span className="text-xs font-mono uppercase bg-red-900/80 text-red-200 px-2.5 py-1 rounded-md border border-red-500/50 font-semibold">
+                    {getFriendlyStrategy(activeDiagnosis.strategy)}
                   </span>
                 </div>
 
-                <div className="text-xs font-semibold text-white">
-                  &quot;{predictResult.diagnosis}&quot;
+                <div className="text-sm font-bold text-white bg-red-950/60 p-3 rounded-xl border border-red-500/30">
+                  {activeDiagnosis.diagnosis}
                 </div>
 
-                <div className="text-xs text-zinc-300 bg-zinc-950/60 p-2.5 rounded-xl border border-white/5 leading-relaxed">
-                  <span className="text-amber-300 font-semibold block mb-0.5">
-                    Helpful Explanation:
+                <div className="text-xs text-zinc-200 bg-[#0E0C09] p-3.5 rounded-xl border border-gold/20 leading-relaxed space-y-1.5">
+                  <span className="text-amber-300 font-bold block text-xs">
+                    💡 Matched Explanation ({getFriendlyStrategy(activeDiagnosis.strategy)}):
                   </span>
-                  {predictResult.matchedExplanation}
+                  <p>{activeDiagnosis.matchedExplanation}</p>
                 </div>
-
-                {predictResult.rootCauseId &&
-                  predictResult.rootCauseId !== currentConcept.id && (
-                    <div className="pt-2 border-t border-red-500/20 flex items-center justify-between gap-2">
-                      <span className="text-xs text-red-300">
-                        Refresher on{" "}
-                        <strong className="text-white">
-                          {concepts.find((c) => c.id === predictResult.rootCauseId)?.title ||
-                            predictResult.rootCauseId}
-                        </strong>
-                        ?
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => selectConcept(predictResult.rootCauseId!)}
-                        className="text-xs px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow"
-                      >
-                        Revisit Step &rarr;
-                      </button>
-                    </div>
-                  )}
               </div>
             )}
-          </div>
 
-          {/* PANE 3: Hands-On Code Sandbox Studio */}
-          <div
-            className={`h-full flex flex-col min-h-0 overflow-hidden ${
-              isMapCollapsed ? "lg:col-span-5" : "lg:col-span-4"
-            }`}
-          >
-            <div className="h-full flex flex-col min-h-0">
+            {/* 4. The Code Cell with Real Blanks */}
+            <div className="flex-1 min-h-[420px] flex flex-col overflow-hidden">
               <CodeSandbox
                 concept={currentConcept}
                 isAlreadyPassed={isCodePassed}
                 onStepPassed={(code) => {
                   completeBuildStep(currentConcept.id, code);
+                  setActiveDiagnosis(null);
+                }}
+                onEvaluation={(evalResult) => {
+                  if (evalResult && !evalResult.correct) {
+                    setActiveDiagnosis(evalResult);
+                  } else {
+                    setActiveDiagnosis(null);
+                  }
                 }}
                 onOpenTeachBack={() => setIsTeachBackOpen(true)}
               />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Optional "Ask Socrates AI" Slide-Out Help Drawer */}
+      {isSocratesDrawerOpen && (
+        <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#0E0D0A] border-l border-gold/25 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="p-4 border-b border-gold/15 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                Ask Socrates AI (Help Desk)
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsSocratesDrawerOpen(false)}
+              className="p-1 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="text-xs text-zinc-300">
+              Need intuition or stuck on a blank? Ask Socrates anything about <strong className="text-amber-300">{currentConcept.title}</strong>:
+            </div>
+
+            {/* Quick Prompt Chips */}
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleAskSocrates("Explain the core intuition with a quick real-world analogy")}
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
+              >
+                💡 Analogy
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAskSocrates("Show the exact mathematical formula and step-by-step numbers")}
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
+              >
+                📐 Exact Formula
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAskSocrates("Give me a hint for filling in the blanks in this step")}
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-gold/15 transition-all"
+              >
+                🔍 Hint for Blanks
+              </button>
+            </div>
+
+            {/* Response Bubble */}
+            {socratesAnswer && (
+              <div className="p-3.5 rounded-xl bg-zinc-950 border border-amber-500/30 space-y-2 text-xs">
+                <span className="font-bold text-amber-300 block">{socratesAnswer.title}</span>
+                <p className="text-zinc-200 leading-relaxed">{socratesAnswer.explanation}</p>
+                {socratesAnswer.exampleOrFormula && (
+                  <pre className="font-mono text-[11px] bg-black/60 p-2.5 rounded-lg border border-white/5 text-amber-200 whitespace-pre-wrap">
+                    {socratesAnswer.exampleOrFormula}
+                  </pre>
+                )}
+                {socratesAnswer.takeaway && (
+                  <div className="text-[11px] text-zinc-300 bg-amber-500/10 p-2 rounded border border-amber-500/20">
+                    <strong className="text-amber-300">Takeaway: </strong>
+                    {socratesAnswer.takeaway}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Question Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAskSocrates();
+            }}
+            className="p-3 border-t border-gold/15 bg-zinc-950 flex items-center gap-2"
+          >
+            <input
+              type="text"
+              value={askQuestionText}
+              onChange={(e) => setAskQuestionText(e.target.value)}
+              placeholder="Ask Socrates a question..."
+              className="flex-1 bg-zinc-900 border border-gold/20 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400"
+            />
+            <button
+              type="submit"
+              disabled={isAskingSocrates || !askQuestionText.trim()}
+              className="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all disabled:opacity-50 flex items-center gap-1"
+            >
+              {isAskingSocrates ? (
+                <span className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
+              <span>Ask</span>
+            </button>
+          </form>
         </div>
       )}
 

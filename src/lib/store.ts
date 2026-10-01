@@ -32,6 +32,11 @@ import {
   SENTIMENT_DIAGNOSTIC_QUESTIONS,
 } from "./templates/sentimentAnalysis";
 import {
+  REAL_ESTATE_CONCEPTS,
+  REAL_ESTATE_EDGES,
+  REAL_ESTATE_DIAGNOSTIC_QUESTIONS,
+} from "./templates/realEstate";
+import {
   getConceptStatus,
   updateMasteryScore,
   propagatePrerequisiteError,
@@ -185,6 +190,17 @@ export const useSessionStore = create<SessionStoreState>()(
           concepts = SENTIMENT_ANALYSIS_CONCEPTS;
           edges = SENTIMENT_ANALYSIS_EDGES;
           questions = SENTIMENT_DIAGNOSTIC_QUESTIONS;
+        } else if (
+          lower.includes("real estate") ||
+          lower.includes("house") ||
+          lower.includes("housing") ||
+          lower.includes("property") ||
+          lower.includes("price prediction")
+        ) {
+          chosenTemplate = "real-estate";
+          concepts = REAL_ESTATE_CONCEPTS;
+          edges = REAL_ESTATE_EDGES;
+          questions = REAL_ESTATE_DIAGNOSTIC_QUESTIONS;
         } else if (
           lower.includes("handwriting") ||
           lower.includes("digit") ||

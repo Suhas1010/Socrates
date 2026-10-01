@@ -46,7 +46,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
 
   // Preload Pyodide in background
   useEffect(() => {
-    initPyodide().catch(() => {});
+    initPyodide().catch(() => { });
   }, []);
 
   const getPrerequisitesCode = (
