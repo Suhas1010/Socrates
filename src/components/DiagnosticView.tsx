@@ -7,7 +7,7 @@ import {
   FastForward,
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
-import { SPAM_DIAGNOSTIC_QUESTIONS } from "@/lib/templates/spamClassifier";
+import { generateDiagnosticQuestionsForGoal } from "@/lib/diagnostics";
 
 export const DiagnosticView: React.FC = () => {
   const {
@@ -24,7 +24,7 @@ export const DiagnosticView: React.FC = () => {
   const questionsList =
     diagnosticQuestions && diagnosticQuestions.length > 0
       ? diagnosticQuestions
-      : SPAM_DIAGNOSTIC_QUESTIONS;
+      : generateDiagnosticQuestionsForGoal(goal);
 
   const totalQuestions = questionsList.length;
   const currentQuestion = questionsList[diagnosticIndex] || questionsList[0];
@@ -53,7 +53,7 @@ export const DiagnosticView: React.FC = () => {
             Diagnostic · 1-Minute Skill Check
           </span>
           <h2 className="text-xl font-bold text-cream mt-2">
-            Target Project: <span className="text-gold font-medium">{goal || "a spam classifier"}</span>
+            Target Project: <span className="text-gold font-medium">{goal || "Your AI Project"}</span>
           </h2>
           <p className="text-xs text-muted mt-1">
             Personalizes your starting point so you skip concepts you already know.

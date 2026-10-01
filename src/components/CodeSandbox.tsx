@@ -22,6 +22,7 @@ interface CodeSandboxProps {
   onStepPassed: (code: string) => void;
   onOpenTeachBack: () => void;
   isAlreadyPassed: boolean;
+  onEvaluation?: (evalResult: any) => void;
 }
 
 export const CodeSandbox: React.FC<CodeSandboxProps> = ({
@@ -29,6 +30,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   onStepPassed,
   onOpenTeachBack,
   isAlreadyPassed,
+  onEvaluation,
 }) => {
   const { background, concepts, projectParts } = useSessionStore();
   const [code, setCode] = useState(concept.starterCode || "");
@@ -111,6 +113,9 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
     if (res.assertionPassed) {
       setStepComplete(true);
       onStepPassed(code);
+      onEvaluation?.({ correct: true });
+    } else if (res.error) {
+      onEvaluation?.({ correct: false, error: res.error });
     }
   };
 

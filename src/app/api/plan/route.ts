@@ -20,18 +20,24 @@ import {
   REAL_ESTATE_CONCEPTS,
   REAL_ESTATE_EDGES,
 } from "@/lib/templates/realEstate";
+import {
+  generateFallbackConceptsForGoal,
+  generateFallbackEdgesForGoal,
+} from "@/lib/diagnostics";
 
 export async function POST(req: NextRequest) {
+  let requestedGoal = "Your AI Project";
   try {
     const body = await req.json();
     const { goal, interests, background, apiKey } = body;
+    if (goal) requestedGoal = goal;
     const headerKey = req.headers.get("x-gemini-api-key");
     const activeKey = apiKey || headerKey || undefined;
 
     const lowerGoal = (goal || "").toLowerCase();
     let templateId = "custom";
-    let fallbackConcepts = SPAM_CLASSIFIER_CONCEPTS;
-    let fallbackEdges = SPAM_CLASSIFIER_EDGES;
+    let fallbackConcepts = generateFallbackConceptsForGoal(goal || "");
+    let fallbackEdges = generateFallbackEdgesForGoal(fallbackConcepts);
     let rationale = `Custom AI path designed specifically to build "${goal}".`;
 
     if (
@@ -379,13 +385,16 @@ RULES:
     return NextResponse.json(plan);
   } catch (error: any) {
     console.error("Error in /api/plan:", error);
+    const safeGoal = requestedGoal;
+    const fbConcepts = generateFallbackConceptsForGoal(safeGoal);
+    const fbEdges = generateFallbackEdgesForGoal(fbConcepts);
     return NextResponse.json(
       {
         templateId: "custom",
-        rationale: "Socrates roadmap initialized.",
-        concepts: SPAM_CLASSIFIER_CONCEPTS,
-        edges: SPAM_CLASSIFIER_EDGES,
-        startingConceptId: SPAM_CLASSIFIER_CONCEPTS[0].id,
+        rationale: `Socrates learning roadmap for "${safeGoal}".`,
+        concepts: fbConcepts,
+        edges: fbEdges,
+        startingConceptId: fbConcepts[0]?.id || "problem-framing",
       },
       { status: 200 }
     );

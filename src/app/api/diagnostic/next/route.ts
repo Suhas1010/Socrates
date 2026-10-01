@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SPAM_DIAGNOSTIC_QUESTIONS } from "@/lib/templates/spamClassifier";
 import { CHATGPT_DIAGNOSTIC_QUESTIONS } from "@/lib/templates/chatGpt";
 import { SENTIMENT_DIAGNOSTIC_QUESTIONS } from "@/lib/templates/sentimentAnalysis";
+import { generateDiagnosticQuestionsForGoal } from "@/lib/diagnostics";
 import { initializeMasteryFromDiagnostic } from "@/lib/mastery";
 import { DiagnosticQuestion } from "@/lib/types";
 
@@ -11,9 +12,16 @@ export async function POST(req: NextRequest) {
     const { goal, templateId, concepts, history = [] } = body;
 
     const lowerGoal = (goal || "").toLowerCase();
-    let questions: DiagnosticQuestion[] = SPAM_DIAGNOSTIC_QUESTIONS;
+    let questions: DiagnosticQuestion[] = [];
 
     if (
+      templateId === "spam-classifier" ||
+      lowerGoal.includes("spam") ||
+      lowerGoal.includes("email") ||
+      lowerGoal.includes("bayes")
+    ) {
+      questions = SPAM_DIAGNOSTIC_QUESTIONS;
+    } else if (
       templateId === "chatgpt" ||
       lowerGoal.includes("chatgpt") ||
       lowerGoal.includes("gpt") ||
@@ -97,40 +105,8 @@ export async function POST(req: NextRequest) {
           ],
         },
       ];
-    } else if (concepts && concepts.length > 0) {
-      // Create questions for custom concept
-      questions = [
-        {
-          id: `diag-custom-1`,
-          targetConceptId: concepts[0].id,
-          question: `For ${goal || "your project"}, what is the primary goal of the first stage (${concepts[0].title})?`,
-          options: [
-            {
-              text: `It establishes the feature representations and mathematical input space.`,
-              isCorrect: true,
-              errorType: "NONE",
-            },
-            {
-              text: `It compiles Python directly into assembly code.`,
-              isCorrect: false,
-              errorType: "TERMINOLOGY_CONFUSION",
-              rationale: "The first stage focuses on data contracts, not compiler design.",
-            },
-            {
-              text: `It memorizes the answers to all possible future queries.`,
-              isCorrect: false,
-              errorType: "OVERCONFIDENT_MISCONCEPTION",
-              rationale: "Machine learning models generalize rather than memorizing all inputs.",
-            },
-            {
-              text: `It deletes irrelevant CPU caches.`,
-              isCorrect: false,
-              errorType: "CONCEPTUAL_GAP",
-              rationale: "Data representations define the problem space.",
-            },
-          ],
-        },
-      ];
+    } else {
+      questions = generateDiagnosticQuestionsForGoal(goal || "");
     }
 
     const currentStep = history.length;
@@ -162,13 +138,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       done: false,
       question: questionToServe,
+      questions,
     });
   } catch (error) {
     console.error("Error in /api/diagnostic/next:", error);
     return NextResponse.json({
       done: true,
       mastery: {},
-      recommendedStartingConceptId: "what-is-classification",
+      recommendedStartingConceptId: "problem-framing",
     });
   }
 }

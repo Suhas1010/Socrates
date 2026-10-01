@@ -37,6 +37,11 @@ import {
   REAL_ESTATE_DIAGNOSTIC_QUESTIONS,
 } from "./templates/realEstate";
 import {
+  generateDiagnosticQuestionsForGoal,
+  generateFallbackConceptsForGoal,
+  generateFallbackEdgesForGoal,
+} from "./diagnostics";
+import {
   getConceptStatus,
   updateMasteryScore,
   propagatePrerequisiteError,
@@ -163,13 +168,22 @@ export const useSessionStore = create<SessionStoreState>()(
       },
 
       setGoalAndInterests: (goal, interests, background = "beginner") => {
-        const lower = goal.toLowerCase();
-        let chosenTemplate = "spam-classifier";
-        let concepts: Concept[] = SPAM_CLASSIFIER_CONCEPTS;
-        let edges: ConceptEdge[] = SPAM_CLASSIFIER_EDGES;
-        let questions: DiagnosticQuestion[] = SPAM_DIAGNOSTIC_QUESTIONS;
+        const lower = (goal || "").toLowerCase();
+        let chosenTemplate = "custom";
+        let concepts: Concept[] = generateFallbackConceptsForGoal(goal);
+        let edges: ConceptEdge[] = generateFallbackEdgesForGoal(concepts);
+        let questions: DiagnosticQuestion[] = generateDiagnosticQuestionsForGoal(goal);
 
         if (
+          lower.includes("spam") ||
+          lower.includes("email") ||
+          lower.includes("bayes")
+        ) {
+          chosenTemplate = "spam-classifier";
+          concepts = SPAM_CLASSIFIER_CONCEPTS;
+          edges = SPAM_CLASSIFIER_EDGES;
+          questions = SPAM_DIAGNOSTIC_QUESTIONS;
+        } else if (
           lower.includes("chatgpt") ||
           lower.includes("gpt") ||
           lower.includes("llm") ||
@@ -303,7 +317,9 @@ export const useSessionStore = create<SessionStoreState>()(
                 });
                 if (diagRes.ok) {
                   const diagData = await diagRes.json();
-                  if (diagData.question) {
+                  if (diagData.questions && Array.isArray(diagData.questions) && diagData.questions.length > 0) {
+                    questions = diagData.questions;
+                  } else if (diagData.question && (!questions || questions.length === 0)) {
                     questions = [diagData.question];
                   }
                 }
@@ -353,7 +369,7 @@ export const useSessionStore = create<SessionStoreState>()(
         const questionsList =
           state.diagnosticQuestions && state.diagnosticQuestions.length > 0
             ? state.diagnosticQuestions
-            : SPAM_DIAGNOSTIC_QUESTIONS;
+            : generateDiagnosticQuestionsForGoal(state.goal);
 
         const currentQ = questionsList[state.diagnosticIndex];
         if (!currentQ) {
