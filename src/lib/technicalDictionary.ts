@@ -281,12 +281,22 @@ export function enrichConceptWithDeepTheory(concept: Concept, goal?: string): Co
     lowerId.includes("emotion") ||
     lowerTitle.includes("facial");
 
+  const isPlantOrAgri =
+    lowerGoal.includes("plant") ||
+    lowerGoal.includes("crop") ||
+    lowerGoal.includes("leaf") ||
+    lowerGoal.includes("leaves") ||
+    lowerGoal.includes("botan") ||
+    lowerGoal.includes("agri") ||
+    lowerGoal.includes("tree");
+
   const isMedical =
-    lowerGoal.includes("diabet") ||
-    lowerGoal.includes("heart") ||
-    lowerGoal.includes("disease") ||
-    lowerGoal.includes("patient") ||
-    lowerGoal.includes("health");
+    !isPlantOrAgri &&
+    (lowerGoal.includes("diabet") ||
+      lowerGoal.includes("heart") ||
+      (lowerGoal.includes("disease") && !isPlantOrAgri) ||
+      lowerGoal.includes("patient") ||
+      (lowerGoal.includes("health") && !isPlantOrAgri));
 
   const isRegression =
     lowerGoal.includes("real estate") ||
@@ -310,6 +320,12 @@ export function enrichConceptWithDeepTheory(concept: Concept, goal?: string): Co
     terms.push(ML_DL_DICTIONARY.weights);
     terms.push(ML_DL_DICTIONARY.softmax);
     terms.push(ML_DL_DICTIONARY.bias);
+  } else if (isPlantOrAgri) {
+    terms.push(ML_DL_DICTIONARY.feature_vector);
+    terms.push(ML_DL_DICTIONARY.weights);
+    terms.push(ML_DL_DICTIONARY.sigmoid);
+    terms.push(ML_DL_DICTIONARY.decision_threshold);
+    terms.push(ML_DL_DICTIONARY.cross_entropy);
   } else if (isMedical) {
     terms.push(ML_DL_DICTIONARY.feature_vector);
     terms.push(ML_DL_DICTIONARY.label_target);

@@ -35,6 +35,18 @@ export async function POST(req: NextRequest) {
     const activeKey = apiKey || headerKey || undefined;
 
     const lowerGoal = (goal || "").toLowerCase();
+    const isPlantOrAgri =
+      lowerGoal.includes("plant") ||
+      lowerGoal.includes("crop") ||
+      lowerGoal.includes("leaf") ||
+      lowerGoal.includes("leaves") ||
+      lowerGoal.includes("botan") ||
+      lowerGoal.includes("agri") ||
+      lowerGoal.includes("tree") ||
+      lowerGoal.includes("garden") ||
+      lowerGoal.includes("farm") ||
+      lowerGoal.includes("flora");
+
     let templateId = "custom";
     let fallbackConcepts = generateFallbackConceptsForGoal(goal || "");
     let fallbackEdges = generateFallbackEdgesForGoal(fallbackConcepts);
@@ -98,17 +110,24 @@ export async function POST(req: NextRequest) {
       fallbackEdges = REAL_ESTATE_EDGES;
       rationale =
         "Tailored machine learning regression path derived directly from your goal to predict real estate prices from house attributes.";
+    } else if (isPlantOrAgri) {
+      templateId = "plant-disease";
+      fallbackConcepts = generateFallbackConceptsForGoal(goal || "");
+      fallbackEdges = generateFallbackEdgesForGoal(fallbackConcepts);
+      rationale = `Custom agricultural computer vision architecture roadmap reverse-engineered for "${goal}". Guides you through 8 progressive stages: problem formulation, visual feature normalization, pathogen base rates, logit calculation, cross-entropy loss, gradient descent, agronomic triage sensitivity, and an interactive live leaf classifier.`;
     } else if (
-      lowerGoal.includes("diabet") ||
-      lowerGoal.includes("disease") ||
-      lowerGoal.includes("cancer") ||
-      lowerGoal.includes("medical") ||
-      lowerGoal.includes("patient") ||
-      lowerGoal.includes("health") ||
-      lowerGoal.includes("clinic") ||
-      lowerGoal.includes("heart") ||
-      lowerGoal.includes("tumor") ||
-      lowerGoal.includes("diagnosis")
+      !isPlantOrAgri &&
+      (lowerGoal.includes("diabet") ||
+        (lowerGoal.includes("disease") && !isPlantOrAgri) ||
+        lowerGoal.includes("cancer") ||
+        lowerGoal.includes("medical") ||
+        lowerGoal.includes("patient") ||
+        (lowerGoal.includes("health") && !isPlantOrAgri) ||
+        lowerGoal.includes("clinic") ||
+        lowerGoal.includes("heart") ||
+        lowerGoal.includes("tumor") ||
+        lowerGoal.includes("glucose") ||
+        (lowerGoal.includes("diagnosis") && !isPlantOrAgri))
     ) {
       templateId = "clinical-diagnosis";
       fallbackConcepts = generateFallbackConceptsForGoal(goal || "");

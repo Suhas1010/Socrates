@@ -223,7 +223,21 @@ export const useSessionStore = create<SessionStoreState>()(
         let edges: ConceptEdge[] = generateFallbackEdgesForGoal(concepts);
         let questions: DiagnosticQuestion[] = generateDiagnosticQuestionsForGoal(goal);
 
-        if (
+        const isPlantOrAgri =
+          lower.includes("plant") ||
+          lower.includes("crop") ||
+          lower.includes("leaf") ||
+          lower.includes("leaves") ||
+          lower.includes("botan") ||
+          lower.includes("agri") ||
+          lower.includes("tree");
+
+        if (isPlantOrAgri) {
+          chosenTemplate = "plant-disease";
+          concepts = generateFallbackConceptsForGoal(goal);
+          edges = generateFallbackEdgesForGoal(concepts);
+          questions = generateDiagnosticQuestionsForGoal(goal);
+        } else if (
           lower.includes("spam") ||
           lower.includes("email") ||
           lower.includes("bayes")
@@ -265,11 +279,10 @@ export const useSessionStore = create<SessionStoreState>()(
           edges = REAL_ESTATE_EDGES;
           questions = REAL_ESTATE_DIAGNOSTIC_QUESTIONS;
         } else if (
-          lower.includes("handwriting") ||
-          lower.includes("digit") ||
-          lower.includes("mnist") ||
-          lower.includes("vision") ||
-          lower.includes("image")
+          !isPlantOrAgri &&
+          (lower.includes("handwriting") ||
+            lower.includes("digit") ||
+            lower.includes("mnist"))
         ) {
           chosenTemplate = "digit-recognizer";
           concepts = DIGIT_RECOGNIZER_CONCEPTS;
@@ -356,12 +369,16 @@ export const useSessionStore = create<SessionStoreState>()(
               try {
                 const diagRes = await fetch("/api/diagnostic/next", {
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                  headers: {
+                    "Content-Type": "application/json",
+                    ...(storedKey ? { "x-gemini-api-key": storedKey } : {}),
+                  },
                   body: JSON.stringify({
                     goal,
                     templateId: plan.templateId,
                     concepts,
                     history: [],
+                    apiKey: storedKey,
                   }),
                 });
                 if (diagRes.ok) {

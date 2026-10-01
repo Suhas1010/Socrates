@@ -33,22 +33,30 @@ export const PlanOutputSchema = z.object({
 });
 
 export const DiagnosticQuestionSchema = z.object({
+  id: z.string().optional(),
   question: z.string(),
   options: z.array(
     z.object({
       text: z.string(),
       isCorrect: z.boolean(),
-      errorType: z.enum([
-        "CONCEPTUAL_GAP",
-        "TERMINOLOGY_CONFUSION",
-        "CALCULATION_SLIP",
-        "OVERCONFIDENT_MISCONCEPTION",
-        "NONE",
-      ]),
+      errorType: z
+        .enum([
+          "CONCEPTUAL_GAP",
+          "TERMINOLOGY_CONFUSION",
+          "CALCULATION_SLIP",
+          "OVERCONFIDENT_MISCONCEPTION",
+          "NONE",
+        ])
+        .optional()
+        .default("NONE"),
       rationale: z.string().optional(),
     })
   ),
-  targetConceptId: z.string(),
+  targetConceptId: z.string().optional(),
+});
+
+export const DiagnosticSetSchema = z.object({
+  questions: z.array(DiagnosticQuestionSchema),
 });
 
 export const DiagnosticNextOutputSchema = z.union([
@@ -137,26 +145,11 @@ export async function generateStructuredLLM<T>({
     return fallbackData;
   }
 
-  const model = process.env.LLM_MODEL || "gemini-1.5-flash";
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const primaryModel = process.env.LLM_MODEL || "gemini-flash-lite-latest";
 
-  const requestPayload = {
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { text: `${systemPrompt}\n\nUSER PROMPT:\n${userPrompt}\n\nIMPORTANT: Respond with ONLY a valid, parseable JSON object matching the requested schema. No markdown backticks, no markdown formatting.` },
-        ],
-      },
-    ],
-    generationConfig: {
-      temperature: 0.2,
-      responseMimeType: "application/json",
-    },
-  };
-
-  const executeCall = async (promptText: string): Promise<T | null> => {
+  const executeCall = async (promptText: string, modelName: string = primaryModel): Promise<T | null> => {
     try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       const payload = {
         contents: [
           {
@@ -177,7 +170,13 @@ export async function generateStructuredLLM<T>({
       });
 
       if (!res.ok) {
-        console.warn(`Gemini API returned status ${res.status}`);
+        console.warn(`Gemini API (${modelName}) returned status ${res.status}`);
+        if (modelName === primaryModel && (res.status === 429 || res.status === 404 || res.status === 503)) {
+          // Retry with alternate working preview models verified on quota
+          const backup = await executeCall(promptText, "gemini-3.1-flash-lite-preview");
+          if (backup) return backup;
+          return executeCall(promptText, "gemini-3-flash-preview");
+        }
         return null;
       }
 

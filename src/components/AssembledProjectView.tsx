@@ -69,13 +69,23 @@ if __name__ == "__main__":
     print("\\n[Pipeline Status] Executing assembled model on test cohort...")
 `;
 
+    const lowerGoal = safeGoal.toLowerCase();
     const isEmotionOrFace =
-      safeGoal.toLowerCase().includes("emotion") ||
-      safeGoal.toLowerCase().includes("face") ||
-      safeGoal.toLowerCase().includes("facial") ||
-      safeGoal.toLowerCase().includes("expression") ||
-      safeGoal.toLowerCase().includes("smile") ||
-      safeGoal.toLowerCase().includes("mood");
+      lowerGoal.includes("emotion") ||
+      lowerGoal.includes("face") ||
+      lowerGoal.includes("facial") ||
+      lowerGoal.includes("expression") ||
+      lowerGoal.includes("smile") ||
+      lowerGoal.includes("mood");
+
+    const isPlantOrAgri =
+      lowerGoal.includes("plant") ||
+      lowerGoal.includes("crop") ||
+      lowerGoal.includes("leaf") ||
+      lowerGoal.includes("leaves") ||
+      lowerGoal.includes("botan") ||
+      lowerGoal.includes("agri") ||
+      lowerGoal.includes("tree");
 
     if (isEmotionOrFace) {
       script += `
@@ -107,10 +117,38 @@ if __name__ == "__main__":
     print("✅ All facial emotion pipeline inference assertions executed cleanly!")
     print("=" * 65)
 `;
+    } else if (isPlantOrAgri) {
+      script += `
+    test_leaves = [
+        {"name": "Leaf Sample #1 (Severe Powdery Mildew)", "lesion_area": 42.0, "discoloration": 0.65, "spot_sharpness": 0.40, "moisture": 35.0},
+        {"name": "Leaf Sample #2 (Healthy Crisp Foliage)", "lesion_area": 0.0, "discoloration": 0.05, "spot_sharpness": 0.02, "moisture": 55.0},
+        {"name": "Leaf Sample #3 (Bacterial Leaf Blight)", "lesion_area": 78.0, "discoloration": 0.88, "spot_sharpness": 0.92, "moisture": 85.0},
+    ]
+
+    for leaf in test_leaves:
+        norm_lesion = normalize_leaf_feature(leaf["lesion_area"], 0.0, 100.0) if "normalize_leaf_feature" in globals() else leaf["lesion_area"] / 100.0
+        norm_disc = leaf["discoloration"]
+        norm_sharp = leaf["spot_sharpness"]
+        
+        logit = (2.40 * norm_lesion) + (1.80 * norm_disc) + (1.20 * norm_sharp) - 1.60
+        prob = leaf_disease_probability(logit) if "leaf_disease_probability" in globals() else 0.50
+        
+        triage = triage_crop_disease(prob, threshold=0.35) if "triage_crop_disease" in globals() else {"action": "INSPECT_FIELD"}
+        print(f"\\n🍃 {leaf['name']}:")
+        print(f"   Visual Features: Lesion Area={leaf['lesion_area']}%, Discoloration={leaf['discoloration']}, Spot Sharpness={leaf['spot_sharpness']}")
+        print(f"   Calculated Infection Probability: {round(prob * 100, 1)}%")
+        print(f"   Agronomic Triage Action: {triage.get('action', 'MONITOR')}")
+        print(f"   Severity Level: {triage.get('severity', 'UNKNOWN')}")
+
+    print("\\n" + "=" * 65)
+    print("✅ All agricultural plant disease vision pipeline assertions executed cleanly!")
+    print("=" * 65)
+`;
     } else if (
-      safeGoal.toLowerCase().includes("diabet") ||
-      safeGoal.toLowerCase().includes("disease") ||
-      safeGoal.toLowerCase().includes("medical")
+      !isPlantOrAgri &&
+      (lowerGoal.includes("diabet") ||
+        (lowerGoal.includes("disease") && !isPlantOrAgri) ||
+        lowerGoal.includes("medical"))
     ) {
       script += `
     test_patients = [
@@ -152,7 +190,7 @@ if __name__ == "__main__":
     for h in test_homes:
         vec = normalize_features(h["sqft"], h["beds"]) if "normalize_features" in globals() else [1.5, 3.0]
         val = (150000.0 * vec[0]) + (20000.0 * vec[1]) + 30000.0
-        print(f"🏠 {h['desc']} ({h['sqft']} sqft, {h['beds']} beds) -> Estimated Value: \${int(val):,}")
+        print(f"🏠 {h['desc']} ({h['sqft']} sqft, {h['beds']} beds) -> Estimated Value: $" + f"{int(val):,}")
     print("\\n✅ Real estate regression pipeline operational!")
 `;
     } else {

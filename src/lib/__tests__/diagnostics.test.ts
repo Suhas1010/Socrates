@@ -103,20 +103,85 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(emotionContract.features.map((f) => f.id)).toEqual(["smile", "browFurrow", "eyeOpenness", "jawDrop"]);
     expect(emotionContract.output.classes?.length).toBe(5);
 
-    // 2. Medical project
+    // 2. Agricultural Plant Disease project
+    const plantContract = deriveModelContractForGoal("AI based plant disease detector");
+    expect(plantContract.badge).toContain("Agricultural");
+    expect(plantContract.features.map((f) => f.id)).toEqual([
+      "lesionArea",
+      "chlorophyllLoss",
+      "spotIrregularity",
+      "canopyMoisture",
+    ]);
+    expect(plantContract.output.classes?.map((c) => c.name)).toEqual([
+      "Healthy Foliage",
+      "Powdery Mildew",
+      "Bacterial Leaf Blight",
+      "Leaf Rust Fungus",
+    ]);
+
+    // 3. Medical project
     const medContract = deriveModelContractForGoal("Predict Diabetes Risk");
     expect(medContract.badge).toContain("Clinical");
     expect(medContract.features.map((f) => f.id)).toEqual(["glucose", "bmi", "age", "bloodPressure"]);
 
-    // 3. Real Estate project
+    // 4. Real Estate project
     const housingContract = deriveModelContractForGoal("Predict housing prices");
     expect(housingContract.output.type).toBe("regression");
     expect(housingContract.features.map((f) => f.id)).toContain("sqft");
 
-    // 4. Custom unknown project
+    // 5. Custom unknown project
     const solarContract = deriveModelContractForGoal("Solar panel energy output forecast");
     expect(solarContract.output.type).toBe("regression");
     expect(solarContract.features.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("generates plant disease diagnostic questions without any medical or glucose contamination", () => {
+    const questions = generateDiagnosticQuestionsForGoal("AI based plant disease detector");
+    expect(questions.length).toBe(4);
+
+    expect(questions[0].question).toContain("leaf pathogens (like Powdery Mildew, Leaf Blight, or Rust)");
+    expect(questions[0].options[0].text).toContain("Multi-Class Classification");
+
+    expect(questions[1].question).toContain("P(Fungal Infection)");
+    expect(questions[2].question).toContain("lesion surface area");
+    expect(questions[3].question).toContain("agronomic rationale for lowering the alert decision threshold");
+
+    for (const q of questions) {
+      const qLower = q.question.toLowerCase();
+      expect(qLower).not.toContain("glucose");
+      expect(qLower).not.toContain("patient");
+      expect(qLower).not.toContain("bmi");
+      expect(qLower).not.toContain("diabetes");
+      expect(qLower).not.toContain("spam");
+      for (const opt of q.options) {
+        const optLower = opt.text.toLowerCase();
+        expect(optLower).not.toContain("glucose");
+        expect(optLower).not.toContain("patient");
+        expect(optLower).not.toContain("diabetes");
+      }
+    }
+  });
+
+  it("generates plant disease 8-stage architecture roadmap without medical leaks", () => {
+    const concepts = generateFallbackConceptsForGoal("AI based plant disease detector");
+    expect(concepts.length).toBe(8);
+    expect(concepts[0].title).toContain("Agricultural Vision Formulation");
+    expect(concepts[0].starterCode).toContain("define_plant_disease_spec");
+    expect(concepts[0].starterCode).toContain("lesion_area_pct");
+    expect(concepts[1].title).toContain("Leaf Visual Feature Normalization");
+    expect(concepts[2].title).toContain("Crop Pathogen Prior");
+    expect(concepts[3].title).toContain("Visual Logit Scoring");
+    expect(concepts[4].title).toContain("Sigmoid Probability & Cross-Entropy");
+    expect(concepts[5].title).toContain("Weight Optimization via Gradient Descent");
+    expect(concepts[6].title).toContain("Agronomic Disease Triage");
+    expect(concepts[7].title).toContain("Live End-to-End Plant Disease Inference Pipeline");
+
+    for (const c of concepts) {
+      expect(c.title.toLowerCase()).not.toContain("clinical");
+      expect(c.title.toLowerCase()).not.toContain("patient");
+      expect(c.hook.toLowerCase()).not.toContain("glucose");
+      expect(c.starterCode?.toLowerCase() || "").not.toContain("glucose");
+    }
   });
 
   it("provides comprehensive Python Foundation track from scratch to vector math", () => {

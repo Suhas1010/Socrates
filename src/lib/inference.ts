@@ -466,18 +466,126 @@ export function deriveModelContractForGoal(
     };
   }
 
+  const isPlantOrAgri =
+    lower.includes("plant") ||
+    lower.includes("crop") ||
+    lower.includes("leaf") ||
+    lower.includes("leaves") ||
+    lower.includes("botan") ||
+    lower.includes("agri") ||
+    lower.includes("tree") ||
+    lower.includes("garden") ||
+    lower.includes("farm") ||
+    lower.includes("flora");
+
+  // 1.5 Agricultural Vision / Plant Disease Detector
+  if (isPlantOrAgri) {
+    return {
+      functionName: "predict_plant_disease",
+      title: "Live Plant & Crop Disease Classifier",
+      subtitle:
+        "Test your botanical vision classifier on leaf visual features (lesion coverage %, chlorosis discoloration, spot irregularity, moisture) in real time.",
+      badge: "Agricultural Vision Model",
+      defaultThreshold: 0.35,
+      features: [
+        {
+          id: "lesionArea",
+          label: "Lesion Surface Area",
+          type: "slider",
+          min: 0,
+          max: 100,
+          step: 1,
+          default: 42,
+          unit: "%",
+          description: "Percentage of leaf blade covered by necrotic lesions or blight spots",
+        },
+        {
+          id: "chlorophyllLoss",
+          label: "Chlorophyll Discoloration",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.65,
+          unit: "",
+          description: "Loss of healthy green pigmentation / yellow chlorosis halo (0.0 healthy to 1.0 severe)",
+        },
+        {
+          id: "spotIrregularity",
+          label: "Spot Edge Irregularity",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.40,
+          unit: "",
+          description: "Geometric irregularity of spot perimeter (characteristic of fungal/bacterial blights)",
+        },
+        {
+          id: "canopyMoisture",
+          label: "Leaf Surface Moisture",
+          type: "slider",
+          min: 10,
+          max: 100,
+          step: 5,
+          default: 40,
+          unit: "%",
+          description: "Relative canopy humidity favoring fungal spore germination",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Pathogen Diagnosis",
+        classes: [
+          { name: "Healthy Foliage", emoji: "🌿", color: "#10B981" },
+          { name: "Powdery Mildew", emoji: "🍄", color: "#F59E0B" },
+          { name: "Bacterial Leaf Blight", emoji: "🍂", color: "#EF4444" },
+          { name: "Leaf Rust Fungus", emoji: "🍁", color: "#EC4899" },
+        ],
+      },
+      presets: [
+        {
+          name: "Healthy Foliage",
+          emoji: "🌿",
+          description: "Clean green blade, zero necrotic spots",
+          values: { lesionArea: 0, chlorophyllLoss: 0.04, spotIrregularity: 0.02, canopyMoisture: 55 },
+        },
+        {
+          name: "Powdery Mildew",
+          emoji: "🍄",
+          description: "Moderate lesions, chalky discoloration",
+          values: { lesionArea: 38, chlorophyllLoss: 0.65, spotIrregularity: 0.35, canopyMoisture: 40 },
+        },
+        {
+          name: "Bacterial Leaf Blight",
+          emoji: "🍂",
+          description: "Extensive necrotic lesions, high moisture",
+          values: { lesionArea: 75, chlorophyllLoss: 0.85, spotIrregularity: 0.90, canopyMoisture: 85 },
+        },
+        {
+          name: "Early Leaf Rust",
+          emoji: "🍁",
+          description: "Scattered pustules with chlorotic halos",
+          values: { lesionArea: 22, chlorophyllLoss: 0.40, spotIrregularity: 0.65, canopyMoisture: 65 },
+        },
+      ],
+    };
+  }
+
   // 2. Clinical / Health / Disease / Patient Vitals
   if (
-    lower.includes("diabet") ||
-    lower.includes("disease") ||
-    lower.includes("cancer") ||
-    lower.includes("medical") ||
-    lower.includes("patient") ||
-    lower.includes("health") ||
-    lower.includes("clinic") ||
-    lower.includes("heart") ||
-    lower.includes("tumor") ||
-    lower.includes("diagnosis")
+    !isPlantOrAgri &&
+    (lower.includes("diabet") ||
+      (lower.includes("disease") && !isPlantOrAgri) ||
+      lower.includes("cancer") ||
+      lower.includes("medical") ||
+      lower.includes("patient") ||
+      (lower.includes("health") && !isPlantOrAgri) ||
+      lower.includes("clinic") ||
+      lower.includes("heart") ||
+      lower.includes("tumor") ||
+      lower.includes("glucose") ||
+      (lower.includes("diagnosis") && !isPlantOrAgri))
   ) {
     return {
       functionName: "run_patient_diagnosis",

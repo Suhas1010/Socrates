@@ -140,6 +140,69 @@ export const LiveTestPanel: React.FC<LiveTestPanelProps> = ({
       };
     }
 
+    // SPECIAL DOMAIN 1.5: Plant & Crop Disease Vision Classifier
+    const isPlantDisease =
+      contract.features.some((f) => f.id === "lesionArea") &&
+      contract.features.some((f) => f.id === "chlorophyllLoss");
+
+    if (isPlantDisease) {
+      const lesion = Number(featureValues["lesionArea"] ?? 42);
+      const discolor = Number(featureValues["chlorophyllLoss"] ?? 0.65);
+      const irregularity = Number(featureValues["spotIrregularity"] ?? 0.40);
+      const moisture = Number(featureValues["canopyMoisture"] ?? 40);
+
+      const normLesion = Math.max(0, Math.min(1, lesion / 100));
+      const normDisc = Math.max(0, Math.min(1, discolor));
+      const normIrreg = Math.max(0, Math.min(1, irregularity));
+      const normMoist = Math.max(0, Math.min(1, (moisture - 10) / 90));
+
+      const logits: Record<string, number> = {
+        "Healthy Foliage": 2.5 - (4.0 * normLesion) - (3.5 * normDisc) - (2.5 * normIrreg),
+        "Powdery Mildew": (2.2 * normLesion) + (2.5 * normDisc) - (1.0 * normIrreg) - (1.2 * normMoist) + 0.2,
+        "Bacterial Leaf Blight": (3.8 * normLesion) + (3.0 * normDisc) + (3.2 * normIrreg) + (1.8 * normMoist) - 2.2,
+        "Leaf Rust Fungus": (1.8 * normLesion) + (1.6 * normDisc) + (2.5 * normIrreg) + (0.5 * normMoist) - 1.2,
+      };
+
+      const emojiMap: Record<string, string> = {
+        "Healthy Foliage": "🌿",
+        "Powdery Mildew": "🍄",
+        "Bacterial Leaf Blight": "🍂",
+        "Leaf Rust Fungus": "🍁",
+      };
+
+      const maxLogit = Math.max(...Object.values(logits));
+      const exps = Object.fromEntries(
+        Object.entries(logits).map(([k, v]) => [k, Math.exp(v - maxLogit)])
+      );
+      const sumExps = Object.values(exps).reduce((a, b) => a + b, 0);
+
+      const probabilities = Object.entries(exps)
+        .map(([name, expVal]) => ({
+          name,
+          emoji: emojiMap[name] || "🌱",
+          probability: Math.round((expVal / sumExps) * 1000) / 1000,
+        }))
+        .sort((a, b) => b.probability - a.probability);
+
+      const dominant = probabilities[0];
+      const confidence = Math.round(dominant.probability * 1000) / 10;
+      const isInfected = dominant.name !== "Healthy Foliage";
+
+      return {
+        isRegression: false,
+        isFaceEmotion: false,
+        isPlantDisease: true,
+        dominantClass: dominant.name,
+        emoji: dominant.emoji,
+        confidence,
+        probabilities,
+        isPositive: isInfected,
+        summary: isInfected
+          ? `Pathogen detected: ${dominant.name} (${confidence}% confidence). Recommend field inspection and targeted bio-treatment.`
+          : `Healthy foliage baseline confirmed (${confidence}% confidence). No active fungal lesions detected.`,
+      };
+    }
+
     // SPECIAL DOMAIN 2: Clinical Vitals
     const isClinical =
       contract.features.some((f) => f.id === "glucose") &&

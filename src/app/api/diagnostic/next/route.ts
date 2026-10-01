@@ -5,6 +5,7 @@ import { SENTIMENT_DIAGNOSTIC_QUESTIONS } from "@/lib/templates/sentimentAnalysi
 import { generateDiagnosticQuestionsForGoal } from "@/lib/diagnostics";
 import { initializeMasteryFromDiagnostic } from "@/lib/mastery";
 import { DiagnosticQuestion } from "@/lib/types";
+import { generateStructuredLLM, DiagnosticSetSchema } from "@/lib/llm";
 
 export async function POST(req: NextRequest) {
   try {
@@ -106,7 +107,60 @@ export async function POST(req: NextRequest) {
         },
       ];
     } else {
-      questions = generateDiagnosticQuestionsForGoal(goal || "");
+      const fallbackQuestions = generateDiagnosticQuestionsForGoal(goal || "");
+      try {
+        const headerKey = req.headers.get("x-gemini-api-key");
+        const activeKey = body.apiKey || headerKey || undefined;
+        const systemPrompt = `You are Socrates, an expert AI tutor. A learner wants to build: "${goal}".
+Learner coding background: "beginner".
+Generate a set of 4 progressive diagnostic check questions tailored SPECIFICALLY to their project: "${goal}".
+RULES:
+1. Every question must be 100% grounded in "${goal}". If it is an agricultural or plant project, ask about leaves, crops, visual features, lesions, and plant pathogens. NEVER mention human patients, blood glucose, or medical records unless the goal is specifically about human healthcare!
+2. Question 1: Problem Formulation (what kind of ML task is this, classification vs regression, inputs X vs output Y).
+3. Question 2: Base Rate / Prior Probability in this domain.
+4. Question 3: Feature Scaling / Normalization (why we normalize differing feature scales in this domain).
+5. Question 4: Decision Boundary / Threshold / Sensitivity tradeoff in this domain.
+6. Target concept IDs should match: "problem-framing", "prior-probability", "feature-engineering", "decision-boundary".
+7. Each question must have exactly 4 options with 1 correct option and 3 realistic misconceptions with errorType and rationale.`;
+
+        const llmResult = await generateStructuredLLM({
+          systemPrompt,
+          userPrompt: `Goal: "${goal}". Return 4 diagnostic questions.`,
+          schema: DiagnosticSetSchema,
+          fallbackData: {
+            questions: fallbackQuestions.map((q) => ({
+              id: q.id,
+              targetConceptId: q.targetConceptId,
+              question: q.question,
+              options: q.options.map((opt) => ({
+                text: opt.text,
+                isCorrect: opt.isCorrect,
+                errorType: (opt.errorType as any) || "NONE",
+                rationale: opt.rationale || "",
+              })),
+            })),
+          },
+          apiKeyOverride: activeKey,
+        });
+
+        if (llmResult.questions && llmResult.questions.length > 0) {
+          questions = llmResult.questions.map((q, idx) => ({
+            id: q.id || `diag-dynamic-${idx + 1}`,
+            targetConceptId: q.targetConceptId || fallbackQuestions[idx]?.targetConceptId || "problem-framing",
+            question: q.question,
+            options: q.options.map((opt) => ({
+              text: opt.text,
+              isCorrect: opt.isCorrect,
+              errorType: opt.errorType,
+              rationale: opt.rationale || "",
+            })),
+          }));
+        } else {
+          questions = fallbackQuestions;
+        }
+      } catch (llmErr) {
+        questions = fallbackQuestions;
+      }
     }
 
     const currentStep = history.length;

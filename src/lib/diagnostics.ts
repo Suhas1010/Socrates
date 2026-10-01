@@ -141,18 +141,158 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
     ];
   }
 
+  const isPlantOrAgri =
+    lower.includes("plant") ||
+    lower.includes("crop") ||
+    lower.includes("leaf") ||
+    lower.includes("leaves") ||
+    lower.includes("botan") ||
+    lower.includes("agri") ||
+    lower.includes("tree") ||
+    lower.includes("garden") ||
+    lower.includes("farm") ||
+    lower.includes("flora");
+
+  // 0.5 Agricultural Vision / Plant Disease Detector
+  if (isPlantOrAgri) {
+    return [
+      {
+        id: "diag-plant-1",
+        targetConceptId: "problem-framing",
+        question: `When building "${safeGoal}" to identify leaf pathogens (like Powdery Mildew, Leaf Blight, or Rust) from crop photographs, what kind of machine learning task is this?`,
+        options: [
+          {
+            text: "Multi-Class Classification (categorizing the leaf into distinct disease states or a healthy baseline)",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "Continuous Regression (predicting open-ended continuous dollar prices for farm equipment)",
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: "Identifying discrete botanical pathogen classes is a classification problem, not financial regression.",
+          },
+          {
+            text: "Unsupervised Clustering (grouping files on disk without any ground truth botanical labels)",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Plant disease models are trained using supervised datasets with expert-labeled crop disease tags.",
+          },
+          {
+            text: "Reinforcement Learning (controlling a physical tractor driving through video game simulations)",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "Computer vision classification analyzes static image tensors, not reinforcement reward agents.",
+          },
+        ],
+      },
+      {
+        id: "diag-plant-2",
+        targetConceptId: "prior-probability",
+        question: `In a commercial greenhouse survey where 8 out of 100 inspected tomato leaves exhibit early fungal spots, what is the baseline prior probability P(Fungal Infection)?`,
+        options: [
+          {
+            text: "0.08 (8% baseline prevalence in the greenhouse crop)",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "0.50 (50% — assuming equal odds regardless of actual greenhouse survey data)",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Prior probability reflects historical base rate: 8 / 100 = 0.08, not 50/50.",
+          },
+          {
+            text: "0.92 (92% — subtracting from 100 without dividing)",
+            isCorrect: false,
+            errorType: "CALCULATION_SLIP",
+            rationale: "0.92 is the probability of a leaf being healthy/uninfected.",
+          },
+          {
+            text: "1.00 (100% — certainty before examining any leaves)",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "A prior of 1.0 would mean every plant on Earth is unconditionally diseased.",
+          },
+        ],
+      },
+      {
+        id: "diag-plant-3",
+        targetConceptId: "feature-engineering",
+        question: `When combining lesion surface area (0–100%) with chlorophyll discoloration index (0.01–0.98), why is feature scaling or normalization applied?`,
+        options: [
+          {
+            text: "To ensure features with larger numerical ranges do not disproportionately dominate gradient updates during model optimization.",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "Because Python arithmetic errors out on numbers greater than 10.",
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: "Python handles arbitrary numbers; normalization ensures balanced optimization dynamics.",
+          },
+          {
+            text: "To eliminate the need for photographing training leaf samples.",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Scaling transforms data values; it does not replace the requirement for leaf imagery.",
+          },
+          {
+            text: "To convert all leaf images into raw text strings.",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "Machine learning vision models process numeric feature vectors and pixel matrices, not text strings.",
+          },
+        ],
+      },
+      {
+        id: "diag-plant-4",
+        targetConceptId: "decision-boundary",
+        question: `In agricultural disease triage, what is the agronomic rationale for lowering the alert decision threshold from 0.50 to 0.35 confidence?`,
+        options: [
+          {
+            text: "Prioritize High Sensitivity / Recall: Early detection prevents fungal contagion from ruining the entire harvest, accepting a few false positive alerts.",
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: "To guarantee that the computer uses less electricity.",
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: "Decision thresholds adjust classification sensitivity, not GPU electrical power.",
+          },
+          {
+            text: "Because machine learning models only execute mathematical operations below 0.40.",
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: "Thresholds are statistical decision boundaries chosen based on real-world cost of misclassification.",
+          },
+          {
+            text: "To turn all diseased leaves green automatically.",
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: "The AI model performs diagnostic inference; it cannot physically alter the biological plant tissue.",
+          },
+        ],
+      },
+    ];
+  }
+
   // 1. Medical / Health / Disease / Clinical (e.g. Diabetes, Cancer, Heart Disease, Medical Diagnosis)
   if (
-    lower.includes("diabet") ||
-    lower.includes("disease") ||
-    lower.includes("cancer") ||
-    lower.includes("medical") ||
-    lower.includes("patient") ||
-    lower.includes("health") ||
-    lower.includes("clinic") ||
-    lower.includes("heart") ||
-    lower.includes("tumor") ||
-    lower.includes("diagnosis")
+    !isPlantOrAgri &&
+    (lower.includes("diabet") ||
+      (lower.includes("disease") && !isPlantOrAgri) ||
+      lower.includes("cancer") ||
+      lower.includes("medical") ||
+      lower.includes("patient") ||
+      (lower.includes("health") && !isPlantOrAgri) ||
+      lower.includes("clinic") ||
+      lower.includes("heart") ||
+      lower.includes("tumor") ||
+      lower.includes("glucose") ||
+      (lower.includes("diagnosis") && !isPlantOrAgri))
   ) {
     return [
       {
@@ -515,6 +655,18 @@ export function generateFallbackConceptsForGoal(goal: string): Concept[] {
   const lower = (goal || "").toLowerCase();
   const safeGoal = goal?.trim() || "Your AI Project";
 
+  const isPlantOrAgri =
+    lower.includes("plant") ||
+    lower.includes("crop") ||
+    lower.includes("leaf") ||
+    lower.includes("leaves") ||
+    lower.includes("botan") ||
+    lower.includes("agri") ||
+    lower.includes("tree") ||
+    lower.includes("garden") ||
+    lower.includes("farm") ||
+    lower.includes("flora");
+
   // Facial Emotion / Face Expression Analyzer
   if (
     lower.includes("emotion") ||
@@ -846,18 +998,618 @@ print("Assertion Passed: Full facial emotion inference engine verified operation
     ];
   }
 
+  // Agricultural Vision / Plant Disease Detector
+  if (isPlantOrAgri) {
+    return [
+      {
+        id: "problem-framing",
+        title: `Agricultural Vision Formulation: ${safeGoal}`,
+        prereqs: [],
+        difficulty: 1,
+        hook: `Before training AI to diagnose leaf diseases from photographs, what observable visual features are extracted from the leaf, and what target pathogen classes are we predicting?`,
+        explanationSummary: `Agricultural computer vision establishes a strict input/output contract: observable visual symptoms (lesion surface area %, chlorophyll discoloration index, spot edge irregularity, canopy moisture) serve as inputs (X), and the botanical health status (Healthy, Powdery Mildew, Bacterial Blight, Rust Fungus) serves as the target output (Y).`,
+        corePrinciple: `Supervised classification learns a mathematical mapping f(leaf_visual_features) -> disease_class. Target labels must never leak into input features.`,
+        whyItMatters: `Clearly isolating visual features from ground truth labels prevents data leakage, ensuring the model generalizes to new crop fields under varying weather conditions.`,
+        buildStep: `Define the plant disease vision specification dictionary with observed leaf features and target pathogen classes.`,
+        starterCode: `# Step 1: Agricultural Vision Specification for ${safeGoal}
+# Fill in the blanks:
+# 1. Specify task type: "classification" or "regression"
+# 2. List the observable visual features extracted from leaf imagery
+# 3. State the primary target pathogen classes to diagnose
+
+def define_plant_disease_spec():
+    return {
+        "project": "${safeGoal}",
+        "task_type": ___,               # TODO: "classification" or "regression"
+        "visual_features": [___],       # TODO: list strings, e.g. "lesion_area_pct", "chlorophyll_discoloration", "spot_irregularity", "canopy_moisture"
+        "target_pathogens": [___]       # TODO: list strings, e.g. "Healthy", "Powdery Mildew", "Bacterial Blight", "Rust Fungus"
+    }
+
+print("Plant Vision Spec:", define_plant_disease_spec())
+`,
+        solutionCode: `def define_plant_disease_spec():
+    return {
+        "project": "${safeGoal}",
+        "task_type": "classification",
+        "visual_features": ["lesion_area_pct", "chlorophyll_discoloration", "spot_irregularity", "canopy_moisture"],
+        "target_pathogens": ["Healthy", "Powdery Mildew", "Bacterial Blight", "Rust Fungus"]
+    }
+
+print("Plant Vision Spec:", define_plant_disease_spec())
+`,
+        testAssertion: `spec = define_plant_disease_spec()
+assert isinstance(spec, dict), "define_plant_disease_spec() must return a dictionary"
+task_type = str(spec.get("task_type", "")).lower().strip()
+assert task_type != "___" and task_type != "", "Blank 'task_type' is not filled in yet. Choose 'classification' or 'regression'."
+assert task_type == "classification", f"Plant disease detection is a 'classification' task, got '{task_type}'"
+features = spec.get("visual_features", [])
+assert isinstance(features, list), "'visual_features' must be a list of feature names"
+assert len(features) > 0 and features != ["___"], "Blank 'visual_features' is not filled in yet."
+pathogens = spec.get("target_pathogens", [])
+assert isinstance(pathogens, list) and len(pathogens) > 0 and pathogens != ["___"], "Blank 'target_pathogens' is not filled in yet."
+print("Assertion Passed: Plant disease vision specification contract verified!")
+`,
+        predictQuestion: {
+          prompt: `For ${safeGoal}, why must the 'target_pathogens' never be included inside the 'visual_features' input list?`,
+          options: [
+            "Including target labels in the input causes target leakage, where the model memorizes answers without learning visual symptom patterns.",
+            "Python deletes the file if any word repeats twice.",
+            "Leaf images can only be saved in grayscale if target labels are present.",
+            "Agricultural models can only process a single leaf per day.",
+          ],
+          correctIndex: 0,
+          explanation: "Target leakage gives the model the answer during training, causing it to completely fail when evaluating unseen leaves in real crop fields.",
+        },
+        checkQuestion: {
+          prompt: `In machine learning for plant pathology, what is the mathematical difference between classification and regression?`,
+          options: [
+            "Classification predicts discrete categories (e.g. Healthy vs Powdery Mildew), while regression predicts continuous numerical quantities (e.g. crop yield in kg).",
+            "Classification only runs on mobile phones, regression only on servers.",
+            "Regression works without any dataset.",
+            "There is no difference between them.",
+          ],
+          correctIndex: 0,
+          explanation: "Plant disease identification classifies leaves into discrete pathogen categories.",
+        },
+      },
+      {
+        id: "feature-engineering",
+        title: "Leaf Visual Feature Normalization & Scaling",
+        prereqs: ["problem-framing"],
+        difficulty: 2,
+        hook: `Lesion area spans 0–100% while spot irregularity ranges from 0.01 to 0.95. Why must these visual measurements be scaled before optimizing model weights?`,
+        explanationSummary: `When numerical inputs have vastly different scales, gradient descent oscillates erratically. Min-max normalization scales raw measurements into a standardized [0.0, 1.0] interval using: (x - min) / (max - min).`,
+        corePrinciple: `Normalized Value = (x - min_val) / (max_val - min_val). Equalizing feature magnitude ensures balanced gradient steps.`,
+        whyItMatters: `Without scaling, features with large numbers (like 100% lesion area) dominate weight updates, blinding the network to subtle but critical microscopic spot patterns.`,
+        buildStep: `Implement normalize_leaf_feature to rescale raw visual leaf measurements into a normalized [0.0, 1.0] float.`,
+        starterCode: `# Step 2: Leaf Visual Feature Scaling
+# Formula: normalized = (value - min_val) / (max_val - min_val)
+
+def normalize_leaf_feature(value: float, min_val: float, max_val: float) -> float:
+    # Fill in the blanks:
+    # 1. Compute the range: max_val - min_val
+    # 2. Divide offset by range and clamp between 0.0 and 1.0
+    feat_range = ___                            # TODO: max_val - min_val
+    scaled = (value - min_val) / feat_range
+    clamped = max(0.0, min(1.0, scaled))
+    return round(clamped, 4)
+
+# Test with 45% lesion area on a [0, 100] scale
+print("Normalized Lesion:", normalize_leaf_feature(45.0, 0.0, 100.0))
+`,
+        solutionCode: `def normalize_leaf_feature(value: float, min_val: float, max_val: float) -> float:
+    feat_range = max_val - min_val
+    scaled = (value - min_val) / feat_range
+    clamped = max(0.0, min(1.0, scaled))
+    return round(clamped, 4)
+
+print("Normalized Lesion:", normalize_leaf_feature(45.0, 0.0, 100.0))
+`,
+        testAssertion: `res = normalize_leaf_feature(45.0, 0.0, 100.0)
+assert res == 0.45, f"Expected 0.45 for 45% lesion on [0, 100], got {res}"
+res_edge = normalize_leaf_feature(110.0, 0.0, 100.0)
+assert res_edge == 1.0, f"Expected clamped 1.0 for out-of-range value, got {res_edge}"
+print("Assertion Passed: Leaf visual feature normalization verified!")
+`,
+        predictQuestion: {
+          prompt: "If a leaf has 100% lesion coverage on a [0, 100] scale, what is its normalized value?",
+          options: [
+            "1.0000",
+            "100.0000",
+            "0.0000",
+            "-1.0000",
+          ],
+          correctIndex: 0,
+          explanation: "(100 - 0) / (100 - 0) = 1.0000. Min-max normalization maps the maximum observed value to exactly 1.0.",
+        },
+        checkQuestion: {
+          prompt: "Why is feature scaling essential for neural networks processing visual leaf attributes?",
+          options: [
+            "It prevents large-scale numerical attributes from dominating gradients and destabilizing backpropagation.",
+            "It automatically colors all images black and white.",
+            "It prevents Python from running out of RAM.",
+            "It increases image resolution from 720p to 4K.",
+          ],
+          correctIndex: 0,
+          explanation: "Normalized features ensure loss surface contours are circular rather than elongated, allowing gradient descent to converge quickly.",
+        },
+      },
+      {
+        id: "prior-probability",
+        title: "Crop Pathogen Prior & Base Rate Calibration",
+        prereqs: ["problem-framing"],
+        difficulty: 2,
+        hook: `If only 8% of plants in a healthy nursery harbor fungal spores, how does Bayes' rule ensure our detector does not trigger excessive false alarms?`,
+        explanationSummary: `Prior probability P(Disease) anchors predictions to historical incidence rates. When disease prevalence is rare, a naive model that ignores base rates will generate massive false positive alarm rates.`,
+        corePrinciple: `Prior P(Disease) = infected_count / total_population. The prior acts as an anchor before observing leaf visual evidence.`,
+        whyItMatters: `Commercial farm managers cannot afford to quarantine entire crop fields due to false positive alerts; incorporating agronomic base rates ensures balanced decision support.`,
+        buildStep: `Implement calculate_pathogen_prior to compute the empirical prior probability from nursery survey records.`,
+        starterCode: `# Step 3: Pathogen Prior Probability
+# Formula: prior = infected_samples / total_inspected
+
+def calculate_pathogen_prior(infected_samples: int, total_inspected: int) -> float:
+    # Fill in the blanks:
+    # 1. Guard against division by zero
+    # 2. Divide infected by total and round to 4 decimals
+    if total_inspected <= 0:
+        return 0.0
+    prior = ___ / ___                           # TODO: compute infected / total
+    return round(prior, 4)
+
+print("Greenhouse Prior:", calculate_pathogen_prior(16, 200))
+`,
+        solutionCode: `def calculate_pathogen_prior(infected_samples: int, total_inspected: int) -> float:
+    if total_inspected <= 0:
+        return 0.0
+    prior = infected_samples / total_inspected
+    return round(prior, 4)
+
+print("Greenhouse Prior:", calculate_pathogen_prior(16, 200))
+`,
+        testAssertion: `prior = calculate_pathogen_prior(16, 200)
+assert prior == 0.08, f"Expected 0.08 for 16/200, got {prior}"
+assert calculate_pathogen_prior(0, 100) == 0.0, "Zero infected should yield 0.0"
+print("Assertion Passed: Pathogen prior calculation verified!")
+`,
+        predictQuestion: {
+          prompt: "If 25 out of 500 inspected grapevine leaves have powdery mildew, what is the pathogen prior rate?",
+          options: [
+            "0.05 (5%)",
+            "0.50 (50%)",
+            "0.25 (25%)",
+            "0.005 (0.5%)",
+          ],
+          correctIndex: 0,
+          explanation: "25 / 500 = 0.05 (5% baseline prior probability).",
+        },
+        checkQuestion: {
+          prompt: "Why must plant disease AI models account for base rates?",
+          options: [
+            "In low-prevalence outbreaks, ignoring base rates leads to severe false-positive over-reporting.",
+            "Prior probabilities make Python run without an operating system.",
+            "Because leaves only grow in prime numbers.",
+            "To delete corrupted photos from camera SD cards.",
+          ],
+          correctIndex: 0,
+          explanation: "Bayesian reasoning combines the prior prevalence with observed leaf symptoms to compute true posterior infection likelihood.",
+        },
+      },
+      {
+        id: "decision-boundary",
+        title: "Visual Logit Scoring for Plant Diseases",
+        prereqs: ["feature-engineering"],
+        difficulty: 3,
+        hook: `How does a machine learning model combine lesion area, discoloration, and spot sharpness into a single decision score?`,
+        explanationSummary: `A linear decision score (logit z) multiplies each normalized leaf feature by a learned weight vector and adds a bias: z = w1*lesion + w2*discoloration + w3*sharpness + bias.`,
+        corePrinciple: `Logit z = sum(w_i * x_i) + b. Positive weights amplify disease evidence, while the bias calibrates baseline susceptibility.`,
+        whyItMatters: `Visual symptoms reinforce each other: widespread lesion coverage combined with yellow chlorotic halos strongly signals virulent pathogen infection.`,
+        buildStep: `Implement compute_leaf_pathogen_logit to calculate the weighted symptom sum.`,
+        starterCode: `# Step 4: Visual Logit Calculation
+# Formula: z = (w_lesion * x1) + (w_discolor * x2) + (w_sharp * x3) + bias
+
+def compute_leaf_pathogen_logit(norm_lesion: float, norm_discolor: float, norm_sharp: float) -> float:
+    # Agronomic vision weights learned from field datasets
+    w_lesion = 2.40
+    w_discolor = 1.80
+    w_sharp = 1.20
+    bias = -1.60
+
+    # Fill in the blank: compute linear combination
+    logit = ___                                 # TODO: sum weighted features + bias
+    return round(logit, 4)
+
+# Test with severe leaf blight symptoms: lesion=0.8, discolor=0.7, sharp=0.9
+print("Severe Blight Logit:", compute_leaf_pathogen_logit(0.8, 0.7, 0.9))
+`,
+        solutionCode: `def compute_leaf_pathogen_logit(norm_lesion: float, norm_discolor: float, norm_sharp: float) -> float:
+    w_lesion = 2.40
+    w_discolor = 1.80
+    w_sharp = 1.20
+    bias = -1.60
+    logit = (w_lesion * norm_lesion) + (w_discolor * norm_discolor) + (w_sharp * norm_sharp) + bias
+    return round(logit, 4)
+
+print("Severe Blight Logit:", compute_leaf_pathogen_logit(0.8, 0.7, 0.9))
+`,
+        testAssertion: `z = compute_leaf_pathogen_logit(0.8, 0.7, 0.9)
+expected = round((2.4 * 0.8) + (1.8 * 0.7) + (1.2 * 0.9) - 1.6, 4)
+assert z == expected, f"Expected {expected}, got {z}"
+z_clean = compute_leaf_pathogen_logit(0.0, 0.0, 0.0)
+assert z_clean == -1.6, f"Expected bias -1.6 for pristine leaf, got {z_clean}"
+print("Assertion Passed: Leaf pathogen logit calculation verified!")
+`,
+        predictQuestion: {
+          prompt: "What will the logit score be for a completely pristine leaf where all normalized symptoms are 0.0?",
+          options: [
+            "Equal to the negative bias (-1.60), representing strong baseline resistance to infection.",
+            "Positive infinity.",
+            "Zero always.",
+            "It will throw a division by zero exception.",
+          ],
+          correctIndex: 0,
+          explanation: "When all features are 0.0, the sum of weights*features is 0.0, leaving only the bias term (-1.60).",
+        },
+        checkQuestion: {
+          prompt: "What role does the bias term play in plant disease scoring?",
+          options: [
+            "It shifts the decision boundary independently of input symptoms, capturing baseline healthy resilience.",
+            "It flips the image orientation 180 degrees.",
+            "It deletes features with low correlation.",
+            "It encrypts the model weights for security.",
+          ],
+          correctIndex: 0,
+          explanation: "The bias allows the model to shift the activation function left or right along the input axis.",
+        },
+      },
+      {
+        id: "loss-functions",
+        title: "Sigmoid Probability & Cross-Entropy Loss",
+        prereqs: ["decision-boundary"],
+        difficulty: 3,
+        hook: `A raw logit score of +2.8 indicates severe symptoms, but farmers need an actionable probability (e.g. 94% chance of blight). How do we convert unbounded logits into valid probabilities?`,
+        explanationSummary: `The Sigmoid activation sigma(z) = 1 / (1 + exp(-z)) maps any real number into the open interval (0, 1). Binary Cross-Entropy measures the loss between predicted probability p and true label y in {0, 1}.`,
+        corePrinciple: `P(Disease) = 1 / (1 + exp(-z)). Cross-Entropy Loss L = -[y * log(p) + (1 - y) * log(1 - p)]. Confident wrong predictions are penalized with extreme loss.`,
+        whyItMatters: `Cross-entropy provides smooth non-zero gradients across all probability values, driving rapid weight correction when the detector mistakes a blighted leaf for healthy foliage.`,
+        buildStep: `Implement sigmoid activation and binary cross-entropy loss in Python.`,
+        starterCode: `import math
+
+# Step 5: Sigmoid Activation & Binary Cross-Entropy
+def leaf_disease_probability(logit: float) -> float:
+    # Fill in the blank: Sigmoid formula: 1 / (1 + exp(-z))
+    p = ___                                     # TODO: 1.0 / (1.0 + math.exp(-logit))
+    return round(p, 4)
+
+def binary_cross_entropy(y_true: int, y_pred: float) -> float:
+    # Clamp y_pred to prevent log(0) math domain error
+    eps = 1e-12
+    p = max(eps, min(1.0 - eps, y_pred))
+    # Fill in the blank: -[y*log(p) + (1-y)*log(1-p)]
+    loss = ___                                  # TODO: -(y_true * math.log(p) + (1 - y_true) * math.log(1.0 - p))
+    return round(loss, 4)
+
+prob = leaf_disease_probability(2.65)
+print("Infection Probability:", prob)
+print("Loss on Diseased Leaf (y=1):", binary_cross_entropy(1, prob))
+`,
+        solutionCode: `import math
+
+def leaf_disease_probability(logit: float) -> float:
+    p = 1.0 / (1.0 + math.exp(-logit))
+    return round(p, 4)
+
+def binary_cross_entropy(y_true: int, y_pred: float) -> float:
+    eps = 1e-12
+    p = max(eps, min(1.0 - eps, y_pred))
+    loss = -(y_true * math.log(p) + (1 - y_true) * math.log(1.0 - p))
+    return round(loss, 4)
+
+prob = leaf_disease_probability(2.65)
+print("Infection Probability:", prob)
+print("Loss on Diseased Leaf (y=1):", binary_cross_entropy(1, prob))
+`,
+        testAssertion: `p = leaf_disease_probability(0.0)
+assert p == 0.5, f"Sigmoid(0) must equal 0.5, got {p}"
+p_pos = leaf_disease_probability(5.0)
+assert p_pos > 0.99, "Large positive logit should yield probability near 1.0"
+loss_good = binary_cross_entropy(1, 0.99)
+loss_bad = binary_cross_entropy(1, 0.01)
+assert loss_bad > loss_good, "Wrong prediction should produce significantly higher loss"
+print("Assertion Passed: Sigmoid and Cross-Entropy verified!")
+`,
+        predictQuestion: {
+          prompt: "What happens to the cross-entropy loss if the true label is 1 (Blighted), but our model outputs p = 0.001 (confident it is healthy)?",
+          options: [
+            "The loss explodes to a very large positive number (-log(0.001) approx 6.9), heavily penalizing the mistake.",
+            "The loss becomes negative.",
+            "The loss drops to zero.",
+            "The model restarts the training computer.",
+          ],
+          correctIndex: 0,
+          explanation: "-log(p) approaches infinity as p approaches 0 when the ground truth label is 1.",
+        },
+        checkQuestion: {
+          prompt: "Why is epsilon clipping (e.g. 1e-12) used when computing Cross-Entropy?",
+          options: [
+            "To prevent math domain errors from calculating log(0), which is undefined (-infinity).",
+            "To speed up GPU clock speeds.",
+            "To remove watermarks from leaf photos.",
+            "To reduce image storage file sizes.",
+          ],
+          correctIndex: 0,
+          explanation: "log(0) is mathematically undefined and throws a runtime exception in Python.",
+        },
+      },
+      {
+        id: "gradient-descent",
+        title: "Weight Optimization via Gradient Descent",
+        prereqs: ["loss-functions"],
+        difficulty: 4,
+        hook: `When our detector misclassifies a powdery mildew infection, how does calculus compute the exact adjustment needed for each symptom weight?`,
+        explanationSummary: `Gradient descent computes the partial derivative of loss with respect to each weight: dL/dw = (p - y) * x. Each weight is updated opposite to the gradient: w_new = w_old - (learning_rate * gradient).`,
+        corePrinciple: `Weight Update: w_new = w_old - alpha * (p - y) * x. When error (p - y) is positive (overprediction), weights decrease; when negative (underprediction), weights increase.`,
+        whyItMatters: `Gradient descent automates parameter optimization across thousands of leaf training samples without requiring hand-tuned heuristics.`,
+        buildStep: `Implement update_leaf_weights to perform a single gradient step.`,
+        starterCode: `# Step 6: Gradient Descent Step on Leaf Weights
+# Formula: w_new = w - (learning_rate * gradient)
+# where gradient = (p - y) * x
+
+def update_leaf_weights(weights: list, features: list, y_true: int, p_pred: float, lr: float = 0.1) -> list:
+    error = p_pred - y_true
+    new_weights = []
+    # Fill in the blanks:
+    # Compute gradient for each feature and update weight
+    for w, x in zip(weights, features):
+        grad = error * x
+        w_updated = ___                         # TODO: w - (lr * grad)
+        new_weights.append(round(w_updated, 4))
+    return new_weights
+
+print("Updated Weights:", update_leaf_weights([2.0, 1.5], [0.8, 0.6], y_true=1, p_pred=0.4, lr=0.1))
+`,
+        solutionCode: `def update_leaf_weights(weights: list, features: list, y_true: int, p_pred: float, lr: float = 0.1) -> list:
+    error = p_pred - y_true
+    new_weights = []
+    for w, x in zip(weights, features):
+        grad = error * x
+        w_updated = w - (lr * grad)
+        new_weights.append(round(w_updated, 4))
+    return new_weights
+
+print("Updated Weights:", update_leaf_weights([2.0, 1.5], [0.8, 0.6], y_true=1, p_pred=0.4, lr=0.1))
+`,
+        testAssertion: `w_up = update_leaf_weights([2.0], [1.0], y_true=1, p_pred=0.5, lr=0.1)
+assert w_up[0] == 2.05, f"Expected 2.05, got {w_up[0]}"
+print("Assertion Passed: Gradient descent update verified!")
+`,
+        predictQuestion: {
+          prompt: "If our model predicts p = 0.3 for a severely diseased leaf (y = 1), what direction will the weight update move?",
+          options: [
+            "Weights will increase (error is -0.7, so subtracting negative gradient adds to the weights).",
+            "Weights will decrease to zero.",
+            "Weights will stay unchanged.",
+            "Weights will turn into string variables.",
+          ],
+          correctIndex: 0,
+          explanation: "When the model underpredicts (p < y), the error (p - y) is negative. Subtracting lr * negative_grad increases the weights to boost future sensitivity.",
+        },
+        checkQuestion: {
+          prompt: "What happens if the learning rate alpha is set excessively high (e.g. alpha = 100.0)?",
+          options: [
+            "Weights oscillate violently and diverge, causing loss to explode.",
+            "The model trains in 1 millisecond perfectly.",
+            "The computer screen starts flickering green.",
+            "Training data deletes itself from disk.",
+          ],
+          correctIndex: 0,
+          explanation: "Excessively high learning rates overshoot the minimum of the loss landscape and diverge.",
+        },
+      },
+      {
+        id: "bias-variance",
+        title: "Agronomic Disease Triage & Quarantine Threshold",
+        prereqs: ["loss-functions"],
+        difficulty: 3,
+        hook: `A default 0.50 threshold treats false alarms and missed outbreaks equally. In agriculture, missing a contagious fungal infection is disastrous. How do we tune decision thresholds for farm protection?`,
+        explanationSummary: `Tuning the classification decision threshold allows agronomists to optimize the precision-recall tradeoff. Lowering the threshold to 0.35 increases Sensitivity (Recall), catching 99% of early crop infections.`,
+        corePrinciple: `Threshold Decision: If P(Disease) >= threshold -> ACTIONABLE INFECTION ALERT. Lower thresholds prioritize recall; higher thresholds prioritize precision.`,
+        whyItMatters: `Catching leaf blight when only 2 plants are infected saves an entire field; waiting for 50%+ confidence risks catastrophic harvest losses.`,
+        buildStep: `Implement triage_crop_disease to return structured agronomic action recommendations.`,
+        starterCode: `# Step 7: Agronomic Disease Triage
+# Decision logic based on calibrated infection probability and threshold
+
+def triage_crop_disease(prob: float, threshold: float = 0.35) -> dict:
+    # Fill in the blanks:
+    # 1. Determine infection status: True if prob >= threshold else False
+    # 2. Assign action: "QUARANTINE_AND_SPRAY", "MONITOR_FIELD", or "CLEAN_HEALTHY"
+    is_infected = ___                           # TODO: prob >= threshold
+    if prob >= 0.70:
+        action = "QUARANTINE_AND_SPRAY"
+        severity = "HIGH"
+    elif prob >= threshold:
+        action = "MONITOR_FIELD"
+        severity = "MODERATE"
+    else:
+        action = "CLEAN_HEALTHY"
+        severity = "LOW"
+    return {"infected": is_infected, "action": action, "severity": severity, "probability": prob}
+
+print("Crop Triage:", triage_crop_disease(0.42, threshold=0.35))
+`,
+        solutionCode: `def triage_crop_disease(prob: float, threshold: float = 0.35) -> dict:
+    is_infected = prob >= threshold
+    if prob >= 0.70:
+        action = "QUARANTINE_AND_SPRAY"
+        severity = "HIGH"
+    elif prob >= threshold:
+        action = "MONITOR_FIELD"
+        severity = "MODERATE"
+    else:
+        action = "CLEAN_HEALTHY"
+        severity = "LOW"
+    return {"infected": is_infected, "action": action, "severity": severity, "probability": prob}
+
+print("Crop Triage:", triage_crop_disease(0.42, threshold=0.35))
+`,
+        testAssertion: `res = triage_crop_disease(0.42, threshold=0.35)
+assert res["infected"] is True, "Prob 0.42 should exceed 0.35 threshold"
+assert res["action"] == "MONITOR_FIELD", f"Expected MONITOR_FIELD, got {res['action']}"
+res_clean = triage_crop_disease(0.15, threshold=0.35)
+assert res_clean["infected"] is False, "Prob 0.15 should be below threshold"
+assert res_clean["action"] == "CLEAN_HEALTHY"
+print("Assertion Passed: Agronomic disease triage verified!")
+`,
+        predictQuestion: {
+          prompt: "What is the primary operational tradeoff when lowering the agricultural alert threshold from 0.50 to 0.35?",
+          options: [
+            "Higher Recall (fewer missed fungal infections) at the cost of slightly lower Precision (more false positive alerts).",
+            "The model runs in reverse.",
+            "Images take twice as long to load.",
+            "All plants automatically turn into trees.",
+          ],
+          correctIndex: 0,
+          explanation: "Lowering the decision threshold catches more true positives (high recall) but accepts more false alarms (lower precision).",
+        },
+        checkQuestion: {
+          prompt: "Why is high recall prioritized in crop pathogen detection systems?",
+          options: [
+            "Because an undetected pathogen can spread exponentially and wipe out an entire farm season.",
+            "Because high precision causes camera lenses to blur.",
+            "Because agricultural drones cannot fly at 0.50.",
+            "Because Python runs faster with high recall.",
+          ],
+          correctIndex: 0,
+          explanation: "The asymmetric cost of a false negative (missed contagion) far exceeds the cost of a false alarm (routine visual reinspection).",
+        },
+      },
+      {
+        id: "inference-pipeline",
+        title: "Live End-to-End Plant Disease Inference Pipeline",
+        prereqs: ["bias-variance"],
+        difficulty: 4,
+        hook: `Now assemble everything we built into a complete production pipeline: from raw leaf measurements to normalized features, logit scoring, probability mapping, and agronomic triage report!`,
+        explanationSummary: `An end-to-end vision inference pipeline ingests raw leaf attributes (lesion %, discoloration, spot sharpness, moisture), applies feature scaling, computes logits, applies sigmoid activation, and generates a structured agronomic diagnostic report.`,
+        corePrinciple: `Complete Pipeline: Raw Leaf -> normalize_leaf_feature() -> compute_leaf_pathogen_logit() -> sigmoid() -> triage_crop_disease() -> Actionable Agronomic Report.`,
+        whyItMatters: `Packaging modular functions into a unified pipeline allows testing in the browser 'Model Tester' tab with real-time sliders and instant diagnostic feedback.`,
+        buildStep: `Implement predict_plant_disease to integrate all pipeline stages into a unified function.`,
+        starterCode: `import math
+
+# Step 8: Unified Plant Disease Inference Pipeline
+def predict_plant_disease(lesion_area_pct: float, discoloration: float, spot_sharpness: float, moisture_pct: float = 50.0, threshold: float = 0.35) -> dict:
+    # 1. Feature normalization
+    norm_lesion = max(0.0, min(1.0, lesion_area_pct / 100.0))
+    norm_disc = max(0.0, min(1.0, discoloration))
+    norm_sharp = max(0.0, min(1.0, spot_sharpness))
+    
+    # 2. Logit calculation
+    logit = (2.40 * norm_lesion) + (1.80 * norm_disc) + (1.20 * norm_sharp) - 1.60
+    
+    # 3. Sigmoid probability
+    prob = round(1.0 / (1.0 + math.exp(-logit)), 4)
+    
+    # 4. Agronomic triage
+    is_infected = prob >= threshold
+    if prob >= 0.75:
+        diagnosis = "Powdery Mildew / Blight (Severe)"
+        action = "Quarantine block & apply targeted bio-fungicide"
+    elif prob >= threshold:
+        action = "Inspect canopy & schedule secondary moisture check"
+        diagnosis = "Early Pathogen Infection Detected"
+    else:
+        diagnosis = "Healthy Foliage Baseline"
+        action = "Routine surveillance"
+        
+    return {
+        "lesion_area_pct": lesion_area_pct,
+        "discoloration": discoloration,
+        "infection_probability": prob,
+        "is_infected": is_infected,
+        "diagnosis": diagnosis,
+        "action": action
+    }
+
+print("Healthy Leaf:", predict_plant_disease(lesion_area_pct=0.0, discoloration=0.04, spot_sharpness=0.02))
+print("Diseased Leaf:", predict_plant_disease(lesion_area_pct=65.0, discoloration=0.82, spot_sharpness=0.75))
+`,
+        solutionCode: `import math
+
+def predict_plant_disease(lesion_area_pct: float, discoloration: float, spot_sharpness: float, moisture_pct: float = 50.0, threshold: float = 0.35) -> dict:
+    norm_lesion = max(0.0, min(1.0, lesion_area_pct / 100.0))
+    norm_disc = max(0.0, min(1.0, discoloration))
+    norm_sharp = max(0.0, min(1.0, spot_sharpness))
+    
+    logit = (2.40 * norm_lesion) + (1.80 * norm_disc) + (1.20 * norm_sharp) - 1.60
+    prob = round(1.0 / (1.0 + math.exp(-logit)), 4)
+    
+    is_infected = prob >= threshold
+    if prob >= 0.75:
+        diagnosis = "Powdery Mildew / Blight (Severe)"
+        action = "Quarantine block & apply targeted bio-fungicide"
+    elif prob >= threshold:
+        action = "Inspect canopy & schedule secondary moisture check"
+        diagnosis = "Early Pathogen Infection Detected"
+    else:
+        diagnosis = "Healthy Foliage Baseline"
+        action = "Routine surveillance"
+        
+    return {
+        "lesion_area_pct": lesion_area_pct,
+        "discoloration": discoloration,
+        "infection_probability": prob,
+        "is_infected": is_infected,
+        "diagnosis": diagnosis,
+        "action": action
+    }
+
+print("Healthy Leaf:", predict_plant_disease(lesion_area_pct=0.0, discoloration=0.04, spot_sharpness=0.02))
+print("Diseased Leaf:", predict_plant_disease(lesion_area_pct=65.0, discoloration=0.82, spot_sharpness=0.75))
+`,
+        testAssertion: `res_clean = predict_plant_disease(0.0, 0.02, 0.01)
+assert res_clean["is_infected"] is False, "Clean leaf should be marked healthy"
+res_sick = predict_plant_disease(75.0, 0.85, 0.90)
+assert res_sick["is_infected"] is True, "High lesion leaf must be classified as infected"
+assert "Blight" in res_sick["diagnosis"] or "Severe" in res_sick["diagnosis"]
+print("Assertion Passed: Full plant disease inference pipeline verified!")
+`,
+        predictQuestion: {
+          prompt: "What is the primary advantage of bundling normalization, logit computation, and threshold triage into a single inference pipeline function?",
+          options: [
+            "It creates an atomic, reproducible inference endpoint ready for deployment to edge devices or web apps.",
+            "It deletes intermediate variables so code cannot be read.",
+            "It turns Python into JavaScript.",
+            "It allows the program to run without memory.",
+          ],
+          correctIndex: 0,
+          explanation: "Encapsulating the full pipeline ensures raw real-world inputs undergo the exact same preprocessing and transformation used during model training.",
+        },
+        checkQuestion: {
+          prompt: "Where can you interactively test your plant disease model pipeline in Socrates?",
+          options: [
+            "In the 'Model Tester' tab using live leaf symptom sliders, preset buttons, and visual feedback.",
+            "Nowhere, AI models cannot be tested interactively.",
+            "By printing out the Python script on physical paper.",
+            "By clearing the browser history.",
+          ],
+          correctIndex: 0,
+          explanation: "The Model Tester tab lets you interactively adjust lesion area, discoloration, and spot sharpness sliders to test the model live in the browser.",
+        },
+      },
+    ];
+  }
+
   // Medical / Health / Disease / Clinical
   if (
-    lower.includes("diabet") ||
-    lower.includes("disease") ||
-    lower.includes("cancer") ||
-    lower.includes("medical") ||
-    lower.includes("patient") ||
-    lower.includes("health") ||
-    lower.includes("clinic") ||
-    lower.includes("heart") ||
-    lower.includes("tumor") ||
-    lower.includes("diagnosis")
+    !isPlantOrAgri &&
+    (lower.includes("diabet") ||
+      (lower.includes("disease") && !isPlantOrAgri) ||
+      lower.includes("cancer") ||
+      lower.includes("medical") ||
+      lower.includes("patient") ||
+      (lower.includes("health") && !isPlantOrAgri) ||
+      lower.includes("clinic") ||
+      lower.includes("heart") ||
+      lower.includes("tumor") ||
+      lower.includes("glucose") ||
+      (lower.includes("diagnosis") && !isPlantOrAgri))
   ) {
     return [
       {
