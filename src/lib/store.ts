@@ -110,10 +110,17 @@ export interface SessionStoreState {
   savedProjectEdges?: ConceptEdge[];
   savedCurrentConceptId?: string | null;
 
+  // Dedicated Python Academy Section
+  isPythonAcademyOpen: boolean;
+  pythonMasteredModules: string[];
+
   // Actions
   setApiKey: (apiKey: string) => void;
   setLearningPhase: (phase: LearningPhase) => void;
   setLearningTrack: (track: "project" | "python_foundation") => void;
+  openPythonAcademy: () => void;
+  closePythonAcademy: () => void;
+  masterPythonModule: (moduleId: string) => void;
   setGoalAndInterests: (goal: string, interests: string, background?: CodingBackground) => void;
   generatePlanForGoal: (goal: string, interests: string, background?: CodingBackground) => Promise<void>;
   setBackground: (background: CodingBackground) => void;
@@ -183,12 +190,57 @@ export const useSessionStore = create<SessionStoreState>()(
       savedProjectEdges: undefined,
       savedCurrentConceptId: undefined,
 
+      isPythonAcademyOpen: false,
+      pythonMasteredModules: [],
+
       setApiKey: (apiKey: string) => {
         set({ apiKey });
       },
 
       setLearningPhase: (phase: LearningPhase) => {
         set({ learningPhase: phase });
+      },
+
+      openPythonAcademy: () => {
+        const state = get();
+        // If current concepts were swapped to python_foundation, safely restore project concepts
+        if (state.learningTrack === "python_foundation") {
+          const restoredConcepts = state.savedProjectConcepts || SPAM_CLASSIFIER_CONCEPTS;
+          const restoredEdges = state.savedProjectEdges || SPAM_CLASSIFIER_EDGES;
+          set({
+            learningTrack: "project",
+            concepts: restoredConcepts,
+            edges: restoredEdges,
+            currentConceptId: state.savedCurrentConceptId || restoredConcepts[0]?.id || null,
+            isPythonAcademyOpen: true,
+          });
+        } else {
+          set({ isPythonAcademyOpen: true });
+        }
+      },
+
+      closePythonAcademy: () => {
+        const state = get();
+        if (state.learningTrack === "python_foundation") {
+          const restoredConcepts = state.savedProjectConcepts || SPAM_CLASSIFIER_CONCEPTS;
+          const restoredEdges = state.savedProjectEdges || SPAM_CLASSIFIER_EDGES;
+          set({
+            learningTrack: "project",
+            concepts: restoredConcepts,
+            edges: restoredEdges,
+            currentConceptId: state.savedCurrentConceptId || restoredConcepts[0]?.id || null,
+            isPythonAcademyOpen: false,
+          });
+        } else {
+          set({ isPythonAcademyOpen: false });
+        }
+      },
+
+      masterPythonModule: (moduleId: string) => {
+        const current = get().pythonMasteredModules || [];
+        if (!current.includes(moduleId)) {
+          set({ pythonMasteredModules: [...current, moduleId] });
+        }
       },
 
       setLearningTrack: (track: "project" | "python_foundation") => {
@@ -203,6 +255,7 @@ export const useSessionStore = create<SessionStoreState>()(
             edges: PYTHON_TRACK_EDGES,
             currentConceptId: "python-vars",
             learningPhase: "theory",
+            isPythonAcademyOpen: true,
           });
         } else if (track === "project" && state.learningTrack === "python_foundation") {
           const restoredConcepts = state.savedProjectConcepts || SPAM_CLASSIFIER_CONCEPTS;
@@ -212,6 +265,7 @@ export const useSessionStore = create<SessionStoreState>()(
             concepts: restoredConcepts,
             edges: restoredEdges,
             currentConceptId: state.savedCurrentConceptId || restoredConcepts[0]?.id || null,
+            isPythonAcademyOpen: false,
           });
         }
       },

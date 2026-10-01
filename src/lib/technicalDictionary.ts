@@ -306,6 +306,15 @@ export function enrichConceptWithDeepTheory(concept: Concept, goal?: string): Co
     lowerGoal.includes("stock") ||
     lowerTitle.includes("regression");
 
+  // If Python track concept, leave technicalTerms and deepMath untouched (do not inject ML math)
+  if (lowerId.startsWith("python-")) {
+    return {
+      ...concept,
+      technicalTerms: concept.technicalTerms || [],
+      deepMath: concept.deepMath,
+    };
+  }
+
   // If already populated, return existing
   if (concept.technicalTerms && concept.technicalTerms.length > 0 && concept.deepMath) {
     return concept;

@@ -39,6 +39,7 @@ export const LessonView: React.FC = () => {
     learningTrack,
     setLearningPhase,
     setLearningTrack,
+    openPythonAcademy,
   } = useSessionStore();
 
   const safeGoal = goal?.trim() || "Your AI Project";
@@ -63,6 +64,13 @@ export const LessonView: React.FC = () => {
       }
     }
   }, [setLearningPhase]);
+
+  // If user's stored session was left in python_foundation track, automatically restore clean project view
+  useEffect(() => {
+    if (learningTrack === "python_foundation") {
+      setLearningTrack("project");
+    }
+  }, [learningTrack, setLearningTrack]);
 
   const currentConcept =
     concepts.find((c) => c.id === currentConceptId) || concepts[0];
@@ -163,26 +171,15 @@ export const LessonView: React.FC = () => {
 
         {/* Right: Actions, Track Toggle & Advance */}
         <div className="flex items-center gap-2.5 self-end xl:self-auto">
-          {/* Python Foundation Switcher */}
+          {/* Dedicated Python Academy Opener */}
           <button
             type="button"
-            onClick={() =>
-              setLearningTrack(
-                learningTrack === "python_foundation" ? "project" : "python_foundation"
-              )
-            }
-            className={`px-3.5 py-2 rounded-2xl text-xs md:text-sm font-mono font-bold transition-all flex items-center gap-2 border ${
-              learningTrack === "python_foundation"
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-md shadow-emerald-500/10"
-                : "bg-slate-800/90 text-slate-200 hover:text-white border-white/10"
-            }`}
+            onClick={openPythonAcademy}
+            title="Open dedicated Python Academy: interactive Python tutorials and code playground"
+            className="px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 border bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/40 shadow-sm hover:scale-[1.02]"
           >
-            <span>🐍</span>
-            <span>
-              {learningTrack === "python_foundation"
-                ? "Back to Project"
-                : "Need Python?"}
-            </span>
+            <span className="text-base">🐍</span>
+            <span>Learn Python Academy</span>
           </button>
 
           {/* Teach Socrates Button */}

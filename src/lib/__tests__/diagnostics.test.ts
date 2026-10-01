@@ -343,7 +343,25 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(contract.badge).toBe("Acoustic Audio Model");
     expect(contract.features.map((f) => f.id)).toContain("pitchHz");
   });
+
+  it("manages Python Academy modal opening, closing, and module mastery state independently", () => {
+    const store = useSessionStore.getState();
+    expect(store.isPythonAcademyOpen).toBe(false);
+
+    store.openPythonAcademy();
+    expect(useSessionStore.getState().isPythonAcademyOpen).toBe(true);
+
+    store.masterPythonModule("python-vars");
+    expect(useSessionStore.getState().pythonMasteredModules).toContain("python-vars");
+
+    store.masterPythonModule("python-collections");
+    expect(useSessionStore.getState().pythonMasteredModules.length).toBe(2);
+
+    store.closePythonAcademy();
+    expect(useSessionStore.getState().isPythonAcademyOpen).toBe(false);
+  });
 });
+
 
 
 

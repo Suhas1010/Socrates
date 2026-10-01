@@ -11,6 +11,7 @@ import {
 import { useSessionStore } from "@/lib/store";
 import { JargonBusterModal } from "./JargonBusterModal";
 import { ApiKeyModal } from "./ApiKeyModal";
+import { PythonAcademyModal } from "./PythonAcademyModal";
 import { Cpu } from "lucide-react";
 
 export const Navbar: React.FC = () => {
@@ -21,6 +22,7 @@ export const Navbar: React.FC = () => {
     status,
     resetSession,
     apiKey,
+    openPythonAcademy,
   } = useSessionStore();
 
   const [isJargonModalOpen, setIsJargonModalOpen] = useState(false);
@@ -147,14 +149,17 @@ export const Navbar: React.FC = () => {
             <span className={`w-2 h-2 rounded-full ${apiKey ? "bg-emerald-400 shadow-sm shadow-emerald-400" : "bg-amber-400"}`} />
           </button>
 
-          {/* Sandbox status pill */}
-          <div
-            title="Python executes securely directly in your browser — zero installation needed"
-            className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/80 border border-white/10 text-xs md:text-sm text-slate-200 font-mono"
+          {/* Dedicated Learn Python Academy Button */}
+          <button
+            type="button"
+            onClick={openPythonAcademy}
+            title="Open dedicated Python Academy: interactive Python tutorials and code playground"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 hover:border-emerald-400 text-xs md:text-sm text-emerald-300 font-bold transition-all shadow-sm"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50" />
-            <span>Python Sandbox</span>
-          </div>
+            <span className="text-sm">🐍</span>
+            <span>Learn Python</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50" />
+          </button>
 
           {/* Reset session button */}
           <button
@@ -186,6 +191,10 @@ export const Navbar: React.FC = () => {
         isOpen={isJargonModalOpen}
         onClose={() => setIsJargonModalOpen(false)}
       />
+
+      {/* Dedicated Python Academy Modal */}
+      <PythonAcademyModal />
     </header>
   );
 };
+
