@@ -133,30 +133,30 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full rounded-2xl overflow-hidden border border-white/10 bg-[#0C101A] shadow-2xl">
+    <div className="flex flex-col h-full rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl">
       {/* Editor Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/80 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-mono font-semibold text-zinc-200">
+      <div className="flex items-center justify-between px-5 py-4 bg-slate-900/90 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <Terminal className="w-5 h-5 text-amber-400" />
+          <span className="text-xs md:text-sm font-mono font-bold text-slate-200">
             build_step.py
           </span>
           {stepComplete && (
-            <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <Check className="w-3 h-3 text-emerald-400" />
+            <span className="text-xs font-mono font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
               Passed
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {concept.solutionCode && (
             <button
               type="button"
               onClick={() => setShowSolution(!showSolution)}
-              className="text-xs text-zinc-400 hover:text-amber-300 transition-colors flex items-center gap-1 px-2.5 py-1 rounded hover:bg-zinc-800"
+              className="text-xs md:text-sm font-bold text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-800"
             >
-              <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+              <Lightbulb className="w-4 h-4 text-amber-400" />
               <span>{showSolution ? "Hide Hint" : "Hint / Solution"}</span>
             </button>
           )}
@@ -165,26 +165,26 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
             type="button"
             onClick={handleReset}
             title="Reset code"
-            className="text-xs text-zinc-400 hover:text-zinc-200 p-1.5 rounded hover:bg-zinc-800 transition-colors"
+            className="text-xs md:text-sm text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-colors"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Solution drawer if toggled */}
       {showSolution && concept.solutionCode && (
-        <div className="bg-amber-950/20 border-b border-amber-500/30 p-3.5 text-xs text-zinc-300 flex items-center justify-between gap-3">
+        <div className="bg-amber-950/30 border-b border-amber-500/30 p-4 text-xs md:text-sm text-slate-300 flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <span className="font-semibold text-amber-300">Solution Reference:</span>
-            <pre className="font-mono text-[11px] text-amber-100/90 whitespace-pre-wrap max-h-24 overflow-y-auto">
+            <span className="font-bold text-amber-300">Solution Reference:</span>
+            <pre className="font-mono text-xs text-amber-100/90 whitespace-pre-wrap max-h-24 overflow-y-auto">
               {concept.solutionCode.slice(0, 160)}...
             </pre>
           </div>
           <button
             type="button"
             onClick={handleUseSolution}
-            className="px-3 py-1.5 rounded-lg bg-amber-500 text-zinc-950 font-bold text-xs hover:bg-amber-400 transition-colors flex-shrink-0"
+            className="px-4 py-2 rounded-xl bg-amber-400 text-zinc-950 font-black text-xs md:text-sm hover:bg-amber-300 transition-colors flex-shrink-0 shadow-md"
           >
             Load Solution
           </button>
@@ -193,93 +193,93 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
 
       {/* Background-specific syntax hints */}
       {background === "beginner" && (
-        <div className="bg-gold/10 border-b border-gold/20 px-3.5 py-2 text-xs text-cream flex items-start gap-2">
-          <span className="text-sm">🌱</span>
-          <div className="text-[11px] leading-relaxed">
-            <span className="font-semibold text-gold font-mono mr-1.5">Python Syntax Tip:</span>
-            <span className="text-muted">
-              Blocks are indented with spaces (no curly braces). Functions start with <code className="text-gold font-mono">def name():</code>, lists use <code className="text-gold font-mono">[a, b]</code>, and <code className="text-gold font-mono">len(items)</code> counts items.
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-5 py-3 text-xs md:text-sm text-slate-200 flex items-start gap-2.5">
+          <span className="text-base">🌱</span>
+          <div className="leading-relaxed">
+            <span className="font-bold text-amber-300 font-mono mr-2">Python Syntax Tip:</span>
+            <span className="text-slate-300">
+              Blocks are indented with spaces (no curly braces). Functions start with <code className="text-amber-300 font-mono font-bold">def name():</code>, lists use <code className="text-amber-300 font-mono font-bold">[a, b]</code>, and <code className="text-amber-300 font-mono font-bold">len(items)</code> counts items.
             </span>
           </div>
         </div>
       )}
 
       {background === "other_languages" && (
-        <div className="bg-[#1D1B15] border-b border-gold/20 px-3.5 py-2 text-xs text-cream flex items-start gap-2">
-          <span className="text-sm">⚡</span>
-          <div className="text-[11px] leading-relaxed">
-            <span className="font-semibold text-gold font-mono mr-1.5">C++/Java Bridge:</span>
-            <span className="text-muted">
-              No semicolons or braces; indentation defines scope. <code className="text-gold font-mono">dict.get(key, 0)</code> is like <code className="text-cream font-mono">map.getOrDefault()</code>, and <code className="text-gold font-mono">len(x)</code> is like <code className="text-cream font-mono">x.size()</code>.
+        <div className="bg-cyan-500/10 border-b border-cyan-500/20 px-5 py-3 text-xs md:text-sm text-slate-200 flex items-start gap-2.5">
+          <span className="text-base">⚡</span>
+          <div className="leading-relaxed">
+            <span className="font-bold text-cyan-300 font-mono mr-2">C++/Java Bridge:</span>
+            <span className="text-slate-300">
+              No semicolons or braces; indentation defines scope. <code className="text-cyan-300 font-mono font-bold">dict.get(key, 0)</code> is like <code className="text-slate-100 font-mono">map.getOrDefault()</code>, and <code className="text-cyan-300 font-mono font-bold">len(x)</code> is like <code className="text-slate-100 font-mono">x.size()</code>.
             </span>
           </div>
         </div>
       )}
 
       {/* Code Textarea Area */}
-      <div className="relative flex-1 min-h-[220px] bg-[#090D15]">
+      <div className="relative flex-1 min-h-[240px] bg-[#070A10]">
         <textarea
           value={code}
           onChange={(e) => setCode(e.target.value)}
           spellCheck={false}
-          className="w-full h-full p-4 bg-transparent font-mono text-xs md:text-sm text-amber-100 placeholder-zinc-600 focus:outline-none resize-none leading-relaxed selection:bg-amber-500/30"
+          className="w-full h-full p-5 bg-transparent font-mono text-sm md:text-base text-amber-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed selection:bg-amber-500/30"
           placeholder="# Write or complete Python code here..."
         />
       </div>
 
       {/* Terminal Output Console */}
-      <div className="border-t border-white/10 bg-zinc-950 p-3 font-mono text-xs max-h-36 overflow-y-auto">
-        <div className="flex items-center justify-between text-zinc-500 text-[10px] uppercase mb-1.5 font-bold tracking-wider">
+      <div className="border-t border-white/10 bg-slate-950 p-4 font-mono text-xs md:text-sm max-h-44 overflow-y-auto">
+        <div className="flex items-center justify-between text-slate-400 text-xs uppercase mb-2 font-black tracking-wider">
           <span>Sandbox Output</span>
           {result?.usedFallback && (
-            <span className="text-zinc-500 font-normal">Offline Fast Engine</span>
+            <span className="text-slate-400 font-medium">Offline Fast Engine</span>
           )}
         </div>
 
         {isRunning ? (
           <div className="text-amber-400 animate-pulse flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
             Executing Python code in Pyodide sandbox...
           </div>
         ) : result ? (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {result.stdout && (
-              <pre className="text-emerald-400 whitespace-pre-wrap">{result.stdout}</pre>
+              <pre className="text-emerald-400 whitespace-pre-wrap leading-relaxed">{result.stdout}</pre>
             )}
             {result.stderr && (
-              <pre className="text-red-400 whitespace-pre-wrap">{result.stderr}</pre>
+              <pre className="text-red-400 whitespace-pre-wrap leading-relaxed">{result.stderr}</pre>
             )}
             {result.error && (
-              <div className="text-rose-400 font-semibold">{result.error}</div>
+              <div className="text-rose-400 font-bold">{result.error}</div>
             )}
             {result.friendlyTip && (
-              <div className="mt-2 p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2">
-                <span className="text-sm">💡</span>
+              <div className="mt-2.5 p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/35 text-amber-200 text-xs md:text-sm flex items-start gap-2.5">
+                <span className="text-base">💡</span>
                 <span className="leading-relaxed">{result.friendlyTip}</span>
               </div>
             )}
           </div>
         ) : (
-          <span className="text-zinc-600">
+          <span className="text-slate-500">
             Click &quot;Run &amp; Validate Code&quot; to test your implementation.
           </span>
         )}
       </div>
 
       {/* Footer Run Controls */}
-      <div className="p-3 bg-zinc-900/90 border-t border-white/10 flex items-center justify-between gap-3">
-        <span className="text-[11px] text-zinc-400 hidden sm:inline">
-          Fill in the blanks (<code className="text-amber-400">___</code>) and run assertions.
+      <div className="p-4 bg-slate-900/95 border-t border-white/15 flex items-center justify-between gap-3">
+        <span className="text-xs md:text-sm text-slate-300 hidden sm:inline">
+          Fill in the blanks (<code className="text-amber-400 font-bold">___</code>) and run assertions.
         </span>
 
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-3 ml-auto">
           <button
             type="button"
             disabled={isRunning}
             onClick={handleRun}
-            className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs border border-white/10 transition-all flex items-center gap-1.5"
+            className="px-5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs md:text-sm border border-white/15 transition-all flex items-center gap-2 shadow-md"
           >
-            <Play className="w-3.5 h-3.5 fill-current text-amber-400" />
+            <Play className="w-4 h-4 fill-current text-amber-400" />
             <span>Run Code</span>
           </button>
 
@@ -287,9 +287,9 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
             <button
               type="button"
               onClick={onOpenTeachBack}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-zinc-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5 animate-pulse"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-zinc-950 font-black text-xs md:text-sm shadow-xl shadow-emerald-500/25 transition-all flex items-center gap-2 animate-pulse"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-4 h-4" />
               <span>Step Passed! Teach-It-Back &rarr;</span>
             </button>
           )}

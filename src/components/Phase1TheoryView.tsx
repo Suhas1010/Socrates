@@ -39,7 +39,7 @@ function renderFormattedInlineText(text: string): React.ReactNode {
       return (
         <code
           key={i}
-          className="px-2 py-0.5 mx-0.5 rounded-md bg-zinc-900 border border-amber-400/30 text-amber-300 font-mono text-xs font-semibold shadow-sm inline-block"
+          className="px-2.5 py-1 mx-1 rounded-lg bg-slate-900 border border-amber-400/40 text-amber-300 font-mono text-xs md:text-sm font-bold shadow-sm inline-block"
         >
           {clean}
         </code>
@@ -56,7 +56,7 @@ function FormattedContent({ text }: { text: string }) {
   const paragraphs = text.split(/\n\s*\n/);
 
   return (
-    <div className="space-y-4 text-sm md:text-[15px] leading-relaxed md:leading-7 text-zinc-200 font-sans">
+    <div className="space-y-4 text-base md:text-lg leading-relaxed md:leading-8 text-slate-100 font-sans">
       {paragraphs.map((para, pIdx) => {
         const lines = para.split("\n").map((l) => l.trim()).filter(Boolean);
 
@@ -76,20 +76,20 @@ function FormattedContent({ text }: { text: string }) {
           }
 
           return (
-            <div key={pIdx} className="space-y-2.5">
+            <div key={pIdx} className="space-y-3">
               {introLines.length > 0 && (
-                <p className="font-semibold text-white text-sm md:text-[15px] tracking-wide">
+                <p className="font-bold text-white text-base md:text-lg tracking-wide">
                   {renderFormattedInlineText(introLines.join(" "))}
                 </p>
               )}
-              <ul className="space-y-2 pt-0.5">
+              <ul className="space-y-2.5 pt-1">
                 {listItems.map((item, itemIdx) => (
                   <li
                     key={itemIdx}
-                    className="flex items-start gap-3 bg-zinc-900/60 p-3 rounded-xl border border-white/5 shadow-sm"
+                    className="flex items-start gap-3.5 bg-slate-900/80 p-4 rounded-2xl border border-white/10 shadow-sm"
                   >
-                    <span className="w-2 h-2 rounded-full bg-amber-400 mt-2 flex-shrink-0 shadow-sm shadow-amber-400/60" />
-                    <span className="flex-1 text-zinc-100 text-sm md:text-[15px] leading-relaxed">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 mt-2.5 flex-shrink-0 shadow-sm shadow-amber-400/60" />
+                    <span className="flex-1 text-slate-100 text-base md:text-lg leading-relaxed">
                       {renderFormattedInlineText(item)}
                     </span>
                   </li>
@@ -105,7 +105,7 @@ function FormattedContent({ text }: { text: string }) {
 
         if (isHeading) {
           return (
-            <p key={pIdx} className="font-semibold text-amber-300 text-sm md:text-[15px] tracking-wide pt-1">
+            <p key={pIdx} className="font-bold text-amber-300 text-base md:text-lg tracking-wide pt-1">
               {renderFormattedInlineText(para)}
             </p>
           );
@@ -237,27 +237,28 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
       {/* 1. Sleek Compact Header with 1-Line Pipeline Stepper */}
       <div className="glass-panel p-5 md:p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
         {/* Minimal 1-Line Breadcrumb Pipeline */}
-        <div className="flex items-center justify-between gap-1 overflow-x-auto pb-1 text-xs">
+        {/* Minimal 1-Line Breadcrumb Pipeline */}
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 text-xs md:text-sm">
           {pipelineStages.map((stg, sIdx) => {
             const isCurrent = sIdx === currentStageIndex;
             const isPast = sIdx < currentStageIndex;
             return (
               <React.Fragment key={stg.num}>
                 <div
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-xl transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-2xl transition-all whitespace-nowrap ${
                     isCurrent
-                      ? "bg-amber-400 text-zinc-950 font-bold shadow-md shadow-amber-400/20 ring-1 ring-amber-400"
+                      ? "bg-amber-400 text-zinc-950 font-black shadow-md shadow-amber-400/20 ring-2 ring-amber-400"
                       : isPast
-                      ? "bg-zinc-900/80 text-emerald-400 font-medium border border-emerald-500/20"
-                      : "bg-zinc-900/40 text-zinc-500 border border-white/5"
+                      ? "bg-slate-900/80 text-emerald-400 font-bold border border-emerald-500/30"
+                      : "bg-slate-900/40 text-slate-500 border border-white/5"
                   }`}
                 >
-                  <span>{stg.icon}</span>
-                  <span>{stg.num}. {stg.name}</span>
-                  {isCurrent && <span className="text-[10px] ml-1 bg-zinc-950/20 px-1.5 py-0.2 rounded-full font-bold">ACTIVE</span>}
+                  <span className="text-base">{stg.icon}</span>
+                  <span className="font-bold">{stg.num}. {stg.name}</span>
+                  {isCurrent && <span className="text-xs ml-1 bg-zinc-950/20 px-2 py-0.5 rounded-full font-black">ACTIVE</span>}
                 </div>
                 {sIdx < pipelineStages.length - 1 && (
-                  <span className="text-zinc-600 px-1 select-none">→</span>
+                  <span className="text-slate-600 px-1 select-none font-bold">→</span>
                 )}
               </React.Fragment>
             );
@@ -265,60 +266,60 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
         </div>
 
         {/* Title and Simple Plain-English Hook */}
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-amber-400">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
               PHASE 1: CONCEPT MASTERCLASS
             </span>
           </div>
-          <h2 className="text-xl md:text-2xl font-extrabold text-white">
+          <h2 className="text-2xl md:text-3xl font-black text-white">
             {concept.title}
           </h2>
-          <p className="text-xs md:text-sm text-zinc-300 mt-1.5 leading-relaxed">
+          <p className="text-sm md:text-base text-slate-300 leading-relaxed font-normal">
             {concept.hook}
           </p>
         </div>
       </div>
 
       {/* 2. Uncluttered 3-Tab Navigator */}
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
-        <div className="flex items-center gap-2 p-1 rounded-2xl bg-zinc-900/80 border border-white/10">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900/80 border border-white/15 shadow-inner">
           <button
             type="button"
             onClick={() => setActiveTab("intuition")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 ${
               activeTab === "intuition"
-                ? "bg-amber-400 text-zinc-950 shadow font-bold"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-amber-400 text-zinc-950 shadow-md font-black"
+                : "text-slate-300 hover:text-white"
             }`}
           >
-            <Lightbulb className="w-3.5 h-3.5" />
+            <Lightbulb className="w-4 h-4" />
             <span>1. Core Idea</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("math")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 ${
               activeTab === "math"
-                ? "bg-amber-400 text-zinc-950 shadow font-bold"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-amber-400 text-zinc-950 shadow-md font-black"
+                : "text-slate-300 hover:text-white"
             }`}
           >
-            <Calculator className="w-3.5 h-3.5" />
+            <Calculator className="w-4 h-4" />
             <span>2. Real Numbers</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("check")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 ${
               activeTab === "check"
-                ? "bg-amber-400 text-zinc-950 shadow font-bold"
-                : "text-zinc-400 hover:text-white"
+                ? "bg-amber-400 text-zinc-950 shadow-md font-black"
+                : "text-slate-300 hover:text-white"
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
+            <CheckCircle2 className="w-4 h-4" />
             <span>3. Quick Check</span>
           </button>
         </div>
@@ -327,9 +328,9 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
         <button
           type="button"
           onClick={() => setIsSocratesOpen(true)}
-          className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-amber-300 hover:text-white border border-amber-500/20 text-xs font-semibold transition-all flex items-center gap-1.5"
+          className="px-4 py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-amber-300 hover:text-white border border-amber-500/30 text-xs md:text-sm font-bold transition-all flex items-center gap-2 shadow-sm"
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Sparkles className="w-4 h-4 text-amber-400" />
           <span className="hidden sm:inline">Ask Socrates</span>
           <span className="sm:hidden">Ask</span>
         </button>
@@ -337,12 +338,12 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
       {/* 3. Tab Contents: Focused & Breathing Room */}
       {activeTab === "intuition" && (
-        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6 animate-in fade-in duration-150">
+        <div className="glass-panel p-7 md:p-9 rounded-3xl border border-white/15 shadow-2xl space-y-7 animate-in fade-in duration-150 bg-slate-900/80">
           {/* Plain English Breakdown */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
-              <h3 className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
+          <div className="space-y-3.5">
+            <div className="flex items-center gap-2.5 pb-2.5 border-b border-white/10">
+              <span className="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50" />
+              <h3 className="text-sm md:text-base font-mono font-black uppercase tracking-wider text-amber-400">
                 Why We Are Doing This (In Plain English)
               </h3>
             </div>
@@ -358,12 +359,12 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
           {/* Everyday Analogy Card */}
           {concept.corePrinciple && (
-            <div className="p-5 md:p-6 rounded-2xl bg-amber-950/20 border border-amber-500/25 flex items-start gap-4 shadow-inner shadow-amber-950/20">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+            <div className="p-6 md:p-7 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex items-start gap-4 shadow-inner">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center flex-shrink-0 text-2xl shadow-sm">
                 💡
               </div>
               <div className="space-y-2 flex-1 min-w-0">
-                <span className="text-xs font-mono font-bold text-amber-300 uppercase tracking-wider block">
+                <span className="text-xs md:text-sm font-mono font-bold text-amber-300 uppercase tracking-wider block">
                   The Everyday Real-World Analogy
                 </span>
                 <FormattedContent text={concept.corePrinciple} />
@@ -373,14 +374,14 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
           {/* Jargon Buster Clickable Pills */}
           {concept.technicalTerms && concept.technicalTerms.length > 0 && (
-            <div className="space-y-3 pt-2">
+            <div className="space-y-3.5 pt-2">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block">
+                <BookOpen className="w-4 h-4 text-slate-400" />
+                <span className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-slate-300 block">
                   Click Any Term to See Simple Meaning (0 Jargon):
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2.5">
                 {concept.technicalTerms.filter(Boolean).map((termItem) => {
                   const isSelected = selectedTerm?.term === termItem.term;
                   return (
@@ -388,13 +389,13 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
                       key={termItem.term}
                       type="button"
                       onClick={() => setSelectedTerm(isSelected ? null : termItem)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-2 ${
+                      className={`px-4 py-2.5 rounded-2xl text-xs md:text-sm font-semibold transition-all flex items-center gap-2 ${
                         isSelected
-                          ? "bg-amber-400 text-zinc-950 font-bold shadow-md scale-[1.02]"
-                          : "bg-zinc-900/90 text-zinc-300 hover:text-white border border-white/10 hover:border-amber-400/30"
+                          ? "bg-amber-400 text-zinc-950 font-black shadow-lg scale-[1.02]"
+                          : "bg-slate-900/90 text-slate-200 hover:text-white border border-white/10 hover:border-amber-400/40"
                       }`}
                     >
-                      <BookOpen className="w-3.5 h-3.5 opacity-70" />
+                      <BookOpen className="w-4 h-4 opacity-75" />
                       <span>{termItem.term.split("(")[0].trim()}</span>
                     </button>
                   );
@@ -403,23 +404,23 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
               {/* Term Detail Box */}
               {selectedTerm && (
-                <div className="p-4 md:p-5 rounded-2xl bg-zinc-950 border border-amber-400/30 space-y-2.5 animate-in fade-in duration-150 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                    <strong className="text-sm font-bold text-amber-300">
+                <div className="p-5 md:p-6 rounded-2xl bg-slate-950 border border-amber-400/40 space-y-3 animate-in fade-in duration-150 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <strong className="text-base md:text-lg font-black text-amber-300">
                       {selectedTerm.term}
                     </strong>
                     <button
                       type="button"
                       onClick={() => setSelectedTerm(null)}
-                      className="text-zinc-400 hover:text-white text-xs px-2.5 py-1 rounded-lg bg-zinc-900 border border-white/10 transition-colors"
+                      className="text-slate-400 hover:text-white text-xs px-3 py-1.5 rounded-xl bg-slate-900 border border-white/15 transition-colors font-medium"
                     >
                       Close ✕
                     </button>
                   </div>
-                  <p className="text-sm text-zinc-200 leading-relaxed">
+                  <p className="text-base text-slate-100 leading-relaxed font-sans">
                     {selectedTerm.definition}
                   </p>
-                  <p className="text-sm text-amber-200/90 italic bg-amber-950/20 p-3 rounded-xl border border-amber-500/15">
+                  <p className="text-sm md:text-base text-amber-200 italic bg-amber-950/30 p-3.5 rounded-xl border border-amber-500/20">
                     💡 <strong>Analogy:</strong> {selectedTerm.analogy}
                   </p>
                 </div>
@@ -430,50 +431,50 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
       )}
 
       {activeTab === "math" && (
-        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-5 animate-in fade-in duration-150">
-          <div className="space-y-1 pb-1 border-b border-white/5">
-            <h3 className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
+        <div className="glass-panel p-7 md:p-9 rounded-3xl border border-white/15 shadow-2xl space-y-6 animate-in fade-in duration-150 bg-slate-900/80">
+          <div className="space-y-1.5 pb-2 border-b border-white/10">
+            <h3 className="text-sm md:text-base font-mono font-black uppercase tracking-wider text-amber-400">
               The Math in Real Numbers (No Fluff)
             </h3>
-            <p className="text-xs md:text-sm text-zinc-300">
+            <p className="text-sm md:text-base text-slate-300">
               Here is what happens to actual numbers when they pass through this step:
             </p>
           </div>
 
           {concept.deepMath ? (
-            <div className="space-y-3.5">
+            <div className="space-y-4">
               {/* Formula */}
-              <div className="p-4 rounded-2xl bg-zinc-950 border border-white/10 text-center font-mono text-base md:text-lg font-bold text-amber-300 tracking-wide shadow-inner">
+              <div className="p-5 rounded-2xl bg-slate-950 border border-white/15 text-center font-mono text-lg md:text-xl font-black text-amber-300 tracking-wide shadow-inner">
                 {concept.deepMath.formulaLatex}
               </div>
 
               {/* Given Inputs */}
-              <div className="p-3.5 rounded-xl bg-zinc-900/80 border border-white/5 text-sm font-mono text-zinc-200">
-                <strong className="text-amber-400 font-semibold">Sample Inputs: </strong>
+              <div className="p-4 rounded-2xl bg-slate-900 border border-white/10 text-base md:text-lg font-mono text-slate-100 shadow-inner">
+                <strong className="text-amber-400 font-bold">Sample Inputs: </strong>
                 {concept.deepMath.numericalExample.givenInputs}
               </div>
 
               {/* Steps */}
-              <div className="space-y-2.5 pt-1">
+              <div className="space-y-3 pt-1">
                 {concept.deepMath.numericalExample.stepByStepArithmetic.map((step, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-xl bg-zinc-950/70 border border-white/5 text-sm font-mono text-zinc-200 flex items-start gap-3"
+                    className="p-4 rounded-2xl bg-slate-950/80 border border-white/10 text-base md:text-lg font-mono text-slate-100 flex items-start gap-3.5 shadow-sm"
                   >
-                    <span className="text-amber-400 font-bold flex-shrink-0">Step {idx + 1}:</span>
+                    <span className="text-amber-400 font-black flex-shrink-0">Step {idx + 1}:</span>
                     <span className="leading-relaxed">{step}</span>
                   </div>
                 ))}
               </div>
 
               {/* Final Result */}
-              <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-sm font-mono font-bold text-emerald-300 flex items-center justify-between">
+              <div className="p-5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-base md:text-lg font-mono font-black text-emerald-300 flex items-center justify-between shadow-md">
                 <span>Output Result:</span>
-                <span className="text-white text-base">{concept.deepMath.numericalExample.finalResult}</span>
+                <span className="text-white text-lg md:text-xl font-black">{concept.deepMath.numericalExample.finalResult}</span>
               </div>
             </div>
           ) : (
-            <div className="p-4 rounded-2xl bg-zinc-950 text-sm font-mono text-zinc-300">
+            <div className="p-5 rounded-2xl bg-slate-950 text-base font-mono text-slate-300">
               Passes input features directly into the model tensor.
             </div>
           )}
@@ -481,35 +482,35 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
       )}
 
       {activeTab === "check" && (
-        <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-5 animate-in fade-in duration-150">
-          <div className="space-y-1 pb-1 border-b border-white/5">
-            <h3 className="text-xs md:text-sm font-mono font-bold uppercase tracking-wider text-amber-400">
+        <div className="glass-panel p-7 md:p-9 rounded-3xl border border-white/15 shadow-2xl space-y-6 animate-in fade-in duration-150 bg-slate-900/80">
+          <div className="space-y-1.5 pb-2 border-b border-white/10">
+            <h3 className="text-sm md:text-base font-mono font-black uppercase tracking-wider text-amber-400">
               Quick Concept Intuition Check
             </h3>
-            <p className="text-xs md:text-sm text-zinc-300">
+            <p className="text-sm md:text-base text-slate-300">
               Check your understanding before moving to Python code:
             </p>
           </div>
 
           {concept.predictQuestion && (
-            <div className="p-5 md:p-6 rounded-2xl bg-zinc-950 border border-white/10 space-y-4">
-              <p className="text-base font-bold text-white leading-relaxed">
+            <div className="p-6 md:p-7 rounded-2xl bg-slate-950 border border-white/10 space-y-5">
+              <p className="text-lg md:text-xl font-bold text-white leading-relaxed">
                 {concept.predictQuestion.prompt}
               </p>
 
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {concept.predictQuestion.options.map((opt, optIdx) => {
                   const isSelected = selectedPredictOption === optIdx;
                   const isCorrect = optIdx === concept.predictQuestion?.correctIndex;
 
-                  let style = "bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-white/10";
+                  let style = "bg-slate-900/90 hover:bg-slate-800 text-slate-200 border-white/10";
                   if (selectedPredictOption !== null) {
                     if (isSelected) {
                       style = isCorrect
-                        ? "bg-emerald-500/20 border-emerald-500 text-emerald-100"
-                        : "bg-red-500/20 border-red-500 text-red-100";
+                        ? "bg-emerald-500/25 border-emerald-400 text-white font-bold ring-2 ring-emerald-400/40"
+                        : "bg-rose-500/25 border-rose-400 text-white font-bold ring-2 ring-rose-400/40";
                     } else if (isCorrect) {
-                      style = "bg-emerald-500/10 border-emerald-500/30 text-emerald-200";
+                      style = "bg-emerald-500/15 border-emerald-500/40 text-emerald-200";
                     }
                   }
 
@@ -518,12 +519,12 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
                       key={optIdx}
                       type="button"
                       onClick={() => handlePredictSelect(optIdx)}
-                      className={`w-full text-left p-3.5 rounded-xl border text-sm transition-all flex items-start gap-3 ${style}`}
+                      className={`w-full text-left p-4 md:p-5 rounded-2xl border text-base md:text-lg transition-all flex items-start gap-4 ${style}`}
                     >
-                      <span className="font-mono text-zinc-400 font-bold mt-0.5">
+                      <span className="font-mono text-amber-400 font-black mt-0.5">
                         {String.fromCharCode(65 + optIdx)}.
                       </span>
-                      <span className="flex-1 leading-relaxed">{opt}</span>
+                      <span className="flex-1 leading-relaxed font-medium">{opt}</span>
                     </button>
                   );
                 })}
@@ -531,14 +532,14 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
               {predictFeedback && (
                 <div
-                  className={`p-3.5 rounded-xl border text-sm flex items-center gap-3 ${
+                  className={`p-4 md:p-5 rounded-2xl border text-base flex items-center gap-3.5 shadow-md ${
                     predictFeedback.correct
                       ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-200"
                       : "bg-amber-950/40 border-amber-500/40 text-amber-200"
                   }`}
                 >
-                  <span className="text-lg">{predictFeedback.correct ? "✅" : "💡"}</span>
-                  <span className="leading-relaxed">{predictFeedback.explanation}</span>
+                  <span className="text-2xl">{predictFeedback.correct ? "✅" : "💡"}</span>
+                  <span className="leading-relaxed font-medium">{predictFeedback.explanation}</span>
                 </div>
               )}
             </div>
@@ -547,39 +548,39 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
       )}
 
       {/* 4. Sleek Bottom Action: Advance to Code */}
-      <div className="pt-2 flex items-center justify-between">
-        <span className="text-xs text-zinc-400 font-mono">
+      <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span className="text-xs md:text-sm text-slate-400 font-mono">
           Ready to write the Python function?
         </span>
 
         <button
           type="button"
           onClick={onProceedToBuild}
-          className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-extrabold text-xs shadow-lg shadow-amber-400/20 transition-all flex items-center gap-2"
+          className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-sm md:text-base shadow-xl shadow-amber-400/25 transition-all flex items-center justify-center gap-2.5"
         >
           <span>Proceed to Phase 2: Build in Python</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-5 h-5" />
         </button>
       </div>
 
       {/* 5. Minimal Slide-Out Socrates AI Drawer (No Clutter on Main Page) */}
       {isSocratesOpen && (
-        <div className="fixed inset-y-0 right-0 w-full sm:w-96 bg-[#100f0c] border-l border-white/10 shadow-2xl z-50 p-5 flex flex-col space-y-4 animate-in slide-in-from-right duration-200">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-              <Sparkles className="w-4 h-4" />
+        <div className="fixed inset-y-0 right-0 w-full sm:w-[420px] bg-[#0E1526] border-l border-white/15 shadow-2xl z-50 p-6 flex flex-col space-y-5 animate-in slide-in-from-right duration-200">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2.5 text-amber-400 font-black text-base md:text-lg">
+              <Sparkles className="w-5 h-5" />
               <span>Ask Socrates AI</span>
             </div>
             <button
               type="button"
               onClick={() => setIsSocratesOpen(false)}
-              className="p-1 rounded-lg text-zinc-400 hover:text-white"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          <p className="text-xs text-zinc-400">
+          <p className="text-sm text-slate-300 leading-relaxed">
             Ask any question in plain English. Socrates explains without intimidating jargon.
           </p>
 
@@ -590,40 +591,40 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
               onChange={(e) => setAskText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAsk()}
               placeholder="e.g. Why do we need weights? Give me an analogy..."
-              className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400"
+              className="flex-1 bg-slate-950 border border-white/15 rounded-2xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
             />
             <button
               type="button"
               onClick={() => handleAsk()}
               disabled={isAsking || !askText.trim()}
-              className="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all disabled:opacity-40"
+              className="px-4 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-sm transition-all disabled:opacity-40"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 pt-1">
+          <div className="flex flex-wrap gap-2 pt-1">
             <button
               type="button"
               onClick={() => handleAsk("Explain this like I am 10 years old")}
-              className="px-2.5 py-1 rounded-lg bg-zinc-900 text-[11px] text-zinc-400 hover:text-white border border-white/5"
+              className="px-3 py-1.5 rounded-xl bg-slate-900 text-xs text-slate-300 hover:text-white border border-white/10"
             >
               👶 Explain like I am 10
             </button>
             <button
               type="button"
               onClick={() => handleAsk("Why can't we just write if/else statements?")}
-              className="px-2.5 py-1 rounded-lg bg-zinc-900 text-[11px] text-zinc-400 hover:text-white border border-white/5"
+              className="px-3 py-1.5 rounded-xl bg-slate-900 text-xs text-slate-300 hover:text-white border border-white/10"
             >
               🤔 Why not if/else?
             </button>
           </div>
 
           {socratesAnswer && (
-            <div className="p-3.5 rounded-xl bg-zinc-950 border border-amber-500/30 text-xs space-y-2 animate-in fade-in duration-150 overflow-y-auto">
-              <p className="text-zinc-200 leading-relaxed">{socratesAnswer.explanation}</p>
+            <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/30 text-sm space-y-2.5 animate-in fade-in duration-150 overflow-y-auto">
+              <p className="text-slate-200 leading-relaxed">{socratesAnswer.explanation}</p>
               {socratesAnswer.analogy && (
-                <p className="text-amber-300 italic border-t border-white/5 pt-1.5">
+                <p className="text-amber-300 italic border-t border-white/10 pt-2 font-medium">
                   💡 {socratesAnswer.analogy}
                 </p>
               )}

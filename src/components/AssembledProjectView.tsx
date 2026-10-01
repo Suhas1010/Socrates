@@ -259,29 +259,29 @@ if __name__ == "__main__":
   const totalCount = concepts.length;
 
   return (
-    <div className="glass-panel p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
+    <div className="glass-panel p-7 md:p-10 rounded-3xl border border-white/15 shadow-2xl space-y-7 bg-slate-900/80">
       {/* Header bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-2 border-b border-white/5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-4 border-b border-white/10">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
-            <Layers className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/35 text-amber-300 text-xs md:text-sm font-bold shadow-sm">
+            <Layers className="w-4 h-4" />
             <span>Complete Assembled Architecture</span>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mt-2">
+          <h2 className="text-2xl md:text-3xl font-black text-white mt-2.5">
             Built Project: <span className="text-amber-300">{safeGoal}</span>
           </h2>
-          <p className="text-sm text-zinc-300 mt-1 leading-relaxed">
+          <p className="text-sm md:text-base text-slate-300 mt-1.5 leading-relaxed font-normal max-w-3xl">
             This is your complete Python model assembled from all step functions. You can test it in-browser, copy it, or export it to Google Colab with 1 click.
           </p>
         </div>
 
         {/* Action Buttons Suite */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <button
             type="button"
             onClick={handleRunFullProject}
             disabled={isRunning}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-zinc-950 font-bold text-xs md:text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-zinc-950 font-black text-xs md:text-sm shadow-xl shadow-emerald-500/25 transition-all flex items-center gap-2 disabled:opacity-50"
           >
             <Play className={`w-4 h-4 fill-current ${isRunning ? "animate-spin" : ""}`} />
             <span>{isRunning ? "Executing in Python..." : "▶ Run Full Model"}</span>
@@ -290,7 +290,7 @@ if __name__ == "__main__":
           <button
             type="button"
             onClick={handleDownloadIpynb}
-            className="px-3.5 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 shadow-sm"
+            className="px-4 py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs md:text-sm font-bold transition-all flex items-center gap-2 shadow-md"
             title="Download formatted Jupyter Notebook ready for Google Colab"
           >
             <BookOpen className="w-4 h-4 text-amber-400" />
@@ -300,7 +300,7 @@ if __name__ == "__main__":
           <button
             type="button"
             onClick={handleDownloadPy}
-            className="px-3.5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-white/10 text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5"
+            className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-white/15 text-xs md:text-sm font-bold transition-all flex items-center gap-2 shadow-md"
             title="Download standalone Python script"
           >
             <Download className="w-4 h-4" />
@@ -310,17 +310,17 @@ if __name__ == "__main__":
           <button
             type="button"
             onClick={handleDownloadReqs}
-            className="px-3 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5"
+            className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-white/15 text-xs md:text-sm font-bold transition-all flex items-center gap-2 shadow-md"
             title="Download requirements.txt"
           >
-            <FileCode className="w-4 h-4 text-zinc-400" />
+            <FileCode className="w-4 h-4 text-slate-400" />
             <span>requirements.txt</span>
           </button>
 
           <button
             type="button"
             onClick={handleCopy}
-            className="px-3 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-white/10 text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5"
+            className="px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-white/15 text-xs md:text-sm font-bold transition-all flex items-center gap-2 shadow-md"
           >
             {isCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
             <span>{isCopied ? "Copied!" : "Copy"}</span>
@@ -329,66 +329,66 @@ if __name__ == "__main__":
       </div>
 
       {/* Colab Quick Guide Banner */}
-      <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs md:text-sm">
-        <div className="flex items-center gap-2.5 text-amber-200">
-          <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+      <div className="p-5 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm md:text-base">
+        <div className="flex items-center gap-3 text-amber-200">
+          <Sparkles className="w-5 h-5 text-amber-400 flex-shrink-0" />
           <span>
-            <strong>Want to train on GPUs in Google Colab?</strong> Click <em>Google Colab (.ipynb)</em> above, open <a href="https://colab.research.google.com" target="_blank" rel="noreferrer" className="underline text-amber-400 font-semibold inline-flex items-center gap-0.5">colab.research.google.com <ExternalLink className="w-3 h-3" /></a>, and choose <strong>Upload Notebook</strong>!
+            <strong>Want to train on GPUs in Google Colab?</strong> Click <em>Google Colab (.ipynb)</em> above, open <a href="https://colab.research.google.com" target="_blank" rel="noreferrer" className="underline text-amber-300 font-bold inline-flex items-center gap-1">colab.research.google.com <ExternalLink className="w-3.5 h-3.5" /></a>, and choose <strong>Upload Notebook</strong>!
           </span>
         </div>
       </div>
 
       {/* Progress pill */}
-      <div className="flex items-center gap-3 bg-zinc-950/70 p-3 rounded-2xl border border-white/5 text-xs text-zinc-400 font-mono">
+      <div className="flex items-center gap-3.5 bg-slate-950/80 p-4 rounded-2xl border border-white/10 text-xs md:text-sm text-slate-300 font-mono">
         <Sparkles className="w-4 h-4 text-amber-300" />
         <span>
-          Assembly Progress: <strong className="text-amber-300">{completedCount}</strong> of <strong className="text-white">{totalCount}</strong> steps implemented by you.
+          Assembly Progress: <strong className="text-amber-300 font-bold">{completedCount}</strong> of <strong className="text-white font-bold">{totalCount}</strong> steps implemented by you.
         </span>
       </div>
 
       {/* Code Viewer Container */}
-      <div className="rounded-2xl border border-white/10 bg-[#0C101A] overflow-hidden shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/80 border-b border-white/10 text-xs font-mono text-zinc-300">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-4 h-4 text-amber-400" />
-            <span className="font-semibold text-white">main_model.py</span>
+      <div className="rounded-3xl border border-white/15 bg-slate-950 overflow-hidden shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-slate-900/90 border-b border-white/10 text-xs md:text-sm font-mono text-slate-300">
+          <div className="flex items-center gap-2.5">
+            <Code2 className="w-5 h-5 text-amber-400" />
+            <span className="font-bold text-white">main_model.py</span>
           </div>
-          <span className="text-[11px] text-zinc-500">
+          <span className="text-xs text-slate-400 font-medium">
             Python 3.12 · Standalone Executable
           </span>
         </div>
 
-        <pre className="p-4 text-xs font-mono text-zinc-200 overflow-x-auto max-h-[420px] overflow-y-auto leading-relaxed whitespace-pre selection:bg-amber-500/30">
+        <pre className="p-6 text-sm md:text-base font-mono text-slate-200 overflow-x-auto max-h-[460px] overflow-y-auto leading-relaxed whitespace-pre selection:bg-amber-500/30">
           <code>{fullAssembledCode}</code>
         </pre>
       </div>
 
       {/* Terminal Output Execution Result */}
       {execResult && (
-        <div className="rounded-2xl border border-white/10 bg-zinc-950 overflow-hidden shadow-2xl space-y-0">
-          <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/90 border-b border-white/10 text-xs font-mono">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-emerald-400" />
-              <span className="font-semibold text-white">Python Execution Terminal (Pyodide)</span>
+        <div className="rounded-3xl border border-white/15 bg-slate-950 overflow-hidden shadow-2xl space-y-0">
+          <div className="flex items-center justify-between px-5 py-3.5 bg-slate-900/90 border-b border-white/10 text-xs md:text-sm font-mono">
+            <div className="flex items-center gap-2.5">
+              <Terminal className="w-5 h-5 text-emerald-400" />
+              <span className="font-bold text-white">Python Execution Terminal (Pyodide)</span>
             </div>
-            <span className="text-[11px] text-zinc-400">
+            <span className="text-xs text-slate-400 font-medium">
               {execResult.success ? "Execution Successful" : "Execution Finished"}
             </span>
           </div>
 
-          <div className="p-4 font-mono text-xs max-h-80 overflow-y-auto">
+          <div className="p-5 font-mono text-xs md:text-sm max-h-80 overflow-y-auto">
             {execResult.stdout && (
               <pre className="text-emerald-300 whitespace-pre-wrap leading-relaxed">
                 {execResult.stdout}
               </pre>
             )}
             {execResult.stderr && (
-              <pre className="text-amber-400 whitespace-pre-wrap leading-relaxed mt-2">
+              <pre className="text-amber-400 whitespace-pre-wrap leading-relaxed mt-2.5">
                 {execResult.stderr}
               </pre>
             )}
             {execResult.error && (
-              <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed mt-2">
+              <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed mt-2.5">
                 {execResult.error}
               </pre>
             )}
@@ -398,3 +398,4 @@ if __name__ == "__main__":
     </div>
   );
 };
+

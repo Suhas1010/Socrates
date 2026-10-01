@@ -73,96 +73,96 @@ export const LessonView: React.FC = () => {
   const isCodePassed = projectParts.some((p) => p.conceptId === currentConcept?.id);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden px-4 md:px-8 py-3.5 space-y-3">
+    <div className="flex-1 flex flex-col h-full overflow-hidden px-4 md:px-8 py-4 space-y-4 text-slate-100">
       {/* ========================================================================= */}
       {/* 1. TOP BAR: PROJECT STEP + 3-PHASE STEPPER + TRACK SWITCHER               */}
       {/* ========================================================================= */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-zinc-950/90 border border-white/10 shadow-xl flex-shrink-0">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 px-5 py-4 rounded-3xl bg-slate-900/90 border border-white/15 shadow-2xl flex-shrink-0 backdrop-blur-xl">
         {/* Left: Step indicator & Roadmap drawer trigger */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setShowRoadmapDrawer(!showRoadmapDrawer)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-xs font-semibold transition-all text-zinc-200"
+            className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-white/15 text-sm md:text-base font-bold transition-all text-white shadow-sm"
           >
-            <Workflow className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono text-amber-300 font-bold">
+            <Workflow className="w-4 h-4 text-amber-400" />
+            <span className="font-mono text-amber-300 font-extrabold">
               Step {currentIndex + 1} of {concepts.length}
             </span>
-            <span className="text-zinc-400 truncate max-w-[140px] sm:max-w-[200px]">
+            <span className="text-slate-300 truncate max-w-[160px] sm:max-w-[240px] font-semibold">
               {currentConcept?.title}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+            <ChevronDown className="w-4 h-4 text-slate-400" />
           </button>
 
           <button
             type="button"
             onClick={() => setShowVisualGraph(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-900/60 hover:bg-zinc-800 text-[11px] text-zinc-400 hover:text-white border border-white/5 transition-all"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl bg-slate-800/60 hover:bg-slate-700/60 text-xs md:text-sm text-slate-300 hover:text-white border border-white/10 transition-all font-medium"
           >
             <span>DAG Graph</span>
           </button>
         </div>
 
         {/* Center: THE 3-PHASE PROGRESSION STEPPER */}
-        <div className="flex items-center justify-center p-1 rounded-2xl bg-zinc-900/90 border border-white/10 shadow-inner overflow-x-auto">
+        <div className="flex items-center justify-center p-1.5 rounded-2xl bg-slate-950/80 border border-white/15 shadow-inner overflow-x-auto">
           {/* Phase 1 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("theory")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 whitespace-nowrap ${
               learningPhase === "theory"
                 ? "bg-cyan-500 text-zinc-950 shadow-lg shadow-cyan-500/25 scale-[1.02]"
-                : "text-zinc-400 hover:text-white"
+                : "text-slate-300 hover:text-white"
             }`}
           >
             <Brain className="w-4 h-4" />
             <span>1. ML/DL Theory</span>
           </button>
 
-          <span className="text-zinc-600 px-1 text-xs select-none">──►</span>
+          <span className="text-slate-500 px-1 text-xs select-none">──►</span>
 
           {/* Phase 2 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("building")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 whitespace-nowrap ${
               learningPhase === "building"
                 ? "bg-amber-400 text-zinc-950 shadow-lg shadow-amber-400/25 scale-[1.02]"
-                : "text-zinc-400 hover:text-white"
+                : "text-slate-300 hover:text-white"
             }`}
           >
             <Code2 className="w-4 h-4" />
             <span>2. Build from Scratch</span>
             {projectParts.length > 0 && (
-              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                learningPhase === "building" ? "bg-zinc-950/20 text-zinc-950 font-bold" : "bg-zinc-800 text-amber-300"
+              <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
+                learningPhase === "building" ? "bg-zinc-950/20 text-zinc-950 font-black" : "bg-slate-800 text-amber-300"
               }`}>
                 {projectParts.length}/{concepts.length}
               </span>
             )}
           </button>
 
-          <span className="text-zinc-600 px-1 text-xs select-none">──►</span>
+          <span className="text-slate-500 px-1 text-xs select-none">──►</span>
 
           {/* Phase 3 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("testing")}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 whitespace-nowrap ${
               learningPhase === "testing"
                 ? "bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-400/25 scale-[1.02]"
-                : "text-zinc-400 hover:text-white"
+                : "text-slate-300 hover:text-white"
             }`}
           >
             <Zap className="w-4 h-4" />
             <span>3. Model Tester & Runner</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
           </button>
         </div>
 
         {/* Right: Actions, Track Toggle & Advance */}
-        <div className="flex items-center gap-2 self-end xl:self-auto">
+        <div className="flex items-center gap-2.5 self-end xl:self-auto">
           {/* Python Foundation Switcher */}
           <button
             type="button"
@@ -171,10 +171,10 @@ export const LessonView: React.FC = () => {
                 learningTrack === "python_foundation" ? "project" : "python_foundation"
               )
             }
-            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-1.5 border ${
+            className={`px-3.5 py-2 rounded-2xl text-xs md:text-sm font-mono font-bold transition-all flex items-center gap-2 border ${
               learningTrack === "python_foundation"
                 ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-md shadow-emerald-500/10"
-                : "bg-zinc-900/90 text-zinc-300 hover:text-white border-white/10"
+                : "bg-slate-800/90 text-slate-200 hover:text-white border-white/10"
             }`}
           >
             <span>🐍</span>
@@ -190,9 +190,9 @@ export const LessonView: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsTeachBackOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md"
+              className="px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1.5 shadow-md"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-4 h-4" />
               <span>Teach Socrates ✨</span>
             </button>
           )}
@@ -201,10 +201,10 @@ export const LessonView: React.FC = () => {
           <button
             type="button"
             onClick={advanceToNextConcept}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 font-bold text-xs shadow-md transition-all flex items-center gap-1"
+            className="px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 font-black text-xs md:text-sm shadow-md transition-all flex items-center gap-1.5"
           >
             <span>Next Step</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
