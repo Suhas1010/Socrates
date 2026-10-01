@@ -1,4 +1,5 @@
 import { SPAM_DATASET } from "./templates/spamClassifier";
+import { Concept, ProjectModelContract, ModelFeatureSpec, ModelOutputSpec } from "./types";
 
 export interface TokenContribution {
   token: string;
@@ -345,5 +346,461 @@ export function predictFacialEmotion(
     actionUnits,
   };
 }
+
+/**
+ * Dynamically derives a rich, domain-grounded ProjectModelContract for ANY project goal.
+ * If the project has custom features defined in concepts, it parses them automatically.
+ */
+export function deriveModelContractForGoal(
+  goal: string,
+  concepts?: any[]
+): ProjectModelContract {
+  const lower = (goal || "").toLowerCase();
+  const safeGoal = goal?.trim() || "Your Machine Learning Model";
+
+  // 1. Vision & Facial Emotion / Expression Analyzer
+  if (
+    lower.includes("emotion") ||
+    lower.includes("face") ||
+    lower.includes("facial") ||
+    lower.includes("expression") ||
+    lower.includes("smile") ||
+    lower.includes("mood")
+  ) {
+    return {
+      functionName: "predict_face_emotion",
+      title: "Live Facial Emotion Analyzer",
+      subtitle:
+        "Test your vision classifier on extracted facial action units (smile curvature, brow tension, eye aperture, jaw position) in real time.",
+      badge: "Vision Classifier",
+      defaultThreshold: 0.40,
+      features: [
+        {
+          id: "smile",
+          label: "Smile Curvature (AU12)",
+          type: "slider",
+          min: -1.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.85,
+          unit: "",
+          description: "Zygomaticus major lip-corner pull (-1.0 frown to +1.0 smile)",
+        },
+        {
+          id: "browFurrow",
+          label: "Brow Furrow (AU4)",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.10,
+          unit: "%",
+          description: "Corrugator supercilii eyebrow furrow tension",
+        },
+        {
+          id: "eyeOpenness",
+          label: "Eye Aperture (AU5)",
+          type: "slider",
+          min: 0.1,
+          max: 1.0,
+          step: 0.05,
+          default: 0.65,
+          unit: "%",
+          description: "Upper lid raiser eye openness",
+        },
+        {
+          id: "jawDrop",
+          label: "Jaw Drop (AU26)",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.20,
+          unit: "%",
+          description: "Mandible depression / mouth opening",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Dominant Emotion",
+        classes: [
+          { name: "Joy / Happy", emoji: "😄", color: "#F59E0B" },
+          { name: "Surprise", emoji: "😲", color: "#06B6D4" },
+          { name: "Anger", emoji: "😠", color: "#EF4444" },
+          { name: "Sadness", emoji: "😢", color: "#3B82F6" },
+          { name: "Neutral", emoji: "😐", color: "#9CA3AF" },
+        ],
+      },
+      presets: [
+        {
+          name: "Joy / Happy",
+          emoji: "😄",
+          description: "Broad smile, relaxed brows",
+          values: { smile: 0.90, browFurrow: 0.05, eyeOpenness: 0.65, jawDrop: 0.20 },
+        },
+        {
+          name: "Surprise",
+          emoji: "😲",
+          description: "Wide eyes, dropped jaw",
+          values: { smile: 0.05, browFurrow: 0.10, eyeOpenness: 0.95, jawDrop: 0.85 },
+        },
+        {
+          name: "Anger",
+          emoji: "😠",
+          description: "Furrowed brows, pressed lips",
+          values: { smile: -0.60, browFurrow: 0.90, eyeOpenness: 0.40, jawDrop: 0.10 },
+        },
+        {
+          name: "Sadness",
+          emoji: "😢",
+          description: "Lip corners down, drooping eyelids",
+          values: { smile: -0.80, browFurrow: 0.60, eyeOpenness: 0.35, jawDrop: 0.25 },
+        },
+        {
+          name: "Neutral",
+          emoji: "😐",
+          description: "Baseline resting facial posture",
+          values: { smile: 0.00, browFurrow: 0.05, eyeOpenness: 0.50, jawDrop: 0.05 },
+        },
+      ],
+    };
+  }
+
+  // 2. Clinical / Health / Disease / Patient Vitals
+  if (
+    lower.includes("diabet") ||
+    lower.includes("disease") ||
+    lower.includes("cancer") ||
+    lower.includes("medical") ||
+    lower.includes("patient") ||
+    lower.includes("health") ||
+    lower.includes("clinic") ||
+    lower.includes("heart") ||
+    lower.includes("tumor") ||
+    lower.includes("diagnosis")
+  ) {
+    return {
+      functionName: "run_patient_diagnosis",
+      title: "Live Clinical Diagnostic Predictor",
+      subtitle:
+        "Test your built diagnostic pipeline on patient vitals. Move sliders to simulate incoming clinical records live in your browser!",
+      badge: "Clinical Model Tester",
+      defaultThreshold: 0.40,
+      features: [
+        {
+          id: "glucose",
+          label: "Fasting Glucose",
+          type: "slider",
+          min: 70,
+          max: 220,
+          step: 1,
+          default: 145,
+          unit: "mg/dL",
+          description: "Normal: 70-100, Pre-diabetic: 100-125, Diabetic: 126+",
+        },
+        {
+          id: "bmi",
+          label: "Body Mass Index (BMI)",
+          type: "slider",
+          min: 18.5,
+          max: 42.0,
+          step: 0.5,
+          default: 31.0,
+          unit: "kg/m²",
+          description: "Normal: 18.5-24.9, Overweight: 25-29.9, Obese: 30+",
+        },
+        {
+          id: "age",
+          label: "Patient Age",
+          type: "slider",
+          min: 18,
+          max: 85,
+          step: 1,
+          default: 52,
+          unit: "years",
+          description: "Metabolic risk factor scale",
+        },
+        {
+          id: "bloodPressure",
+          label: "Blood Pressure",
+          type: "slider",
+          min: 90,
+          max: 180,
+          step: 2,
+          default: 130,
+          unit: "mmHg",
+          description: "Systolic blood pressure reading",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Clinical Triage",
+        positiveClass: "HIGH RISK / POSITIVE",
+        negativeClass: "HEALTHY BASELINE / NEGATIVE",
+        classes: [
+          { name: "HIGH RISK / POSITIVE", emoji: "⚠️", color: "#EF4444" },
+          { name: "HEALTHY BASELINE / NEGATIVE", emoji: "✅", color: "#10B981" },
+        ],
+      },
+      presets: [
+        {
+          name: "High Risk Screening Patient",
+          emoji: "🔴",
+          description: "Elevated glucose, high BMI, older age",
+          values: { glucose: 175, bmi: 34.0, age: 58, bloodPressure: 145 },
+        },
+        {
+          name: "Healthy Baseline Adult",
+          emoji: "🟢",
+          description: "Normal fasting vitals",
+          values: { glucose: 88, bmi: 22.0, age: 26, bloodPressure: 115 },
+        },
+        {
+          name: "Borderline Pre-Diabetic",
+          emoji: "🟡",
+          description: "Impaired fasting glucose",
+          values: { glucose: 118, bmi: 28.5, age: 48, bloodPressure: 132 },
+        },
+      ],
+    };
+  }
+
+  // 3. Real Estate / Housing / Price Prediction
+  if (
+    lower.includes("real estate") ||
+    lower.includes("house") ||
+    lower.includes("housing") ||
+    lower.includes("property") ||
+    lower.includes("home price") ||
+    lower.includes("price prediction")
+  ) {
+    return {
+      functionName: "estimate_home_value",
+      title: "Live Real Estate Valuation Predictor",
+      subtitle:
+        "Test your built linear regression pipeline on house attributes. Move sliders to predict market property valuations live in your browser!",
+      badge: "Real Estate Regression Tester",
+      features: [
+        {
+          id: "sqft",
+          label: "Living Area",
+          type: "slider",
+          min: 600,
+          max: 4800,
+          step: 50,
+          default: 1800,
+          unit: "sq ft",
+          description: "Interior finished square footage",
+        },
+        {
+          id: "bedrooms",
+          label: "Bedrooms",
+          type: "slider",
+          min: 1,
+          max: 6,
+          step: 1,
+          default: 3,
+          unit: "beds",
+          description: "Count of bedrooms",
+        },
+      ],
+      output: {
+        type: "regression",
+        label: "Estimated Property Value",
+        unit: "$",
+      },
+      presets: [
+        { name: "Cozy Starter Home", emoji: "🏡", values: { sqft: 1100, bedrooms: 2 } },
+        { name: "Suburban Family House", emoji: "🏠", values: { sqft: 2200, bedrooms: 4 } },
+        { name: "Luxury Executive Estate", emoji: "🏰", values: { sqft: 3800, bedrooms: 5 } },
+      ],
+    };
+  }
+
+  // 4. Spam / Text / NLP Classification
+  if (
+    lower.includes("spam") ||
+    lower.includes("email") ||
+    lower.includes("bayes") ||
+    lower.includes("sentiment") ||
+    lower.includes("review") ||
+    lower.includes("message")
+  ) {
+    const isSentiment = lower.includes("sentiment") || lower.includes("review");
+    return {
+      functionName: isSentiment ? "classify_sentiment" : "classify_message",
+      title: isSentiment ? "Live Sentiment Analyzer" : "Live Message Spam Analyzer",
+      subtitle: isSentiment
+        ? "Type or paste any customer review to observe token sentiment weights and positive/negative polarity live."
+        : "Type or paste any message to observe token frequency weights and Bayesian spam scoring live.",
+      badge: isSentiment ? "NLP Sentiment Engine" : "Bayesian Spam Filter",
+      defaultThreshold: 0.50,
+      features: [
+        {
+          id: "text",
+          label: "Message / Review Input",
+          type: "text",
+          default: isSentiment
+            ? "The battery life is phenomenal and the display is breathtaking. Absolutely love it!"
+            : "Congratulations! You won a $1,000 free Walmart giftcard today. Call now to claim!",
+          description: "Type any text string to evaluate live",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: isSentiment ? "Sentiment Polarity" : "Delivery Triage",
+        positiveClass: isSentiment ? "POSITIVE REVIEW" : "FLAGGED AS SPAM",
+        negativeClass: isSentiment ? "NEGATIVE REVIEW" : "DELIVERED TO INBOX",
+        classes: isSentiment
+          ? [
+              { name: "POSITIVE REVIEW", emoji: "🌟", color: "#10B981" },
+              { name: "NEGATIVE REVIEW", emoji: "👎", color: "#EF4444" },
+            ]
+          : [
+              { name: "FLAGGED AS SPAM", emoji: "🚨", color: "#EF4444" },
+              { name: "DELIVERED TO INBOX", emoji: "📬", color: "#10B981" },
+            ],
+      },
+      presets: isSentiment
+        ? [
+            {
+              name: "Glowing 5-Star Review",
+              emoji: "⭐",
+              values: {
+                text: "Outstanding quality! Exceeded every expectation. Highly recommend to everyone.",
+              },
+            },
+            {
+              name: "Critical 1-Star Review",
+              emoji: "❌",
+              values: {
+                text: "Terrible experience. Broke on day one, customer support refused a refund. Awful.",
+              },
+            },
+            {
+              name: "Mixed / Nuanced Review",
+              emoji: "⚖️",
+              values: {
+                text: "The camera is decent for the price, but battery life drains faster than expected.",
+              },
+            },
+          ]
+        : [
+            {
+              name: "Urgent Phishing Scam",
+              emoji: "⚠️",
+              values: {
+                text: "URGENT: Your bank account is locked! Click this link now to verify your credentials.",
+              },
+            },
+            {
+              name: "Legitimate Work Message",
+              emoji: "💼",
+              values: {
+                text: "Hi team, let us reschedule the quarterly roadmap discussion to Thursday at 10 AM.",
+              },
+            },
+            {
+              name: "Lottery Prize Hook",
+              emoji: "🎁",
+              values: {
+                text: "You have been selected as our winner! Call 1-800-PRIZE to claim your free cash award.",
+              },
+            },
+          ],
+    };
+  }
+
+  // 5. AUTONOMOUS DYNAMIC PARSER FOR ANY OTHER PROJECT
+  const isRegression =
+    lower.includes("price") ||
+    lower.includes("cost") ||
+    lower.includes("forecast") ||
+    lower.includes("continuous") ||
+    lower.includes("value") ||
+    lower.includes("rate") ||
+    lower.includes("time") ||
+    lower.includes("duration");
+
+  let extractedFeatureNames: string[] = [];
+  if (concepts && concepts.length > 0) {
+    const code = concepts[0].starterCode || concepts[0].solutionCode || "";
+    const match = code.match(/["']inputs["']\s*:\s*\[([^\]]+)\]/);
+    if (match && match[1]) {
+      extractedFeatureNames = match[1]
+        .split(",")
+        .map((s: string) => s.replace(/["']/g, "").trim())
+        .filter((s: string) => s.length > 0 && s !== "___");
+    }
+  }
+
+  if (extractedFeatureNames.length === 0) {
+    extractedFeatureNames = [
+      "Signal Magnitude (x1)",
+      "Variance Spread (x2)",
+      "Rate of Change (x3)",
+      "Prior Density (x4)",
+    ];
+  }
+
+  const dynamicFeatures: ModelFeatureSpec[] = extractedFeatureNames.map((name, idx) => ({
+    id: `feature_${idx + 1}`,
+    label: name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, " "),
+    type: "slider",
+    min: 0.0,
+    max: 1.0,
+    step: 0.05,
+    default: idx === 0 ? 0.80 : idx === 1 ? 0.35 : idx === 2 ? 0.60 : 0.20,
+    unit: "",
+    description: `Normalized input signal for ${name}`,
+  }));
+
+  return {
+    functionName: "run_project_inference",
+    title: `Live Model Inference: ${safeGoal}`,
+    subtitle: `Test your custom machine learning model on simulated inputs in real time. Adjust sliders to observe live inference decisions!`,
+    badge: isRegression ? "Dynamic Regression Model" : "Dynamic Classifier",
+    defaultThreshold: 0.50,
+    features: dynamicFeatures,
+    output: {
+      type: isRegression ? "regression" : "classification",
+      label: isRegression ? "Target Output Quantity" : "Model Prediction",
+      unit: isRegression ? "units" : undefined,
+      positiveClass: "CLASS 1 / POSITIVE",
+      negativeClass: "CLASS 0 / NEGATIVE",
+      classes: isRegression
+        ? undefined
+        : [
+            { name: "CLASS 1 / POSITIVE", emoji: "🎯", color: "#10B981" },
+            { name: "CLASS 0 / NEGATIVE", emoji: "⚪", color: "#6B7280" },
+          ],
+    },
+    presets: [
+      {
+        name: "High Activation Profile",
+        emoji: "🔥",
+        description: "Strong signal indicators",
+        values: Object.fromEntries(
+          dynamicFeatures.map((f, i) => [f.id, i % 2 === 0 ? 0.85 : 0.70])
+        ),
+      },
+      {
+        name: "Balanced Baseline",
+        emoji: "⚖️",
+        description: "Average / standard operational values",
+        values: Object.fromEntries(dynamicFeatures.map((f) => [f.id, 0.50])),
+      },
+      {
+        name: "Low Activity Profile",
+        emoji: "❄️",
+        description: "Minimal signal input",
+        values: Object.fromEntries(
+          dynamicFeatures.map((f, i) => [f.id, i % 2 === 0 ? 0.15 : 0.25])
+        ),
+      },
+    ],
+  };
+}
+
 
 

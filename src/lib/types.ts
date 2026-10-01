@@ -113,12 +113,61 @@ export interface TeachBackResult {
   followUp?: string;
 }
 
+export type FeatureInputType = "slider" | "text" | "number" | "boolean" | "select";
+
+export interface ModelFeatureSpec {
+  id: string;
+  label: string;
+  type: FeatureInputType;
+  min?: number;
+  max?: number;
+  step?: number;
+  default: any;
+  unit?: string;
+  description?: string;
+  options?: string[];
+}
+
+export interface ModelOutputClass {
+  name: string;
+  emoji?: string;
+  color?: string;
+}
+
+export interface ModelOutputSpec {
+  type: "classification" | "regression";
+  label: string;
+  unit?: string;
+  classes?: ModelOutputClass[];
+  positiveClass?: string;
+  negativeClass?: string;
+}
+
+export interface ModelPresetCohort {
+  name: string;
+  emoji?: string;
+  description?: string;
+  values: Record<string, any>;
+}
+
+export interface ProjectModelContract {
+  functionName: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  features: ModelFeatureSpec[];
+  output: ModelOutputSpec;
+  defaultThreshold?: number;
+  presets?: ModelPresetCohort[];
+}
+
 export interface PlanGenerationResult {
   templateId?: string;
   rationale: string;
   concepts: Concept[];
   edges: ConceptEdge[];
   startingConceptId: string;
+  modelContract?: ProjectModelContract;
 }
 
 export interface SessionState {
@@ -141,4 +190,6 @@ export interface SessionState {
   highlightedEdge: { from: string; to: string } | null;
   isPyodideReady: boolean;
   pyodideError: string | null;
+  modelContract?: ProjectModelContract | null;
 }
+

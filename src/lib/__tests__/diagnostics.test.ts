@@ -4,6 +4,7 @@ import {
   generateFallbackConceptsForGoal,
   generateFallbackEdgesForGoal,
 } from "../diagnostics";
+import { deriveModelContractForGoal } from "../inference";
 import { useSessionStore } from "../store";
 
 describe("Domain-Grounded Diagnostics & Roadmaps", () => {
@@ -91,5 +92,30 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(concepts[2].title).toContain("Linear Logit Scoring");
     expect(concepts[3].title).toContain("Softmax Activation");
   });
+
+  it("derives dynamic schema contracts for any project goal", () => {
+    // 1. Emotion project
+    const emotionContract = deriveModelContractForGoal("emotions on face analyzer");
+    expect(emotionContract.badge).toContain("Vision");
+    expect(emotionContract.features.length).toBe(4);
+    expect(emotionContract.features.map((f) => f.id)).toEqual(["smile", "browFurrow", "eyeOpenness", "jawDrop"]);
+    expect(emotionContract.output.classes?.length).toBe(5);
+
+    // 2. Medical project
+    const medContract = deriveModelContractForGoal("Predict Diabetes Risk");
+    expect(medContract.badge).toContain("Clinical");
+    expect(medContract.features.map((f) => f.id)).toEqual(["glucose", "bmi", "age", "bloodPressure"]);
+
+    // 3. Real Estate project
+    const housingContract = deriveModelContractForGoal("Predict housing prices");
+    expect(housingContract.output.type).toBe("regression");
+    expect(housingContract.features.map((f) => f.id)).toContain("sqft");
+
+    // 4. Custom unknown project
+    const solarContract = deriveModelContractForGoal("Solar panel energy output forecast");
+    expect(solarContract.output.type).toBe("regression");
+    expect(solarContract.features.length).toBeGreaterThanOrEqual(4);
+  });
 });
+
 
