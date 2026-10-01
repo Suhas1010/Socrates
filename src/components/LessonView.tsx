@@ -85,101 +85,99 @@ export const LessonView: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. TOP BAR: PROJECT STEP + 3-PHASE STEPPER + TRACK SWITCHER               */}
       {/* ========================================================================= */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 px-5 py-4 rounded-3xl bg-slate-900/90 border border-white/15 shadow-2xl flex-shrink-0 backdrop-blur-xl">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800/80 shadow-md flex-shrink-0 backdrop-blur-xl">
         {/* Left: Step indicator & Roadmap drawer trigger */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setShowRoadmapDrawer(!showRoadmapDrawer)}
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700/90 border border-white/15 text-sm md:text-base font-bold transition-all text-white shadow-sm"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs md:text-sm font-medium transition-all text-slate-200 shadow-sm"
           >
-            <Workflow className="w-4 h-4 text-amber-400" />
-            <span className="font-mono text-amber-300 font-extrabold">
-              Step {currentIndex + 1} of {concepts.length}
+            <Workflow className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-mono text-amber-300 font-semibold">
+              Step {currentIndex + 1}/{concepts.length}
             </span>
-            <span className="text-slate-300 truncate max-w-[160px] sm:max-w-[240px] font-semibold">
+            <span className="text-slate-300 truncate max-w-[150px] sm:max-w-[220px]">
               {currentConcept?.title}
             </span>
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
           <button
             type="button"
             onClick={() => setShowVisualGraph(true)}
-            className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl bg-slate-800/60 hover:bg-slate-700/60 text-xs md:text-sm text-slate-300 hover:text-white border border-white/10 transition-all font-medium"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-xs text-slate-400 hover:text-slate-200 border border-slate-800 transition-all font-medium"
           >
             <span>DAG Graph</span>
           </button>
         </div>
 
         {/* Center: THE 3-PHASE PROGRESSION STEPPER */}
-        <div className="flex items-center justify-center p-1.5 rounded-2xl bg-slate-950/80 border border-white/15 shadow-inner overflow-x-auto">
+        <div className="flex items-center justify-center p-1 rounded-lg bg-slate-950 border border-slate-800 overflow-x-auto">
           {/* Phase 1 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("theory")}
-            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               learningPhase === "theory"
-                ? "bg-cyan-500 text-zinc-950 shadow-lg shadow-cyan-500/25 scale-[1.02]"
-                : "text-slate-300 hover:text-white"
+                ? "bg-sky-500 text-slate-950 font-semibold shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Brain className="w-4 h-4" />
-            <span>1. ML/DL Theory</span>
+            <Brain className="w-3.5 h-3.5" />
+            <span>1. Theory</span>
           </button>
 
-          <span className="text-slate-500 px-1 text-xs select-none">──►</span>
+          <span className="text-slate-600 px-1 text-xs select-none">→</span>
 
           {/* Phase 2 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("building")}
-            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               learningPhase === "building"
-                ? "bg-amber-400 text-zinc-950 shadow-lg shadow-amber-400/25 scale-[1.02]"
-                : "text-slate-300 hover:text-white"
+                ? "bg-amber-500 text-slate-950 font-semibold shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Code2 className="w-4 h-4" />
-            <span>2. Build from Scratch</span>
+            <Code2 className="w-3.5 h-3.5" />
+            <span>2. Build</span>
             {projectParts.length > 0 && (
-              <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
-                learningPhase === "building" ? "bg-zinc-950/20 text-zinc-950 font-black" : "bg-slate-800 text-amber-300"
+              <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded ${
+                learningPhase === "building" ? "bg-slate-950/20 text-slate-950 font-bold" : "bg-slate-800 text-amber-300"
               }`}>
                 {projectParts.length}/{concepts.length}
               </span>
             )}
           </button>
 
-          <span className="text-slate-500 px-1 text-xs select-none">──►</span>
+          <span className="text-slate-600 px-1 text-xs select-none">→</span>
 
           {/* Phase 3 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("testing")}
-            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all flex items-center gap-2 whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               learningPhase === "testing"
-                ? "bg-emerald-400 text-zinc-950 shadow-lg shadow-emerald-400/25 scale-[1.02]"
-                : "text-slate-300 hover:text-white"
+                ? "bg-emerald-500 text-slate-950 font-semibold shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Zap className="w-4 h-4" />
-            <span>3. Model Tester & Runner</span>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <Zap className="w-3.5 h-3.5" />
+            <span>3. Test & Runner</span>
           </button>
         </div>
 
         {/* Right: Actions, Track Toggle & Advance */}
-        <div className="flex items-center gap-2.5 self-end xl:self-auto">
+        <div className="flex items-center gap-2 self-end xl:self-auto">
           {/* Dedicated Python Academy Opener */}
           <button
             type="button"
             onClick={openPythonAcademy}
             title="Open dedicated Python Academy: interactive Python tutorials and code playground"
-            className="px-4 py-2.5 rounded-2xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 border bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/40 shadow-sm hover:scale-[1.02]"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
           >
-            <span className="text-base">🐍</span>
-            <span>Learn Python Academy</span>
+            <span>Python Academy</span>
           </button>
 
           {/* Teach Socrates Button */}
@@ -187,10 +185,10 @@ export const LessonView: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsTeachBackOpen(true)}
-              className="px-3.5 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm transition-all flex items-center gap-1.5 shadow-md"
+              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-all flex items-center gap-1 shadow-sm"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Teach Socrates ✨</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Teach-Back</span>
             </button>
           )}
 
@@ -198,10 +196,10 @@ export const LessonView: React.FC = () => {
           <button
             type="button"
             onClick={advanceToNextConcept}
-            className="px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 font-black text-xs md:text-sm shadow-md transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow-sm transition-all flex items-center gap-1.5"
           >
             <span>Next Step</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -241,32 +239,25 @@ export const LessonView: React.FC = () => {
       {/* 3. ROADMAP DRAWER (QUICK STEP SWITCHER WITHOUT CLUTTER)                    */}
       {/* ========================================================================= */}
       {showRoadmapDrawer && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-16 md:pt-24 p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-950 border border-white/20 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-sm">
-                  <Workflow className="w-5 h-5 text-amber-400" />
-                </div>
-                <div>
-                  <h3 className="text-base md:text-lg font-black text-white uppercase tracking-wider">
-                    Roadmap Steps Navigator
-                  </h3>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Select any concept in your personalized learning sequence
-                  </span>
-                </div>
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-start justify-center pt-16 md:pt-20 p-4 animate-in fade-in duration-150">
+          <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 max-w-xl w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div className="flex items-center gap-2.5">
+                <Workflow className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-semibold tracking-wider text-slate-100 uppercase font-mono">
+                  Roadmap Steps Navigator
+                </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowRoadmapDrawer(false)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
               {concepts.map((c, idx) => {
                 const isCurrent = c.id === currentConcept?.id;
                 const cStatus = status[c.id] || "unseen";
@@ -280,44 +271,44 @@ export const LessonView: React.FC = () => {
                       selectConcept(c.id);
                       setShowRoadmapDrawer(false);
                     }}
-                    className={`w-full text-left p-4 md:p-5 rounded-2xl border transition-all flex items-start justify-between gap-4 ${
+                    className={`w-full text-left p-3 rounded-lg border transition-all flex items-start justify-between gap-3 ${
                       isCurrent
-                        ? "bg-amber-400/15 border-amber-400 ring-2 ring-amber-400/40 text-white font-bold shadow-lg"
-                        : "bg-slate-900/80 border-white/10 text-slate-200 hover:bg-slate-800 hover:border-white/25 hover:text-white"
+                        ? "bg-slate-900 border-amber-500/40 text-slate-100 ring-1 ring-amber-500/20 shadow-sm"
+                        : "bg-slate-950/60 border-slate-800/80 text-slate-300 hover:bg-slate-900/60 hover:border-slate-700 hover:text-white"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3">
                       <span
-                        className={`w-9 h-9 rounded-2xl font-mono text-sm md:text-base font-black flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        className={`w-6 h-6 rounded-md font-mono text-xs font-semibold flex items-center justify-center flex-shrink-0 mt-0.5 ${
                           isCurrent
-                            ? "bg-amber-400 text-zinc-950 shadow-md"
-                            : "bg-slate-800 text-amber-300 border border-white/10"
+                            ? "bg-amber-400/15 border border-amber-400/30 text-amber-300"
+                            : "bg-slate-900 border border-slate-800 text-slate-400"
                         }`}
                       >
                         {idx + 1}
                       </span>
                       <div className="min-w-0">
                         <span
-                          className={`text-base md:text-lg font-black block ${
-                            isCurrent ? "text-amber-300" : "text-white"
+                          className={`text-sm font-semibold tracking-tight block ${
+                            isCurrent ? "text-amber-300" : "text-slate-100"
                           }`}
                         >
                           {c.title}
                         </span>
-                        <span className="text-xs md:text-sm text-slate-300 mt-1 block leading-relaxed line-clamp-2 font-normal">
+                        <span className="text-xs text-slate-400 mt-0.5 block leading-normal line-clamp-1 font-normal">
                           {c.hook}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                    <div className="flex items-center gap-1.5 flex-shrink-0 mt-0.5">
                       {isPartDone && (
-                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono font-medium">
                           Built ✓
                         </span>
                       )}
                       {cStatus === "mastered" && (
-                        <span className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold">
+                        <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[11px] font-mono font-medium">
                           Mastered ★
                         </span>
                       )}

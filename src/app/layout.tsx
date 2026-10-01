@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "@xyflow/react/dist/style.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Socrates — Project-First AI Tutor for Learning AI",
@@ -14,10 +27,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-[#080B12] text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
+    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-[#080B12] text-slate-100 antialiased selection:bg-amber-500/25 selection:text-amber-200 font-sans">
         {children}
       </body>
     </html>
   );
 }
+

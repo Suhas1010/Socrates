@@ -57,30 +57,30 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#080B12]/90 backdrop-blur-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#080B12]/95 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo and Tagline */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/25 text-zinc-950 font-bold">
-            <Sparkles className="w-6 h-6 fill-current" />
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-sm">
+            <Sparkles className="w-4 h-4 fill-current" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-lg md:text-xl font-black tracking-tight text-white font-sans">
+              <span className="text-base font-semibold tracking-tight text-white font-sans">
                 Socrates
               </span>
-              <span className="text-xs uppercase font-mono tracking-wider px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/40 font-bold">
+              <span className="text-[11px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
                 AI Tutor
               </span>
             </div>
-            <p className="text-xs md:text-sm text-slate-300 font-medium hidden sm:block">
+            <p className="text-xs text-slate-400 font-normal hidden sm:block">
               Learn AI by building real projects · 0 setup
             </p>
           </div>
         </div>
 
         {/* Stage breadcrumb pills */}
-        <div className="hidden md:flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-full border border-white/10 shadow-inner">
+        <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 shadow-sm">
           {stages.map((stage, idx) => {
             const isActive = currentScreen === stage.id;
             const isDone =
@@ -89,18 +89,18 @@ export const Navbar: React.FC = () => {
             return (
               <div
                 key={stage.id}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs md:text-sm font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-amber-400 text-zinc-950 shadow-md font-bold"
+                    ? "bg-amber-400/10 text-amber-300 border border-amber-400/30 shadow-sm font-semibold"
                     : isDone
-                    ? "text-emerald-400"
+                    ? "text-emerald-400 hover:text-emerald-300"
                     : "text-slate-400"
                 }`}
               >
                 {isDone ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                 ) : (
-                  <span className="text-xs font-mono opacity-70">{idx + 1}.</span>
+                  <span className="text-[11px] font-mono opacity-70">{idx + 1}.</span>
                 )}
                 <span>{stage.label}</span>
               </div>
@@ -109,28 +109,28 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Right stats and controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {/* Beginner Jargon Buster Button */}
           <button
             type="button"
             onClick={() => setIsJargonModalOpen(true)}
-            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 hover:text-white text-xs md:text-sm font-semibold transition-all shadow-sm"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-colors shadow-sm"
             title="Open plain-English glossary for confusing AI terms"
           >
-            <Lightbulb className="w-4 h-4 text-amber-400" />
+            <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
             <span>Jargon Buster</span>
           </button>
 
           {currentScreen !== "landing" && (
-            <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-slate-900/90 border border-white/10 text-xs md:text-sm font-medium">
-              <Layers className="w-4 h-4 text-amber-400" />
-              <span className="text-slate-300 hidden sm:inline">Mastery:</span>
-              <span className="font-mono font-bold text-white">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs font-medium">
+              <Layers className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-slate-400 hidden sm:inline">Mastery:</span>
+              <span className="font-mono font-semibold text-white">
                 {masteredCount}/{totalCount}
               </span>
-              <div className="w-14 h-2 bg-slate-800 rounded-full overflow-hidden ml-1">
+              <div className="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden ml-1">
                 <div
-                  className="h-full bg-emerald-400 transition-all duration-500 rounded-full shadow-sm shadow-emerald-400/50"
+                  className="h-full bg-emerald-400 transition-all duration-500 rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -142,11 +142,11 @@ export const Navbar: React.FC = () => {
             type="button"
             onClick={() => setIsApiKeyModalOpen(true)}
             title="Configure Google Gemini API Key and AI model settings"
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/10 hover:border-amber-400/40 text-xs md:text-sm font-mono text-amber-300 transition-all"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-300 hover:text-white transition-colors"
           >
-            <Cpu className="w-4 h-4" />
+            <Cpu className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden sm:inline">{apiKey ? "Gemini Live" : "AI Settings"}</span>
-            <span className={`w-2 h-2 rounded-full ${apiKey ? "bg-emerald-400 shadow-sm shadow-emerald-400" : "bg-amber-400"}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${apiKey ? "bg-emerald-400 shadow-sm shadow-emerald-400/50" : "bg-amber-400"}`} />
           </button>
 
           {/* Dedicated Learn Python Academy Button */}
@@ -154,11 +154,10 @@ export const Navbar: React.FC = () => {
             type="button"
             onClick={openPythonAcademy}
             title="Open dedicated Python Academy: interactive Python tutorials and code playground"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 hover:border-emerald-400 text-xs md:text-sm text-emerald-300 font-bold transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 text-xs text-emerald-300 hover:text-emerald-200 font-medium transition-all shadow-sm"
           >
-            <span className="text-sm">🐍</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>Learn Python</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50" />
           </button>
 
           {/* Reset session button */}
@@ -173,9 +172,9 @@ export const Navbar: React.FC = () => {
               }
             }}
             title="Reset and start over"
-            className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-white/10"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-800"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

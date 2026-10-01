@@ -10,7 +10,7 @@
 }
 
 html {
-  font-size: 19px;
+  font-size: 16px;
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -18,9 +18,10 @@ html {
 
 body {
   color: var(--foreground);
-  background: radial-gradient(circle at 50% 0%, #131B2E 0%, #080B12 80%);
+  background: radial-gradient(circle at 50% 0%, #111827 0%, #080B12 85%);
   background-attachment: fixed;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.011em;
   overflow: hidden;
   height: 100%;
   width: 100%;

@@ -144,38 +144,38 @@ export const PythonAcademyModal: React.FC = () => {
   const percentComplete = Math.round((masteredCount / totalCount) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xl p-3 sm:p-5 md:p-8 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-7xl h-[92vh] flex flex-col rounded-3xl bg-slate-950 border border-white/20 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-5 md:p-8 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-7xl h-[92vh] flex flex-col rounded-xl bg-slate-950 border border-slate-800 shadow-2xl overflow-hidden">
         {/* 1. Header Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 md:px-8 py-5 bg-slate-900/95 border-b border-white/15 flex-shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-2xl shadow-md">
-              🐍
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-3.5 bg-slate-900/90 border-b border-slate-800 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-sm">
+              <Terminal className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <div className="flex items-center gap-2.5">
-                <span className="text-xs md:text-sm font-mono font-black text-amber-300 uppercase tracking-wider">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-semibold text-emerald-400 uppercase tracking-wider">
                   Python Academy · Standalone Track
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] font-mono font-medium">
                   {masteredCount} of {totalCount} Mastered ({percentComplete}%)
                 </span>
               </div>
-              <h2 className="text-xl md:text-2xl font-black text-white mt-1">
-                Python Foundations for AI & Machine Learning
+              <h2 className="text-base md:text-lg font-semibold text-white">
+                Python Foundations for AI &amp; Machine Learning
               </h2>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Progress bar */}
-            <div className="hidden md:flex flex-col items-end gap-1 mr-2">
-              <span className="text-xs font-mono text-slate-300">
+            <div className="hidden md:flex flex-col items-end gap-1 mr-1">
+              <span className="text-[11px] font-mono text-slate-400">
                 Academy Progress
               </span>
-              <div className="w-36 h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
+                  className="h-full bg-emerald-400 transition-all duration-300 rounded-full"
                   style={{ width: `${percentComplete}%` }}
                 />
               </div>
@@ -184,18 +184,18 @@ export const PythonAcademyModal: React.FC = () => {
             <button
               type="button"
               onClick={closePythonAcademy}
-              className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs md:text-sm transition-all flex items-center gap-2 shadow-lg shadow-amber-400/20"
+              className="px-3.5 py-1.5 rounded-lg bg-slate-850 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-750 text-xs font-medium transition-colors flex items-center gap-1.5 shadow-sm"
             >
-              <span>← Return to My AI Project</span>
+              <span>← Return to AI Project</span>
             </button>
 
             <button
               type="button"
               onClick={closePythonAcademy}
-              className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               title="Close Academy"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -203,17 +203,17 @@ export const PythonAcademyModal: React.FC = () => {
         {/* 2. Main Two-Column Layout */}
         <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
           {/* Left Column: Module Navigation Index */}
-          <div className="lg:w-80 xl:w-96 flex flex-col border-b lg:border-b-0 lg:border-r border-white/10 bg-slate-900/60 p-4 md:p-5 overflow-y-auto space-y-3 flex-shrink-0">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
-              <span className="text-xs md:text-sm font-mono uppercase text-slate-300 font-bold tracking-wider">
+          <div className="lg:w-80 xl:w-96 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-800 bg-slate-900/40 p-4 overflow-y-auto space-y-3 flex-shrink-0">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span className="text-xs font-mono uppercase text-slate-400 font-semibold tracking-wider">
                 Curriculum Modules
               </span>
-              <span className="text-xs text-amber-300 font-mono font-bold">
+              <span className="text-xs text-amber-400 font-mono font-medium">
                 6 Core Steps
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {PYTHON_TRACK_CONCEPTS.map((concept, idx) => {
                 const isSelected = idx === selectedModuleIndex;
                 const isMastered = pythonMasteredModules.includes(concept.id);
@@ -223,38 +223,38 @@ export const PythonAcademyModal: React.FC = () => {
                     key={concept.id}
                     type="button"
                     onClick={() => setSelectedModuleIndex(idx)}
-                    className={`w-full text-left p-3.5 rounded-2xl transition-all border flex items-start gap-3 ${
+                    className={`w-full text-left p-3 rounded-lg transition-all border flex items-start gap-2.5 ${
                       isSelected
-                        ? "bg-amber-400/15 border-amber-400/50 shadow-md ring-1 ring-amber-400/30"
-                        : "bg-slate-950/70 border-white/5 hover:bg-slate-800/80 hover:border-white/15"
+                        ? "bg-amber-400/10 border-amber-400/30 shadow-sm"
+                        : "bg-slate-950/40 border-slate-850 hover:bg-slate-800/60 hover:border-slate-800"
                     }`}
                   >
                     <div
-                      className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-mono font-black flex-shrink-0 mt-0.5 ${
+                      className={`w-6 h-6 rounded flex items-center justify-center text-xs font-mono font-medium flex-shrink-0 mt-0.5 ${
                         isMastered
-                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                          ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : isSelected
-                          ? "bg-amber-400 text-zinc-950 font-black"
+                          ? "bg-amber-400 text-zinc-950 font-bold"
                           : "bg-slate-800 text-slate-400"
                       }`}
                     >
-                      {isMastered ? <Check className="w-4 h-4 text-emerald-400" /> : idx + 1}
+                      {isMastered ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : idx + 1}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-xs font-mono text-slate-400">
+                        <span className="text-[11px] font-mono text-slate-400">
                           Module {idx + 1}
                         </span>
                         {isMastered && (
-                          <span className="text-[11px] font-mono text-emerald-400 font-bold">
+                          <span className="text-[11px] font-mono text-emerald-400 font-medium">
                             Mastered ✓
                           </span>
                         )}
                       </div>
                       <h4
-                        className={`text-sm font-bold truncate mt-0.5 ${
-                          isSelected ? "text-amber-300 font-black" : "text-slate-200"
+                        className={`text-xs font-medium truncate mt-0.5 ${
+                          isSelected ? "text-amber-300 font-semibold" : "text-slate-300"
                         }`}
                       >
                         {concept.title.replace(/^\d+\.\s*/, "")}
@@ -266,13 +266,13 @@ export const PythonAcademyModal: React.FC = () => {
             </div>
 
             {/* Quick Tips Box */}
-            <div className="mt-auto p-4 rounded-2xl bg-amber-950/30 border border-amber-500/20 space-y-2 text-xs md:text-sm text-slate-300">
-              <div className="flex items-center gap-2 text-amber-300 font-bold">
-                <Sparkles className="w-4 h-4 text-amber-400" />
+            <div className="mt-auto p-3.5 rounded-lg bg-slate-900/80 border border-slate-800 space-y-1.5 text-xs text-slate-400">
+              <div className="flex items-center gap-1.5 text-amber-300 font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 <span>Zero Setup In-Browser</span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                All Python code executes directly in your browser using Pyodide (WebAssembly). No terminal configuration or Python install needed!
+              <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                All Python code executes directly in your browser using Pyodide (WebAssembly). No terminal configuration or local Python install needed!
               </p>
             </div>
           </div>
@@ -280,55 +280,55 @@ export const PythonAcademyModal: React.FC = () => {
           {/* Right Column: Active Module Workspace */}
           <div className="flex-1 min-h-0 flex flex-col bg-slate-950 overflow-hidden">
             {/* Module Sub-Header & Tabs */}
-            <div className="px-6 md:px-8 py-4 bg-slate-900/80 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-shrink-0">
+            <div className="px-6 py-3 bg-slate-900/60 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
               <div>
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider block">
+                <span className="text-xs font-mono font-medium text-amber-400 uppercase tracking-wider block">
                   MODULE {selectedModuleIndex + 1} OF 6
                 </span>
-                <h3 className="text-xl md:text-2xl font-black text-white mt-1">
+                <h3 className="text-base md:text-lg font-semibold text-white mt-0.5">
                   {activeConcept.title}
                 </h3>
               </div>
 
               {/* View Tabs */}
-              <div className="flex items-center p-1.5 rounded-2xl bg-slate-950 border border-white/15 self-start sm:self-auto shadow-inner">
+              <div className="flex items-center p-1 rounded-lg bg-slate-950/80 border border-slate-800 self-start sm:self-auto shadow-sm">
                 <button
                   type="button"
                   onClick={() => setActiveTab("learn")}
-                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                     activeTab === "learn"
-                      ? "bg-amber-400 text-zinc-950 font-black shadow-md"
-                      : "text-slate-300 hover:text-white"
+                      ? "bg-amber-400/10 text-amber-300 border border-amber-400/30 font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen className="w-3.5 h-3.5" />
                   <span>1. Concept & Syntax</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("code")}
-                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                     activeTab === "code"
-                      ? "bg-amber-400 text-zinc-950 font-black shadow-md"
-                      : "text-slate-300 hover:text-white"
+                      ? "bg-amber-400/10 text-amber-300 border border-amber-400/30 font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  <Code2 className="w-4 h-4" />
+                  <Code2 className="w-3.5 h-3.5" />
                   <span>2. Practice Sandbox</span>
                   {assertionPassed && (
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400" />
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("playground")}
-                  className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center gap-2 ${
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                     activeTab === "playground"
-                      ? "bg-amber-400 text-zinc-950 font-black shadow-md"
-                      : "text-slate-300 hover:text-white"
+                      ? "bg-amber-400/10 text-amber-300 border border-amber-400/30 font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  <Terminal className="w-4 h-4" />
+                  <Terminal className="w-3.5 h-3.5" />
                   <span>3. Scratchpad</span>
                 </button>
               </div>
@@ -336,36 +336,36 @@ export const PythonAcademyModal: React.FC = () => {
 
             {/* Tab 1: Learn & Syntax Guide */}
             {activeTab === "learn" && (
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+              <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-5">
                 {/* Hook / Analogy Box */}
-                <div className="p-6 md:p-7 rounded-3xl bg-slate-900/90 border border-white/15 space-y-3 shadow-xl">
-                  <div className="flex items-center gap-2.5 pb-2 border-b border-white/10">
-                    <span className="text-xl">💡</span>
-                    <h4 className="text-base md:text-lg font-black text-amber-300 font-sans">
+                <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5 shadow-sm">
+                  <div className="flex items-center gap-2 pb-1.5 border-b border-slate-800">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-amber-300">
                       The Big Picture Intuition
                     </h4>
                   </div>
-                  <p className="text-base md:text-lg text-slate-200 leading-relaxed font-normal">
+                  <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-normal">
                     {activeConcept.hook}
                   </p>
                 </div>
 
                 {/* Explanation & Core Principle */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-6 md:p-7 rounded-3xl bg-slate-900/90 border border-white/15 space-y-3.5 shadow-xl">
-                    <span className="text-xs md:text-sm font-mono uppercase text-slate-300 font-black tracking-wider block">
-                      📘 How Python Handles This
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5 shadow-sm">
+                    <span className="text-xs font-mono uppercase text-slate-400 font-semibold tracking-wider block">
+                      How Python Handles This
                     </span>
-                    <p className="text-sm md:text-base text-slate-200 leading-relaxed">
+                    <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-normal">
                       {activeConcept.explanationSummary}
                     </p>
                   </div>
 
-                  <div className="p-6 md:p-7 rounded-3xl bg-slate-900/90 border border-white/15 space-y-3.5 shadow-xl">
-                    <span className="text-xs md:text-sm font-mono uppercase text-amber-400 font-black tracking-wider block">
-                      ⚡ Core Syntax Principle
+                  <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5 shadow-sm">
+                    <span className="text-xs font-mono uppercase text-amber-400 font-semibold tracking-wider block">
+                      Core Syntax Principle
                     </span>
-                    <p className="text-sm md:text-base text-amber-100 font-mono leading-relaxed bg-slate-950/80 p-4 rounded-2xl border border-amber-500/25">
+                    <p className="text-xs text-amber-100 font-mono leading-relaxed bg-slate-950/80 p-3 rounded-lg border border-amber-500/20">
                       {activeConcept.corePrinciple}
                     </p>
                   </div>
@@ -373,69 +373,69 @@ export const PythonAcademyModal: React.FC = () => {
 
                 {/* Worked Example */}
                 {activeConcept.workedExample && (
-                  <div className="p-6 md:p-8 rounded-3xl bg-slate-900/90 border border-white/15 space-y-4 shadow-xl">
-                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                      <span className="text-xs md:text-sm font-mono uppercase text-cyan-300 font-black tracking-wider block">
-                        🔍 Step-by-Step Code Walkthrough
+                  <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3.5 shadow-sm">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                      <span className="text-xs font-mono uppercase text-cyan-300 font-semibold tracking-wider block">
+                        Step-by-Step Code Walkthrough
                       </span>
                       <span className="text-xs text-slate-400 font-mono">
                         {activeConcept.workedExample.scenario}
                       </span>
                     </div>
 
-                    <div className="space-y-3 pt-1">
+                    <div className="space-y-2 pt-0.5">
                       {activeConcept.workedExample.calculationSteps.map((step, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3.5 p-4 rounded-2xl bg-slate-950/80 border border-white/10"
+                          className="flex items-start gap-2.5 p-3 rounded-lg bg-slate-950/60 border border-slate-800/80"
                         >
-                          <span className="w-7 h-7 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="w-5 h-5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-mono font-medium flex items-center justify-center flex-shrink-0 mt-0.5">
                             {idx + 1}
                           </span>
-                          <span className="text-sm md:text-base font-mono text-slate-100 leading-relaxed">
+                          <span className="text-xs md:text-sm font-mono text-slate-200 leading-relaxed">
                             {step}
                           </span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 text-xs md:text-sm font-mono text-cyan-200">
+                    <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-cyan-200">
                       <strong>Takeaway: </strong> {activeConcept.workedExample.takeaway}
                     </div>
                   </div>
                 )}
 
                 {/* Interactive Quick Quiz */}
-                <div className="space-y-4 pt-2">
-                  <h4 className="text-base md:text-lg font-black text-white flex items-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-amber-400" />
-                    <span>Quick Concept Comprehension Check</span>
+                <div className="space-y-3 pt-1">
+                  <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <HelpCircle className="w-4 h-4 text-amber-400" />
+                    <span>Concept Comprehension Check</span>
                   </h4>
 
                   {/* Question 1: Predict */}
                   {activeConcept.predictQuestion && (
-                    <div className="p-6 md:p-7 rounded-3xl bg-slate-900/90 border border-white/15 space-y-4 shadow-xl">
-                      <span className="text-xs font-mono uppercase text-amber-400 font-bold block">
+                    <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 shadow-sm">
+                      <span className="text-xs font-mono uppercase text-amber-400 font-semibold block">
                         Question 1 · Syntax Predict
                       </span>
-                      <p className="text-base md:text-lg text-white font-bold leading-relaxed">
+                      <p className="text-xs md:text-sm text-white font-medium leading-relaxed">
                         {activeConcept.predictQuestion.prompt}
                       </p>
 
-                      <div className="space-y-2.5">
+                      <div className="space-y-2">
                         {activeConcept.predictQuestion.options.map((opt, oIdx) => {
                           const isChosen = selectedPredictOption === oIdx;
                           const isCorrect = oIdx === activeConcept.predictQuestion!.correctIndex;
 
-                          let btnStyle = "bg-slate-950/80 border-white/10 text-slate-200 hover:bg-slate-800 hover:border-white/20";
+                          let btnStyle = "bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700";
                           if (isPredictSubmitted) {
                             if (isCorrect) {
-                              btnStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold";
+                              btnStyle = "bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-medium";
                             } else if (isChosen) {
-                              btnStyle = "bg-rose-500/20 border-rose-500 text-rose-300 font-bold";
+                              btnStyle = "bg-rose-500/20 border-rose-500/40 text-rose-300 font-medium";
                             }
                           } else if (isChosen) {
-                            btnStyle = "bg-amber-400/20 border-amber-400 text-amber-300 font-bold";
+                            btnStyle = "bg-amber-400/15 border-amber-400/40 text-amber-300 font-medium";
                           }
 
                           return (
@@ -446,11 +446,11 @@ export const PythonAcademyModal: React.FC = () => {
                                 setSelectedPredictOption(oIdx);
                                 setIsPredictSubmitted(true);
                               }}
-                              className={`w-full text-left p-4 rounded-2xl border text-sm md:text-base transition-all flex items-center justify-between ${btnStyle}`}
+                              className={`w-full text-left p-3 rounded-lg border text-xs md:text-sm transition-all flex items-center justify-between ${btnStyle}`}
                             >
                               <span>{opt}</span>
                               {isPredictSubmitted && isCorrect && (
-                                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 ml-2" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 ml-2" />
                               )}
                             </button>
                           );
@@ -458,7 +458,7 @@ export const PythonAcademyModal: React.FC = () => {
                       </div>
 
                       {isPredictSubmitted && (
-                        <div className="p-4 rounded-2xl bg-slate-950 border border-white/10 text-xs md:text-sm text-slate-300 leading-relaxed font-mono">
+                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed font-mono">
                           <strong className="text-amber-300 font-sans">Explanation: </strong>
                           {activeConcept.predictQuestion.explanation}
                         </div>
@@ -468,28 +468,28 @@ export const PythonAcademyModal: React.FC = () => {
 
                   {/* Question 2: Why it matters */}
                   {activeConcept.checkQuestion && (
-                    <div className="p-6 md:p-7 rounded-3xl bg-slate-900/90 border border-white/15 space-y-4 shadow-xl">
-                      <span className="text-xs font-mono uppercase text-cyan-400 font-bold block">
+                    <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 shadow-sm">
+                      <span className="text-xs font-mono uppercase text-cyan-400 font-semibold block">
                         Question 2 · AI Application
                       </span>
-                      <p className="text-base md:text-lg text-white font-bold leading-relaxed">
+                      <p className="text-xs md:text-sm text-white font-medium leading-relaxed">
                         {activeConcept.checkQuestion.prompt}
                       </p>
 
-                      <div className="space-y-2.5">
+                      <div className="space-y-2">
                         {activeConcept.checkQuestion.options.map((opt, oIdx) => {
                           const isChosen = selectedCheckOption === oIdx;
                           const isCorrect = oIdx === activeConcept.checkQuestion!.correctIndex;
 
-                          let btnStyle = "bg-slate-950/80 border-white/10 text-slate-200 hover:bg-slate-800 hover:border-white/20";
+                          let btnStyle = "bg-slate-950/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700";
                           if (isCheckSubmitted) {
                             if (isCorrect) {
-                              btnStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold";
+                              btnStyle = "bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-medium";
                             } else if (isChosen) {
-                              btnStyle = "bg-rose-500/20 border-rose-500 text-rose-300 font-bold";
+                              btnStyle = "bg-rose-500/20 border-rose-500/40 text-rose-300 font-medium";
                             }
                           } else if (isChosen) {
-                            btnStyle = "bg-cyan-400/20 border-cyan-400 text-cyan-300 font-bold";
+                            btnStyle = "bg-cyan-400/15 border-cyan-400/40 text-cyan-300 font-medium";
                           }
 
                           return (
@@ -500,11 +500,11 @@ export const PythonAcademyModal: React.FC = () => {
                                 setSelectedCheckOption(oIdx);
                                 setIsCheckSubmitted(true);
                               }}
-                              className={`w-full text-left p-4 rounded-2xl border text-sm md:text-base transition-all flex items-center justify-between ${btnStyle}`}
+                              className={`w-full text-left p-3 rounded-lg border text-xs md:text-sm transition-all flex items-center justify-between ${btnStyle}`}
                             >
                               <span>{opt}</span>
                               {isCheckSubmitted && isCorrect && (
-                                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 ml-2" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 ml-2" />
                               )}
                             </button>
                           );
@@ -512,7 +512,7 @@ export const PythonAcademyModal: React.FC = () => {
                       </div>
 
                       {isCheckSubmitted && (
-                        <div className="p-4 rounded-2xl bg-slate-950 border border-white/10 text-xs md:text-sm text-slate-300 leading-relaxed font-mono">
+                        <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed font-mono">
                           <strong className="text-cyan-300 font-sans">Explanation: </strong>
                           {activeConcept.checkQuestion.explanation}
                         </div>
@@ -522,17 +522,17 @@ export const PythonAcademyModal: React.FC = () => {
                 </div>
 
                 {/* Bottom CTA to switch to Practice Sandbox */}
-                <div className="pt-4 flex items-center justify-between">
-                  <span className="text-xs md:text-sm text-slate-400">
+                <div className="pt-2 flex items-center justify-between">
+                  <span className="text-xs text-slate-400">
                     Ready to write and run code?
                   </span>
                   <button
                     type="button"
                     onClick={() => setActiveTab("code")}
-                    className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs md:text-sm transition-all flex items-center gap-2 shadow-lg shadow-amber-400/20"
+                    className="px-4 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm"
                   >
                     <span>Proceed to Practice Sandbox</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -540,44 +540,44 @@ export const PythonAcademyModal: React.FC = () => {
 
             {/* Tab 2: Practice Code Sandbox */}
             {activeTab === "code" && (
-              <div className="flex-1 min-h-0 flex flex-col p-6 md:p-8 space-y-4 overflow-hidden">
+              <div className="flex-1 min-h-0 flex flex-col p-5 md:p-6 space-y-3.5 overflow-hidden">
                 {/* Build prompt banner */}
-                <div className="p-5 rounded-2xl bg-slate-900/90 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md flex-shrink-0">
-                  <div className="space-y-1">
-                    <span className="text-xs font-mono uppercase text-amber-400 font-bold block">
-                      🛠️ Practice Objective
+                <div className="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm flex-shrink-0">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-mono uppercase text-amber-400 font-semibold block">
+                      Practice Objective
                     </span>
-                    <p className="text-sm md:text-base text-slate-200 font-medium">
+                    <p className="text-xs md:text-sm text-slate-200 font-normal">
                       {activeConcept.buildStep}
                     </p>
                   </div>
                   {assertionPassed && (
-                    <div className="px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono font-bold text-xs md:text-sm flex items-center gap-2 flex-shrink-0">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Module Mastered!</span>
+                    <div className="px-3 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono font-medium text-xs flex items-center gap-1.5 flex-shrink-0">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Module Mastered</span>
                     </div>
                   )}
                 </div>
 
                 {/* Code Editor Container */}
-                <div className="flex-1 min-h-0 flex flex-col rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl">
+                <div className="flex-1 min-h-0 flex flex-col rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-sm">
                   {/* Editor Header */}
-                  <div className="flex items-center justify-between px-5 py-3.5 bg-slate-900/90 border-b border-white/10 flex-shrink-0">
-                    <div className="flex items-center gap-2.5">
-                      <Terminal className="w-4 h-4 text-amber-400" />
-                      <span className="text-xs md:text-sm font-mono font-bold text-slate-200">
+                  <div className="flex items-center justify-between px-4 py-2 bg-slate-900/90 border-b border-slate-800 flex-shrink-0">
+                    <div className="flex items-center gap-2">
+                      <Terminal className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="text-xs font-mono font-medium text-slate-300">
                         {activeConcept.id}.py
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       {activeConcept.solutionCode && (
                         <button
                           type="button"
                           onClick={() => setShowSolution(!showSolution)}
-                          className="text-xs md:text-sm font-bold text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-800"
+                          className="text-xs font-medium text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-slate-800"
                         >
-                          <Lightbulb className="w-4 h-4 text-amber-400" />
+                          <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
                           <span>{showSolution ? "Hide Hint" : "Hint / Solution"}</span>
                         </button>
                       )}
@@ -585,26 +585,26 @@ export const PythonAcademyModal: React.FC = () => {
                         type="button"
                         onClick={handleResetCode}
                         title="Reset code"
-                        className="text-xs text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition-colors"
+                        className="text-xs text-slate-400 hover:text-white p-1 rounded-md hover:bg-slate-800 transition-colors"
                       >
-                        <RotateCcw className="w-4 h-4" />
+                        <RotateCcw className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
 
                   {/* Solution Preview Drawer */}
                   {showSolution && activeConcept.solutionCode && (
-                    <div className="p-4 bg-amber-950/30 border-b border-amber-500/30 text-xs md:text-sm text-slate-300 flex items-center justify-between gap-4 flex-shrink-0">
+                    <div className="p-3 bg-amber-950/20 border-b border-amber-500/20 text-xs text-slate-300 flex items-center justify-between gap-4 flex-shrink-0">
                       <div className="space-y-1">
-                        <span className="font-bold text-amber-300">Solution Reference:</span>
-                        <pre className="font-mono text-xs text-amber-100 whitespace-pre-wrap max-h-24 overflow-y-auto">
+                        <span className="font-semibold text-amber-300">Solution Reference:</span>
+                        <pre className="font-mono text-xs text-amber-100/90 whitespace-pre-wrap max-h-20 overflow-y-auto">
                           {activeConcept.solutionCode}
                         </pre>
                       </div>
                       <button
                         type="button"
                         onClick={handleUseSolution}
-                        className="px-4 py-2 rounded-xl bg-amber-400 text-zinc-950 font-black text-xs md:text-sm hover:bg-amber-300 transition-colors flex-shrink-0 shadow-md"
+                        className="px-3 py-1 rounded-md bg-amber-400 text-zinc-950 font-semibold text-xs hover:bg-amber-300 transition-colors flex-shrink-0"
                       >
                         Load Solution
                       </button>
@@ -612,67 +612,67 @@ export const PythonAcademyModal: React.FC = () => {
                   )}
 
                   {/* Code Textarea */}
-                  <div className="flex-1 min-h-[180px] bg-[#070A10] overflow-hidden">
+                  <div className="flex-1 min-h-[160px] bg-[#070A10] overflow-hidden">
                     <textarea
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
                       spellCheck={false}
-                      className="w-full h-full p-5 bg-transparent font-mono text-sm md:text-base text-amber-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed selection:bg-amber-500/30"
+                      className="w-full h-full p-4 bg-transparent font-mono text-xs md:text-sm text-slate-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed selection:bg-amber-500/20"
                       placeholder="# Write your Python code here..."
                     />
                   </div>
 
                   {/* Terminal Execution Console */}
-                  <div className="h-44 border-t border-white/10 bg-slate-950 p-4 font-mono text-xs md:text-sm overflow-y-auto flex-shrink-0">
-                    <div className="flex items-center justify-between text-slate-400 text-xs uppercase mb-2 font-black tracking-wider">
+                  <div className="h-36 border-t border-slate-800 bg-slate-950 p-3 font-mono text-xs overflow-y-auto flex-shrink-0">
+                    <div className="flex items-center justify-between text-slate-400 text-[11px] uppercase mb-1.5 font-semibold tracking-wider">
                       <span>Pyodide Sandbox Output</span>
                       {execResult?.success && (
-                        <span className="text-emerald-400 font-bold">Assertions Passed ✓</span>
+                        <span className="text-emerald-400 font-medium">Assertions Passed ✓</span>
                       )}
                     </div>
 
                     {isRunning ? (
                       <div className="text-amber-400 animate-pulse flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                         Executing Python code in Pyodide...
                       </div>
                     ) : execResult ? (
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         {execResult.stdout && (
                           <pre className="text-emerald-400 whitespace-pre-wrap leading-relaxed">
                             {execResult.stdout}
                           </pre>
                         )}
                         {execResult.stderr && (
-                          <pre className="text-red-400 whitespace-pre-wrap leading-relaxed">
+                          <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed">
                             {execResult.stderr}
                           </pre>
                         )}
                         {execResult.error && (
-                          <div className="text-rose-400 font-bold">{execResult.error}</div>
+                          <div className="text-rose-400 font-semibold">{execResult.error}</div>
                         )}
                       </div>
                     ) : (
-                      <span className="text-slate-500">
+                      <span className="text-slate-500 text-xs">
                         Fill in the blanks (<code className="text-amber-400">___</code>) and click &quot;Run &amp; Test Code&quot; below.
                       </span>
                     )}
                   </div>
 
                   {/* Editor Footer Actions */}
-                  <div className="p-4 bg-slate-900/95 border-t border-white/15 flex items-center justify-between gap-3 flex-shrink-0">
-                    <span className="text-xs md:text-sm text-slate-300 hidden sm:inline">
-                      Fill in the blanks (<code className="text-amber-400 font-bold">___</code>) and run assertions.
+                  <div className="p-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
+                    <span className="text-xs text-slate-400 hidden sm:inline">
+                      Fill in the blanks (<code className="text-amber-400 font-medium">___</code>) and run assertions.
                     </span>
 
-                    <div className="flex items-center gap-3 ml-auto">
+                    <div className="flex items-center gap-2.5 ml-auto">
                       <button
                         type="button"
                         disabled={isRunning}
                         onClick={handleRunAndValidate}
-                        className="px-6 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs md:text-sm transition-all flex items-center gap-2 shadow-lg shadow-amber-400/20 disabled:opacity-50"
+                        className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50"
                       >
-                        <Play className="w-4 h-4 fill-current" />
+                        <Play className="w-3.5 h-3.5 fill-current" />
                         <span>{isRunning ? "Running..." : "Run & Test Code"}</span>
                       </button>
 
@@ -683,7 +683,7 @@ export const PythonAcademyModal: React.FC = () => {
                             setSelectedModuleIndex(selectedModuleIndex + 1);
                             setActiveTab("learn");
                           }}
-                          className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-black text-xs md:text-sm shadow-xl shadow-emerald-500/25 transition-all flex items-center gap-2 animate-pulse"
+                          className="px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm"
                         >
                           <span>Next Module &rarr;</span>
                         </button>
@@ -696,40 +696,40 @@ export const PythonAcademyModal: React.FC = () => {
 
             {/* Tab 3: Free-Form Python Scratchpad */}
             {activeTab === "playground" && (
-              <div className="flex-1 min-h-0 flex flex-col p-6 md:p-8 space-y-4 overflow-hidden">
-                <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/15 flex items-center justify-between gap-3 shadow-md flex-shrink-0">
-                  <div className="flex items-center gap-2 text-slate-200 text-sm md:text-base font-bold">
-                    <Terminal className="w-4 h-4 text-cyan-400" />
+              <div className="flex-1 min-h-0 flex flex-col p-5 md:p-6 space-y-3.5 overflow-hidden">
+                <div className="p-3.5 rounded-lg bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3 shadow-sm flex-shrink-0">
+                  <div className="flex items-center gap-2 text-slate-200 text-xs md:text-sm font-medium">
+                    <Terminal className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Free-Form Scratchpad · Write &amp; Test Any Python Script</span>
                   </div>
                   <button
                     type="button"
                     disabled={isPlaygroundRunning}
                     onClick={handleRunPlayground}
-                    className="px-5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-black text-xs md:text-sm transition-all flex items-center gap-2 shadow-md disabled:opacity-50"
+                    className="px-3.5 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50"
                   >
-                    <Play className="w-4 h-4 fill-current" />
+                    <Play className="w-3.5 h-3.5 fill-current" />
                     <span>{isPlaygroundRunning ? "Running..." : "Execute Script"}</span>
                   </button>
                 </div>
 
-                <div className="flex-1 min-h-0 flex flex-col rounded-3xl overflow-hidden border border-white/15 bg-slate-950 shadow-2xl">
-                  <div className="flex-1 min-h-[220px] bg-[#070A10]">
+                <div className="flex-1 min-h-0 flex flex-col rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-sm">
+                  <div className="flex-1 min-h-[200px] bg-[#070A10]">
                     <textarea
                       value={playgroundCode}
                       onChange={(e) => setPlaygroundCode(e.target.value)}
                       spellCheck={false}
-                      className="w-full h-full p-5 bg-transparent font-mono text-sm md:text-base text-cyan-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed selection:bg-cyan-500/30"
+                      className="w-full h-full p-4 bg-transparent font-mono text-xs md:text-sm text-cyan-100 placeholder-slate-600 focus:outline-none resize-none leading-relaxed selection:bg-cyan-500/20"
                     />
                   </div>
 
-                  <div className="h-48 border-t border-white/10 bg-slate-950 p-4 font-mono text-xs md:text-sm overflow-y-auto flex-shrink-0">
-                    <span className="text-slate-400 text-xs uppercase mb-2 font-black tracking-wider block">
+                  <div className="h-40 border-t border-slate-800 bg-slate-950 p-3 font-mono text-xs overflow-y-auto flex-shrink-0">
+                    <span className="text-slate-400 text-[11px] uppercase mb-1.5 font-semibold tracking-wider block">
                       Execution Output:
                     </span>
                     {isPlaygroundRunning ? (
                       <div className="text-cyan-400 animate-pulse flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                         Running Python code...
                       </div>
                     ) : playgroundResult ? (
@@ -740,13 +740,13 @@ export const PythonAcademyModal: React.FC = () => {
                           </pre>
                         )}
                         {playgroundResult.stderr && (
-                          <pre className="text-red-400 whitespace-pre-wrap leading-relaxed">
+                          <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed">
                             {playgroundResult.stderr}
                           </pre>
                         )}
                       </div>
                     ) : (
-                      <span className="text-slate-500">Output will appear here after clicking &quot;Execute Script&quot;.</span>
+                      <span className="text-slate-500 text-xs">Output will appear here after clicking &quot;Execute Script&quot;.</span>
                     )}
                   </div>
                 </div>
@@ -754,7 +754,7 @@ export const PythonAcademyModal: React.FC = () => {
             )}
 
             {/* Bottom Module Stepper Bar */}
-            <div className="px-6 md:px-8 py-3.5 bg-slate-900/90 border-t border-white/10 flex items-center justify-between gap-3 flex-shrink-0">
+            <div className="px-6 py-2.5 bg-slate-900/80 border-t border-slate-800 flex items-center justify-between gap-3 flex-shrink-0">
               <button
                 type="button"
                 disabled={selectedModuleIndex === 0}
@@ -762,13 +762,13 @@ export const PythonAcademyModal: React.FC = () => {
                   setSelectedModuleIndex(Math.max(0, selectedModuleIndex - 1));
                   setActiveTab("learn");
                 }}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs md:text-sm font-bold transition-all flex items-center gap-1.5 disabled:opacity-30 disabled:pointer-events-none"
+                className="px-3 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-colors flex items-center gap-1 disabled:opacity-30 disabled:pointer-events-none"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Previous Module</span>
               </button>
 
-              <span className="text-xs md:text-sm font-mono text-slate-400">
+              <span className="text-xs font-mono text-slate-400">
                 Module {selectedModuleIndex + 1} of {PYTHON_TRACK_CONCEPTS.length}
               </span>
 
@@ -781,10 +781,10 @@ export const PythonAcademyModal: React.FC = () => {
                   );
                   setActiveTab("learn");
                 }}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs md:text-sm font-bold transition-all flex items-center gap-1.5 disabled:opacity-30 disabled:pointer-events-none"
+                className="px-3 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-colors flex items-center gap-1 disabled:opacity-30 disabled:pointer-events-none"
               >
                 <span>Next Module</span>
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
