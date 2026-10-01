@@ -268,7 +268,7 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
                 Click Any Term to See Simple Meaning (0 Jargon):
               </span>
               <div className="flex flex-wrap gap-2">
-                {concept.technicalTerms.map((termItem) => {
+                {concept.technicalTerms.filter(Boolean).map((termItem) => {
                   const isSelected = selectedTerm?.term === termItem.term;
                   return (
                     <button
