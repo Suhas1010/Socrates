@@ -241,25 +241,32 @@ export const LessonView: React.FC = () => {
       {/* 3. ROADMAP DRAWER (QUICK STEP SWITCHER WITHOUT CLUTTER)                    */}
       {/* ========================================================================= */}
       {showRoadmapDrawer && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-20 p-4 animate-in fade-in duration-200">
-          <div className="bg-[#12110D] border border-gold/30 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <div className="flex items-center gap-2">
-                <Workflow className="w-4 h-4 text-amber-400" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                  Roadmap Steps Navigator
-                </h3>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-start justify-center pt-16 md:pt-24 p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-950 border border-white/20 rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-sm">
+                  <Workflow className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-base md:text-lg font-black text-white uppercase tracking-wider">
+                    Roadmap Steps Navigator
+                  </h3>
+                  <span className="text-xs text-slate-400 font-mono">
+                    Select any concept in your personalized learning sequence
+                  </span>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowRoadmapDrawer(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
               {concepts.map((c, idx) => {
                 const isCurrent = c.id === currentConcept?.id;
                 const cStatus = status[c.id] || "unseen";
@@ -273,32 +280,44 @@ export const LessonView: React.FC = () => {
                       selectConcept(c.id);
                       setShowRoadmapDrawer(false);
                     }}
-                    className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                    className={`w-full text-left p-4 md:p-5 rounded-2xl border transition-all flex items-start justify-between gap-4 ${
                       isCurrent
-                        ? "bg-amber-500/15 border-amber-500 text-white font-semibold shadow-md"
-                        : "bg-zinc-900/60 border-white/5 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                        ? "bg-amber-400/15 border-amber-400 ring-2 ring-amber-400/40 text-white font-bold shadow-lg"
+                        : "bg-slate-900/80 border-white/10 text-slate-200 hover:bg-slate-800 hover:border-white/25 hover:text-white"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full bg-zinc-800 text-zinc-400 font-mono text-xs flex items-center justify-center font-bold">
+                    <div className="flex items-start gap-4">
+                      <span
+                        className={`w-9 h-9 rounded-2xl font-mono text-sm md:text-base font-black flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                          isCurrent
+                            ? "bg-amber-400 text-zinc-950 shadow-md"
+                            : "bg-slate-800 text-amber-300 border border-white/10"
+                        }`}
+                      >
                         {idx + 1}
                       </span>
-                      <div>
-                        <span className="text-xs font-bold block">{c.title}</span>
-                        <span className="text-[10px] text-zinc-500 truncate max-w-xs block">
+                      <div className="min-w-0">
+                        <span
+                          className={`text-base md:text-lg font-black block ${
+                            isCurrent ? "text-amber-300" : "text-white"
+                          }`}
+                        >
+                          {c.title}
+                        </span>
+                        <span className="text-xs md:text-sm text-slate-300 mt-1 block leading-relaxed line-clamp-2 font-normal">
                           {c.hook}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 mt-1">
                       {isPartDone && (
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">
+                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
                           Built ✓
                         </span>
                       )}
                       {cStatus === "mastered" && (
-                        <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono">
+                        <span className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold">
                           Mastered ★
                         </span>
                       )}
@@ -315,24 +334,31 @@ export const LessonView: React.FC = () => {
       {/* 4. VISUAL DAG GRAPH MODAL                                                 */}
       {/* ========================================================================= */}
       {showVisualGraph && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#12110D] border border-gold/30 rounded-3xl p-6 max-w-4xl w-full h-[80vh] shadow-2xl flex flex-col space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3 flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <Workflow className="w-5 h-5 text-amber-400" />
-                <h3 className="text-base font-bold text-white">
-                  Concept Dependency Graph (DAG)
-                </h3>
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-950 border border-white/20 rounded-3xl p-6 md:p-8 max-w-5xl w-full h-[85vh] shadow-2xl flex flex-col space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shadow-sm">
+                  <Workflow className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-black text-white">
+                    Concept Dependency Graph (DAG)
+                  </h3>
+                  <span className="text-xs text-slate-400 font-mono">
+                    Visual knowledge graph showing prerequisites, dependencies, and mastery flow
+                  </span>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowVisualGraph(false)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 min-h-0 rounded-2xl overflow-hidden border border-white/5">
+            <div className="flex-1 min-h-0 rounded-2xl overflow-hidden border border-white/15 bg-slate-900/60 shadow-inner">
               <ConceptMap />
             </div>
           </div>
