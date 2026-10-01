@@ -17,6 +17,28 @@ export type ScreenType = "landing" | "diagnostic" | "plan" | "learn" | "complete
 
 export type CodingBackground = "beginner" | "other_languages" | "python";
 
+export type LearningPhase = "theory" | "building" | "testing";
+
+export interface TechnicalTerm {
+  term: string;
+  definition: string;
+  analogy: string;
+  mathSymbolOrFormula?: string;
+  exampleUsage?: string;
+}
+
+export interface DeepMathWalkthrough {
+  formulaName: string;
+  formulaLatex: string;
+  formulaExplanation: string;
+  variableDefinitions: { symbol: string; meaning: string }[];
+  numericalExample: {
+    givenInputs: string;
+    stepByStepArithmetic: string[];
+    finalResult: string;
+  };
+}
+
 export interface Concept {
   id: string;
   title: string;
@@ -48,6 +70,8 @@ export interface Concept {
     correctIndex: number;
     explanation: string;
   };
+  technicalTerms?: TechnicalTerm[];
+  deepMath?: DeepMathWalkthrough;
 }
 
 export interface ConceptEdge {

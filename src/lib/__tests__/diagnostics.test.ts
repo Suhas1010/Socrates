@@ -7,6 +7,7 @@ import {
 import { deriveModelContractForGoal } from "../inference";
 import { PYTHON_TRACK_CONCEPTS } from "../templates/pythonTrack";
 import { useSessionStore } from "../store";
+import { enrichConceptWithDeepTheory, ML_DL_DICTIONARY } from "../technicalDictionary";
 
 describe("Domain-Grounded Diagnostics & Roadmaps", () => {
   it("generates medical-specific diagnostic questions for diabetes project without any spam mentions", () => {
@@ -132,16 +133,20 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(PYTHON_TRACK_CONCEPTS[5].solutionCode).toContain("math.exp");
   });
 
-  it("manages 2-phase learning journey (theory vs building) and track toggling in store", () => {
+  it("manages 3-phase learning journey (theory, building, testing) and track toggling in store", () => {
     const store = useSessionStore.getState();
 
-    // Default phase is theory
+    // 1. Phase 1: Theory
     store.setLearningPhase("theory");
     expect(useSessionStore.getState().learningPhase).toBe("theory");
 
-    // Switch to building
+    // 2. Phase 2: Building
     store.setLearningPhase("building");
     expect(useSessionStore.getState().learningPhase).toBe("building");
+
+    // 3. Phase 3: Testing & Running
+    store.setLearningPhase("testing");
+    expect(useSessionStore.getState().learningPhase).toBe("testing");
 
     // Toggle track to Python Foundation
     store.setLearningTrack("python_foundation");
@@ -155,7 +160,34 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(projState.learningTrack).toBe("project");
     expect(projState.concepts[0].id).not.toBe("python-vars");
   });
+
+  it("enriches concepts with deep ML/DL technical dictionary and step-by-step arithmetic", () => {
+    // Check dictionary completeness
+    expect(ML_DL_DICTIONARY.weights.term).toContain("Weights");
+    expect(ML_DL_DICTIONARY.weights.analogy).toBeTruthy();
+    expect(ML_DL_DICTIONARY.bias.mathSymbolOrFormula).toContain("z = w · x + b");
+    expect(ML_DL_DICTIONARY.sigmoid.mathSymbolOrFormula).toContain("σ(z)");
+    expect(ML_DL_DICTIONARY.softmax.term).toContain("Softmax");
+    expect(ML_DL_DICTIONARY.action_units.term).toContain("Facial Action Units");
+
+    // Enrich an emotion concept
+    const rawConcept = {
+      id: "feature-engineering",
+      title: "Facial Landmark Normalization",
+      prereqs: [],
+      hook: "How to normalize landmarks?",
+      buildStep: "Write normalize_landmarks()",
+      difficulty: 2,
+    };
+
+    const enriched = enrichConceptWithDeepTheory(rawConcept, "Emotion on face analyzer");
+    expect(enriched.technicalTerms?.length).toBeGreaterThanOrEqual(3);
+    expect(enriched.technicalTerms?.map((t: any) => t.term)).toContain("Facial Action Units (FACS AUs)");
+    expect(enriched.deepMath).toBeDefined();
+    expect(enriched.deepMath!.numericalExample.stepByStepArithmetic.length).toBeGreaterThan(0);
+  });
 });
+
 
 
 

@@ -20,7 +20,15 @@ import { deriveModelContractForGoal } from "@/lib/inference";
 import { runPythonCode, PythonExecutionResult } from "@/lib/pyodideRunner";
 import { ProjectModelContract, ModelFeatureSpec } from "@/lib/types";
 
-export const LiveTestPanel: React.FC = () => {
+export interface LiveTestPanelProps {
+  onBackToBuild?: () => void;
+  onBackToTheory?: () => void;
+}
+
+export const LiveTestPanel: React.FC<LiveTestPanelProps> = ({
+  onBackToBuild,
+  onBackToTheory,
+}) => {
   const { goal, concepts, projectParts } = useSessionStore();
   const safeGoal = goal?.trim() || "Your Machine Learning Project";
 
@@ -280,9 +288,15 @@ print("=" * 60)
       {/* 1. Header with dynamic badge, title & threshold control */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold">
-            <Activity className="w-3.5 h-3.5" />
-            <span>{contract.badge}</span>
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold tracking-wide flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-emerald-400" />
+              PHASE 3: MODEL TESTING & RUNNER STAGE
+            </span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold">
+              <Activity className="w-3.5 h-3.5" />
+              <span>{contract.badge}</span>
+            </div>
           </div>
           <h3 className="text-xl md:text-2xl font-extrabold text-white mt-1.5">
             {contract.title}
@@ -599,6 +613,30 @@ print("=" * 60)
             </div>
           )}
         </div>
+
+        {/* Bottom Navigation Buttons */}
+        {(onBackToBuild || onBackToTheory) && (
+          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+            {onBackToBuild && (
+              <button
+                type="button"
+                onClick={onBackToBuild}
+                className="px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center gap-1.5"
+              >
+                <span>◄ Back to Phase 2: Build Studio</span>
+              </button>
+            )}
+            {onBackToTheory && (
+              <button
+                type="button"
+                onClick={onBackToTheory}
+                className="px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-cyan-300 hover:text-cyan-200 border border-cyan-500/20 text-xs font-bold transition-all flex items-center gap-1.5 ml-auto"
+              >
+                <span>Review Phase 1: Theory Masterclass</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

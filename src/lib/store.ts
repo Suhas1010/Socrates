@@ -11,6 +11,7 @@ import {
   ExplanationStrategy,
   MisconceptionRecord,
   ProjectPart,
+  LearningPhase,
 } from "./types";
 import {
   SPAM_CLASSIFIER_CONCEPTS,
@@ -103,7 +104,7 @@ export interface SessionStoreState {
   pyodideError: string | null;
 
   // Learning Phase & Track
-  learningPhase: "theory" | "building";
+  learningPhase: LearningPhase;
   learningTrack: "project" | "python_foundation";
   savedProjectConcepts?: Concept[];
   savedProjectEdges?: ConceptEdge[];
@@ -111,7 +112,7 @@ export interface SessionStoreState {
 
   // Actions
   setApiKey: (apiKey: string) => void;
-  setLearningPhase: (phase: "theory" | "building") => void;
+  setLearningPhase: (phase: LearningPhase) => void;
   setLearningTrack: (track: "project" | "python_foundation") => void;
   setGoalAndInterests: (goal: string, interests: string, background?: CodingBackground) => void;
   generatePlanForGoal: (goal: string, interests: string, background?: CodingBackground) => Promise<void>;
@@ -186,7 +187,7 @@ export const useSessionStore = create<SessionStoreState>()(
         set({ apiKey });
       },
 
-      setLearningPhase: (phase: "theory" | "building") => {
+      setLearningPhase: (phase: LearningPhase) => {
         set({ learningPhase: phase });
       },
 
