@@ -481,13 +481,14 @@ export default function LoginPage() {
             <span>Continue as Guest (No account needed) &rarr;</span>
           </button>
         </div>
+      </div>
 
-        {/* Database sync status info */}
-        <div className="pb-8 text-center text-[11px] text-zinc-500 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Connected to MongoDB Cloud · Instant Multi-Device Progress Sync</span>
-        </div>
+      {/* Database sync status info */}
+      <div className="pb-8 text-center text-[11px] text-zinc-500 flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span>Connected to MongoDB Cloud · Instant Multi-Device Progress Sync</span>
       </div>
     </div>
+  </div>
   );
 }
