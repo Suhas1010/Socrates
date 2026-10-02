@@ -160,28 +160,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070A10] flex flex-col justify-center items-center px-4 pt-10 pb-16 relative overflow-y-auto select-none">
+    <div className="min-h-screen w-full bg-[#070A10] flex flex-col justify-start sm:justify-center items-center px-4 py-8 sm:py-12 relative overflow-y-auto select-none">
       {/* Background radial glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
 
       {/* Brand Header */}
-      <div className="flex flex-col items-center mb-8 relative z-10 text-center">
-        <Link href="/" className="inline-flex items-center gap-3 group mb-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform">
-            <Sparkles className="w-6 h-6 fill-current" />
+      <div className="flex flex-col items-center mb-6 relative z-10 text-center">
+        <Link href="/" className="inline-flex items-center gap-2.5 group mb-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform">
+            <Sparkles className="w-5 h-5 fill-current" />
           </div>
-          <span className="text-2xl font-black tracking-tight text-white font-sans">
+          <span className="text-xl font-black tracking-tight text-white font-sans">
             Socrates
           </span>
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+        <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
           {mode === "verify"
             ? "Verify Your Email Address"
             : mode === "login"
             ? "Welcome back to Socrates"
             : "Start your AI journey"}
         </h1>
-        <p className="text-sm text-zinc-400 mt-1 max-w-sm">
+        <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-sm leading-relaxed">
           {mode === "verify"
             ? `Enter the 6-digit code sent to ${verifyEmailAddress || "your inbox"} to activate your account.`
             : mode === "login"
@@ -191,10 +191,10 @@ export default function LoginPage() {
       </div>
 
       {/* Main Card */}
-      <div className="w-full max-w-md bg-[#0D121F]/90 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10">
+      <div className="w-full max-w-md bg-[#0D121F]/90 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10 mb-8">
         {/* Mode Toggle Switch (only shown for login / register) */}
         {mode !== "verify" ? (
-          <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-6">
+          <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-5">
             <button
               type="button"
               onClick={() => {
@@ -202,7 +202,7 @@ export default function LoginPage() {
                 setError(null);
                 setSuccessMsg(null);
               }}
-              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 mode === "login"
                   ? "bg-amber-400 text-zinc-950 shadow-sm"
                   : "text-zinc-400 hover:text-white"
@@ -217,7 +217,7 @@ export default function LoginPage() {
                 setError(null);
                 setSuccessMsg(null);
               }}
-              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 mode === "register"
                   ? "bg-amber-400 text-zinc-950 shadow-sm"
                   : "text-zinc-400 hover:text-white"
@@ -227,7 +227,7 @@ export default function LoginPage() {
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800/80 text-xs">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-800/80 text-xs">
             <button
               type="button"
               onClick={() => {
@@ -236,25 +236,25 @@ export default function LoginPage() {
                 setSuccessMsg(null);
                 setVerificationCode("");
               }}
-              className="text-zinc-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-zinc-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer text-xs"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
               <span>Back to Register</span>
             </button>
-            <span className="text-amber-400 font-mono font-semibold">Step 2 of 2: Verification</span>
+            <span className="text-amber-400 font-mono font-medium text-[11px]">Step 2 of 2: Verification</span>
           </div>
         )}
 
         {/* Feedback Alerts */}
         {error && (
-          <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex items-start gap-2.5">
+          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-400" />
             <span className="leading-relaxed">{error}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm flex items-start gap-2.5">
+          <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-start gap-2">
             <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
             <span className="leading-relaxed">{successMsg}</span>
           </div>
@@ -262,28 +262,28 @@ export default function LoginPage() {
 
         {/* Free Test Mailbox Preview Banner */}
         {mode === "verify" && previewUrl && (
-          <div className="mb-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-xs flex items-center justify-between">
-            <span className="truncate pr-2">📬 Delivered to Free Test Mailbox</span>
+          <div className="mb-3.5 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-xs flex items-center justify-between">
+            <span className="truncate pr-2 text-[11px]">📬 Delivered to Free Test Mailbox</span>
             <a
               href={previewUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2.5 py-1 rounded bg-cyan-400 text-zinc-950 font-bold text-[11px] hover:bg-cyan-300 transition-colors inline-flex items-center gap-1 flex-shrink-0 cursor-pointer"
+              className="px-2 py-0.5 rounded bg-cyan-400 text-zinc-950 font-bold text-[10px] hover:bg-cyan-300 transition-colors inline-flex items-center gap-1 flex-shrink-0 cursor-pointer"
             >
               <span>View Email</span>
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-2.5 h-2.5" />
             </a>
           </div>
         )}
 
         {/* Development Helper Pill */}
         {mode === "verify" && devCode && (
-          <div className="mb-5 p-3 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-200 text-xs flex items-center justify-between">
-            <span className="font-mono">Verification Code: <strong>{devCode}</strong></span>
+          <div className="mb-4 p-2.5 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-200 text-xs flex items-center justify-between">
+            <span className="font-mono text-[11px]">Verification Code: <strong>{devCode}</strong></span>
             <button
               type="button"
               onClick={() => setVerificationCode(devCode)}
-              className="px-2.5 py-1 rounded bg-amber-400 text-zinc-950 font-bold text-[11px] hover:bg-amber-300 cursor-pointer"
+              className="px-2 py-0.5 rounded bg-amber-400 text-zinc-950 font-bold text-[10px] hover:bg-amber-300 cursor-pointer"
             >
               Auto Fill
             </button>
@@ -294,9 +294,9 @@ export default function LoginPage() {
         {/* EMAIL VERIFICATION FORM                                                   */}
         {/* ========================================================================= */}
         {mode === "verify" ? (
-          <form onSubmit={handleVerifySubmit} className="space-y-4">
+          <form onSubmit={handleVerifySubmit} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-mono font-semibold text-zinc-300 mb-2 uppercase tracking-wider text-center">
+              <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1.5 uppercase tracking-wider text-center">
                 Enter 6-Digit Code
               </label>
               <div className="relative">
@@ -310,10 +310,10 @@ export default function LoginPage() {
                     setVerificationCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))
                   }
                   placeholder="123456"
-                  className="w-full text-center py-3.5 px-4 rounded-xl bg-zinc-950/90 border border-zinc-700 text-white placeholder-zinc-700 text-2xl sm:text-3xl font-mono font-extrabold tracking-[8px] focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 transition-all"
+                  className="w-full text-center py-2.5 px-3 rounded-xl bg-zinc-950/90 border border-zinc-700 text-white placeholder-zinc-700 text-xl sm:text-2xl font-mono font-bold tracking-[6px] focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 transition-all"
                 />
               </div>
-              <p className="text-[11px] text-zinc-500 mt-2 text-center">
+              <p className="text-[10px] text-zinc-500 mt-1.5 text-center">
                 Code expires in 15 minutes. Check spam folder if not in inbox.
               </p>
             </div>
@@ -321,30 +321,30 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading || verificationCode.length !== 6}
-              className="w-full mt-2 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
+              className="w-full mt-2 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Verifying Code...</span>
                 </>
               ) : (
                 <>
                   <span>Verify Email &amp; Start Learning</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
 
             {/* Resend Code Action */}
-            <div className="pt-2 text-center">
+            <div className="pt-1.5 text-center">
               <button
                 type="button"
                 onClick={handleResendCode}
                 disabled={isResending || resendCooldown > 0}
-                className="text-xs text-zinc-400 hover:text-amber-300 disabled:opacity-50 disabled:hover:text-zinc-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer font-medium"
+                className="text-[11px] text-zinc-400 hover:text-amber-300 disabled:opacity-50 disabled:hover:text-zinc-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer font-medium"
               >
-                <RotateCcw className={`w-3.5 h-3.5 ${isResending ? "animate-spin" : ""}`} />
+                <RotateCcw className={`w-3 h-3 ${isResending ? "animate-spin" : ""}`} />
                 <span>
                   {resendCooldown > 0
                     ? `Resend code in ${resendCooldown}s`
@@ -359,15 +359,15 @@ export default function LoginPage() {
           /* ========================================================================= */
           /* LOGIN & REGISTRATION FORM                                                 */
           /* ========================================================================= */
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {mode === "register" && (
               <div>
-                <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1 uppercase tracking-wider">
                   Full Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                    <UserIcon className="w-4 h-4" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                    <UserIcon className="w-3.5 h-3.5" />
                   </div>
                   <input
                     type="text"
@@ -375,19 +375,19 @@ export default function LoginPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Alex Mercer"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-xs sm:text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+              <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1 uppercase tracking-wider">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                  <Mail className="w-4 h-4" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                  <Mail className="w-3.5 h-3.5" />
                 </div>
                 <input
                   type="email"
@@ -395,18 +395,18 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-xs sm:text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+              <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1 uppercase tracking-wider">
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                  <Lock className="w-4 h-4" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                  <Lock className="w-3.5 h-3.5" />
                 </div>
                 <input
                   type="password"
@@ -414,11 +414,11 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-xs sm:text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
                 />
               </div>
               {mode === "register" && (
-                <span className="text-[11px] text-zinc-500 mt-1 block">
+                <span className="text-[10px] text-zinc-500 mt-0.5 block">
                   Must be at least 6 characters
                 </span>
               )}
@@ -426,12 +426,12 @@ export default function LoginPage() {
 
             {mode === "register" && (
               <div>
-                <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                <label className="block text-[11px] font-mono font-medium text-zinc-400 mb-1 uppercase tracking-wider">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                    <Lock className="w-4 h-4" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                    <Lock className="w-3.5 h-3.5" />
                   </div>
                   <input
                     type="password"
@@ -439,7 +439,7 @@ export default function LoginPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-xs sm:text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
                   />
                 </div>
               </div>
@@ -448,11 +448,11 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
+              className="w-full mt-2 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>{mode === "login" ? "Signing In..." : "Creating Account..."}</span>
                 </>
               ) : (
@@ -462,7 +462,7 @@ export default function LoginPage() {
                       ? "Sign In to Socrates"
                       : "Create Account & Send Verification Code"}
                   </span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
@@ -470,11 +470,11 @@ export default function LoginPage() {
         )}
 
         {/* Guest Skip Option */}
-        <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center">
+        <div className="mt-5 pt-4 border-t border-zinc-800/80 text-center">
           <button
             type="button"
             onClick={handleGuestLogin}
-            className="w-full py-2.5 px-4 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs sm:text-sm text-zinc-300 hover:text-white transition-all inline-flex items-center justify-center gap-2 font-medium cursor-pointer"
+            className="w-full py-2 px-3 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs text-zinc-300 hover:text-white transition-all inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer"
           >
             <span>Continue as Guest (No account needed) &rarr;</span>
           </button>
@@ -482,8 +482,8 @@ export default function LoginPage() {
       </div>
 
       {/* Database sync status info */}
-      <div className="mt-8 text-center text-xs text-zinc-500 flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+      <div className="pb-8 text-center text-[11px] text-zinc-500 flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
         <span>Connected to MongoDB Cloud · Instant Multi-Device Progress Sync</span>
       </div>
     </div>
