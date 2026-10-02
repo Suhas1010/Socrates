@@ -56,12 +56,14 @@ export const Navbar: React.FC = () => {
     { id: "complete", label: "Complete" },
   ];
 
+  const isLanding = currentScreen === "landing" || activeStage === "landing";
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#080B12]/95 backdrop-blur-md">
       <div className="w-full px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between gap-4">
         {/* Logo and Tagline */}
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)]">
             <Sparkles className="w-4 h-4 fill-current" />
           </div>
           <div>
@@ -69,7 +71,7 @@ export const Navbar: React.FC = () => {
               <span className="text-base md:text-lg font-bold tracking-tight text-white font-sans">
                 Socrates
               </span>
-              <span className="text-xs uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
+              <span className="text-[11px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
                 AI Tutor
               </span>
             </div>
@@ -79,34 +81,36 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Stage breadcrumb pills */}
-        <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 shadow-sm">
-          {stages.map((stage, idx) => {
-            const isActive = currentScreen === stage.id;
-            const isDone =
-              stages.findIndex((s) => s.id === currentScreen) > idx;
+        {/* Stage breadcrumb pills - only during active project workflow */}
+        {!isLanding && (
+          <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 shadow-sm">
+            {stages.map((stage, idx) => {
+              const isActive = currentScreen === stage.id;
+              const isDone =
+                stages.findIndex((s) => s.id === currentScreen) > idx;
 
-            return (
-              <div
-                key={stage.id}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  isActive
-                    ? "bg-amber-400/15 text-amber-300 border border-amber-400/30 shadow-sm font-semibold"
-                    : isDone
-                    ? "text-emerald-400 hover:text-emerald-300 font-medium"
-                    : "text-slate-400"
-                }`}
-              >
-                {isDone ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                ) : (
-                  <span className="text-[11px] font-mono opacity-70">{idx + 1}.</span>
-                )}
-                <span>{stage.label}</span>
-              </div>
-            );
-          })}
-        </div>
+              return (
+                <div
+                  key={stage.id}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    isActive
+                      ? "bg-amber-400/15 text-amber-300 border border-amber-400/30 shadow-sm font-semibold"
+                      : isDone
+                      ? "text-emerald-400 hover:text-emerald-300 font-medium"
+                      : "text-slate-400"
+                  }`}
+                >
+                  {isDone ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <span className="text-[11px] font-mono opacity-70">{idx + 1}.</span>
+                  )}
+                  <span>{stage.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Right stats and controls */}
         <div className="flex items-center gap-2.5">

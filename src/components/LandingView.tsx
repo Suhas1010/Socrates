@@ -1,23 +1,41 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, ArrowRight, Lightbulb, Compass, Zap, Code, Terminal } from "lucide-react";
+import { Sparkles, ArrowRight, Compass, Zap, Brain, Code2, Terminal } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 import { CodingBackground } from "@/lib/types";
 import { JargonBusterModal } from "./JargonBusterModal";
 
 export const LandingView: React.FC = () => {
-  const { generatePlanForGoal, isLoadingPlan, apiKey } = useSessionStore();
+  const { generatePlanForGoal, isLoadingPlan } = useSessionStore();
   const [goal, setGoal] = useState("");
   const [interests, setInterests] = useState("");
   const [codingBg, setCodingBg] = useState<CodingBackground>("beginner");
   const [isJargonModalOpen, setIsJargonModalOpen] = useState(false);
 
-  // The 3 exact chips requested in Prompt 1
+  // The 3 exact chips requested
   const exampleChips = [
-    { label: "a spam classifier", icon: "✉️", desc: "Naive Bayes & text filtering" },
-    { label: "a handwriting recognizer", icon: "✍️", desc: "Neural net for handwritten digits" },
-    { label: "how ChatGPT works", icon: "🤖", desc: "Tokenization, likelihoods & transformers" },
+    {
+      label: "a spam classifier",
+      tag: "Beginner · 15 min",
+      icon: "✉️",
+      title: "Spam Classifier",
+      desc: "Naive Bayes, TF-IDF & probabilistic text filtering",
+    },
+    {
+      label: "a handwriting recognizer",
+      tag: "Intermediate · 25 min",
+      icon: "✍️",
+      title: "Digit Recognizer",
+      desc: "Neural networks, PyTorch tensors & Softmax",
+    },
+    {
+      label: "how ChatGPT works",
+      tag: "Advanced · 35 min",
+      icon: "🤖",
+      title: "How ChatGPT Works",
+      desc: "Tokenization, likelihoods & attention mechanisms",
+    },
   ];
 
   // 3-way Coding Background Options
@@ -25,19 +43,19 @@ export const LandingView: React.FC = () => {
     {
       id: "beginner",
       title: "New to Coding",
-      subtitle: "Step-by-step Python syntax hints & zero assumed jargon",
+      subtitle: "Plain English · 0 Jargon",
       icon: "🌱",
     },
     {
       id: "other_languages",
       title: "C++ / Java / JS Dev",
-      subtitle: "Python syntax bridge (no braces/semicolons, indentation rules)",
+      subtitle: "Python syntax bridge",
       icon: "⚡",
     },
     {
       id: "python",
-      title: "Python Dev",
-      subtitle: "Clean code cell, jump straight to AI math & model logic",
+      title: "Python Developer",
+      subtitle: "Straight to AI math & logic",
       icon: "🐍",
     },
   ];
@@ -48,187 +66,161 @@ export const LandingView: React.FC = () => {
     await generatePlanForGoal(goal.trim(), interests.trim(), codingBg);
   };
 
-  const handleChipClick = async (chipText: string) => {
-    setGoal(chipText);
-    await generatePlanForGoal(chipText, interests.trim(), codingBg);
+  const handleChipClick = async (chipLabel: string) => {
+    setGoal(chipLabel);
+    await generatePlanForGoal(chipLabel, interests.trim(), codingBg);
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-10 md:py-16 text-slate-100">
-      {/* Hero Badge */}
-      <div className="text-center mb-10 space-y-5">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/15 border border-amber-400/35 text-amber-300 text-sm font-mono tracking-wide shadow-sm">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span className="font-bold">Socrates · Project-First AI Tutor</span>
+    <div className="relative w-full max-w-4xl mx-auto px-4 py-2 sm:py-3 text-slate-100 flex flex-col justify-between h-full max-h-[calc(100vh-4.25rem)] overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[550px] h-[220px] bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
+
+      {/* Hero Header */}
+      <div className="text-center pt-1 sm:pt-2 space-y-1.5 flex-shrink-0">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono tracking-wide shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span className="font-semibold">Project-First AI Tutor</span>
+          <span className="text-slate-500">•</span>
+          <span className="text-slate-400">Zero Passive Theory</span>
         </div>
 
-        {/* Primary Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
           What do you want to build?
         </h1>
 
-        <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
-          Skip 40 hours of passive theory. Tell Socrates your project goal, and reverse-engineer the exact AI concepts you need right when you need them.
+        <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-normal">
+          Skip 40 hours of passive lectures. Tell Socrates your project goal, and learn the exact math, algorithms, and code just-in-time.
         </p>
-
-        {/* Quick Jargon Buster trigger */}
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={() => setIsJargonModalOpen(true)}
-            className="inline-flex items-center gap-2 text-sm text-amber-300 hover:text-white bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 px-4 py-2 rounded-full transition-all shadow-sm font-medium"
-          >
-            <Lightbulb className="w-4 h-4 text-amber-400" />
-            <span>New to AI? Open the Beginner Jargon Buster</span>
-          </button>
-        </div>
       </div>
 
-      {/* Main Goal Intake Card */}
-      <div className="glass-panel p-7 md:p-10 rounded-3xl border border-white/15 shadow-2xl relative overflow-hidden mb-12 bg-slate-900/80">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-
-        <form onSubmit={handleSubmit} className="space-y-7 relative z-10">
-          {/* Single large text input */}
-          <div className="space-y-2.5">
-            <label
-              htmlFor="goal-input"
-              className="block text-base md:text-lg font-bold text-white flex items-center justify-between"
-            >
-              <span>Project Goal</span>
-              <span className="text-xs md:text-sm text-amber-400 font-mono font-semibold">Takes &lt; 60s to start</span>
-            </label>
-            <input
-              id="goal-input"
-              type="text"
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-              placeholder="e.g. a spam classifier, facial emotion detector, or house price predictor"
-              required
-              className="w-full bg-[#080B12]/95 border border-white/20 focus:border-amber-400 focus:ring-4 focus:ring-amber-400/20 text-white placeholder-slate-500 px-6 py-4 md:py-5 rounded-2xl text-lg md:text-xl transition-all outline-none shadow-inner"
-            />
-          </div>
-
-          {/* Three example chips */}
-          <div className="space-y-2.5">
-            <div className="text-xs md:text-sm text-slate-300 font-semibold uppercase tracking-wider">
-              Or pick a popular starter project:
+      {/* Main Glass Intake Panel */}
+      <div className="p-4 sm:p-5 rounded-2xl border border-slate-800/90 bg-[#0d111a]/90 backdrop-blur-xl shadow-2xl relative my-1 sm:my-2 flex-shrink-0">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          {/* Search/Goal Input with Embedded Submit */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-medium text-slate-300">
+              <span className="flex items-center gap-1.5 text-slate-200 font-semibold">
+                <Terminal className="w-3.5 h-3.5 text-amber-400" />
+                Describe your project:
+              </span>
+              <span className="text-[11px] text-amber-400/90 font-mono font-medium">
+                Takes &lt; 60s to generate
+              </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {exampleChips.map((chip) => (
-                <button
-                  type="button"
-                  key={chip.label}
-                  onClick={() => handleChipClick(chip.label)}
-                  className={`text-left p-4 rounded-2xl border transition-all flex flex-col justify-between ${
-                    goal.toLowerCase() === chip.label.toLowerCase()
-                      ? "bg-amber-400/20 border-amber-400 text-white shadow-lg shadow-amber-400/15 ring-2 ring-amber-400/40"
-                      : "bg-slate-900/90 border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 mb-1.5">
-                    <span className="text-xl">{chip.icon}</span>
-                    <span className="text-sm md:text-base font-bold text-white capitalize">
-                      {chip.label}
-                    </span>
-                  </div>
-                  <span className="text-xs md:text-sm text-slate-400 line-clamp-1 leading-relaxed">
-                    {chip.desc}
-                  </span>
-                </button>
-              ))}
+
+            <div className="relative flex items-center">
+              <input
+                id="goal-input"
+                type="text"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+                placeholder="e.g. a spam classifier, facial emotion detector, or house price predictor"
+                required
+                className="w-full bg-[#07090e] border border-slate-700/80 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 text-white placeholder-slate-500 pl-4 pr-36 py-3 rounded-xl text-sm outline-none shadow-inner transition-all font-sans"
+              />
+              <button
+                id="start-button"
+                type="submit"
+                disabled={!goal.trim() || isLoadingPlan}
+                className="absolute right-1.5 px-4 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all flex items-center gap-1.5 shadow-md disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              >
+                {isLoadingPlan ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Planning...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Start Building</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
-          {/* Coding Background Selector (Beginner / C++ & Java / Python) */}
-          <div className="space-y-2.5">
-            <label className="block text-xs md:text-sm font-bold text-slate-200 uppercase tracking-wider">
+          {/* Starter Project Blueprints */}
+          <div className="space-y-1.5">
+            <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider flex items-center justify-between">
+              <span>Or pick a popular starter blueprint:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {exampleChips.map((chip) => {
+                const isSelected = goal.toLowerCase() === chip.label.toLowerCase();
+                return (
+                  <button
+                    type="button"
+                    key={chip.label}
+                    onClick={() => handleChipClick(chip.label)}
+                    className={`text-left p-2.5 rounded-xl border transition-all flex flex-col justify-between group relative overflow-hidden ${
+                      isSelected
+                        ? "bg-amber-500/15 border-amber-400 text-white ring-1 ring-amber-400/40 shadow-sm"
+                        : "bg-[#080B12]/80 border-slate-800/80 hover:border-amber-400/40 text-slate-300 hover:text-white"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className="text-base">{chip.icon}</span>
+                      <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700/60 font-medium">
+                        {chip.tag}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
+                        {chip.title}
+                      </div>
+                      <div className="text-[10px] text-slate-400 line-clamp-1 leading-snug">
+                        {chip.desc}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Coding Background Selector */}
+          <div className="space-y-1.5">
+            <div className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
               Your Coding Background:
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            </div>
+            <div className="grid grid-cols-3 gap-2">
               {codingBgOptions.map((opt) => (
                 <button
                   type="button"
                   key={opt.id}
                   onClick={() => setCodingBg(opt.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                  className={`p-2 rounded-xl border text-left transition-all flex items-center gap-2 ${
                     codingBg === opt.id
-                      ? "bg-amber-400/20 border-amber-400 text-white shadow-lg shadow-amber-400/15 ring-2 ring-amber-400/40"
-                      : "bg-slate-900/90 border-white/10 hover:border-amber-400/30 text-slate-300 hover:text-white"
+                      ? "bg-amber-500/15 border-amber-400 text-white ring-1 ring-amber-400/40"
+                      : "bg-[#080B12]/70 border-slate-800/80 hover:border-amber-400/30 text-slate-300 hover:text-white"
                   }`}
                 >
-                  <div className="flex items-center gap-2 font-bold text-sm md:text-base text-white mb-1.5">
-                    <span className="text-lg">{opt.icon}</span>
-                    <span>{opt.title}</span>
-                  </div>
-                  <div className="text-xs md:text-sm text-slate-400 leading-relaxed">
-                    {opt.subtitle}
+                  <span className="text-base flex-shrink-0">{opt.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-semibold text-white truncate">{opt.title}</div>
+                    <div className="text-[10px] text-slate-400 truncate">{opt.subtitle}</div>
                   </div>
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Optional smaller input: What are you into? */}
-          <div className="space-y-2">
-            <label
-              htmlFor="interests-input"
-              className="block text-xs md:text-sm font-medium text-slate-300"
-            >
-              What are you into? (gaming, music, sports, healthcare...)
-            </label>
-            <input
-              id="interests-input"
-              type="text"
-              value={interests}
-              onChange={(e) => setInterests(e.target.value)}
-              placeholder="Optional — used by Socrates to generate analogies from your personal interests"
-              className="w-full bg-[#080B12]/80 border border-white/15 text-white placeholder-slate-500 px-5 py-3 rounded-xl text-sm md:text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 outline-none transition-all"
-            />
-          </div>
-
-          {/* Start button */}
-          <button
-            id="start-button"
-            type="submit"
-            disabled={!goal.trim() || isLoadingPlan}
-            className="w-full py-4 md:py-5 px-8 rounded-2xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-base md:text-lg shadow-xl shadow-amber-400/25 flex items-center justify-center gap-2.5 transition-all transform active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoadingPlan ? (
-              <>
-                <span className="w-5 h-5 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
-                <span>Reverse-Engineering AI Concepts...</span>
-              </>
-            ) : (
-              <>
-                <span>Start Learning & Building</span>
-                <ArrowRight className="w-5 h-5 text-zinc-950" />
-              </>
-            )}
-          </button>
         </form>
       </div>
 
-      {/* Philosophy cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
-          <div className="font-mono text-amber-400 flex items-center gap-2 font-bold text-sm md:text-base">
-            <Compass className="w-5 h-5" />
-            <span>JUST-IN-TIME LEARNING</span>
-          </div>
-          <p className="text-slate-300 leading-relaxed text-sm md:text-[15px]">
-            Concepts are taught only at the moment your build step needs them, not weeks in advance.
-          </p>
+      {/* Micro Trust Indicators / Bottom Row */}
+      <div className="flex items-center justify-between text-[11px] text-slate-400 px-2 py-1 border-t border-slate-800/60 flex-shrink-0">
+        <div className="flex items-center gap-1.5">
+          <Zap className="w-3.5 h-3.5 text-amber-400" />
+          <span>In-browser Python (0 install)</span>
         </div>
-
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 shadow-lg">
-          <div className="font-mono text-amber-400 flex items-center gap-2 font-bold text-sm md:text-base">
-            <Zap className="w-5 h-5" />
-            <span>TYPED ERROR DIAGNOSIS</span>
-          </div>
-          <p className="text-slate-300 leading-relaxed text-sm md:text-[15px]">
-            When you slip, Socrates pinpoints the exact cognitive failure mode and explains why.
-          </p>
+        <div className="hidden sm:flex items-center gap-1.5">
+          <Compass className="w-3.5 h-3.5 text-amber-400" />
+          <span>Just-in-Time Theory</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Brain className="w-3.5 h-3.5 text-amber-400" />
+          <span>Real-time Diagnosis</span>
         </div>
       </div>
 

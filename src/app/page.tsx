@@ -51,15 +51,17 @@ export default function Home() {
           <LessonView />
         ) : (
           <div className="flex-1 overflow-y-auto flex flex-col justify-between">
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col">
               {currentScreen === "landing" && <LandingView />}
               {currentScreen === "diagnostic" && <DiagnosticView />}
               {currentScreen === "plan" && <PlanReviewView />}
               {currentScreen === "complete" && <ProjectSummaryModal />}
             </div>
-            <footer className="w-full border-t border-gold/10 py-4 text-center text-xs text-muted font-mono flex-shrink-0">
-              Socrates · Project-First AI Tutor · BFWAI / AI Build Challenge 2026
-            </footer>
+            {currentScreen !== "landing" && (
+              <footer className="w-full border-t border-zinc-800/80 py-3 text-center text-xs text-zinc-500 font-mono flex-shrink-0">
+                Socrates · Project-First AI Tutor · BFWAI / AI Build Challenge 2026
+              </footer>
+            )}
           </div>
         )}
       </main>
