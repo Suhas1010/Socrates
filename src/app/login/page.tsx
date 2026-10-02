@@ -160,90 +160,92 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#070A10] flex flex-col justify-start sm:justify-center items-center px-4 py-8 sm:py-12 relative overflow-y-auto select-none">
+    <div className="min-h-screen w-full bg-[#070A10] flex flex-col items-center justify-start py-6 sm:py-8 px-4 relative overflow-y-auto">
       {/* Background radial glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[320px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
 
-      {/* Brand Header */}
-      <div className="flex flex-col items-center mb-6 relative z-10 text-center">
-        <Link href="/" className="inline-flex items-center gap-2.5 group mb-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_15px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5 fill-current" />
-          </div>
-          <span className="text-xl font-black tracking-tight text-white font-sans">
-            Socrates
-          </span>
-        </Link>
-        <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-          {mode === "verify"
-            ? "Verify Your Email Address"
-            : mode === "login"
-            ? "Welcome back to Socrates"
-            : "Start your AI journey"}
-        </h1>
-        <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-sm leading-relaxed">
-          {mode === "verify"
-            ? `Enter the 6-digit code sent to ${verifyEmailAddress || "your inbox"} to activate your account.`
-            : mode === "login"
-            ? "Sign in to access your saved project roadmaps, code sandboxes, and mastery progress."
-            : "Create a free account to sync your AI projects and Python Academy certificates."}
-        </p>
-      </div>
+      {/* Inner Centering Wrapper */}
+      <div className="w-full max-w-md my-auto flex flex-col items-center">
+        {/* Brand Header */}
+        <div className="flex flex-col items-center mb-4 relative z-10 text-center">
+          <Link href="/" className="inline-flex items-center gap-2 group mb-2">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_12px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform">
+              <Sparkles className="w-4.5 h-4.5 fill-current" />
+            </div>
+            <span className="text-lg font-black tracking-tight text-white font-sans">
+              Socrates
+            </span>
+          </Link>
+          <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            {mode === "verify"
+              ? "Verify Your Email Address"
+              : mode === "login"
+              ? "Welcome back to Socrates"
+              : "Start your AI journey"}
+          </h1>
+          <p className="text-xs text-zinc-400 mt-0.5 max-w-sm leading-normal">
+            {mode === "verify"
+              ? `Enter the 6-digit code sent to ${verifyEmailAddress || "your inbox"} to activate your account.`
+              : mode === "login"
+              ? "Sign in to access your saved project roadmaps, code sandboxes, and mastery progress."
+              : "Create a free account to sync your AI projects and Python Academy certificates."}
+          </p>
+        </div>
 
-      {/* Main Card */}
-      <div className="w-full max-w-md bg-[#0D121F]/90 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10 mb-8">
-        {/* Mode Toggle Switch (only shown for login / register) */}
-        {mode !== "verify" ? (
-          <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-5">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("login");
-                setError(null);
-                setSuccessMsg(null);
-              }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                mode === "login"
-                  ? "bg-amber-400 text-zinc-950 shadow-sm"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode("register");
-                setError(null);
-                setSuccessMsg(null);
-              }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                mode === "register"
-                  ? "bg-amber-400 text-zinc-950 shadow-sm"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              Create Account
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between pb-3 mb-4 border-b border-zinc-800/80 text-xs">
-            <button
-              type="button"
-              onClick={() => {
-                setMode("register");
-                setError(null);
-                setSuccessMsg(null);
-                setVerificationCode("");
-              }}
-              className="text-zinc-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer text-xs"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>Back to Register</span>
-            </button>
-            <span className="text-amber-400 font-mono font-medium text-[11px]">Step 2 of 2: Verification</span>
-          </div>
-        )}
+        {/* Main Card */}
+        <div className="w-full bg-[#0D121F]/90 border border-zinc-800 rounded-2xl p-4 sm:p-6 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10 mb-4">
+          {/* Mode Toggle Switch (only shown for login / register) */}
+          {mode !== "verify" ? (
+            <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("login");
+                  setError(null);
+                  setSuccessMsg(null);
+                }}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  mode === "login"
+                    ? "bg-amber-400 text-zinc-950 shadow-sm"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setError(null);
+                  setSuccessMsg(null);
+                }}
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  mode === "register"
+                    ? "bg-amber-400 text-zinc-950 shadow-sm"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                Create Account
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between pb-2.5 mb-3.5 border-b border-zinc-800/80 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("register");
+                  setError(null);
+                  setSuccessMsg(null);
+                  setVerificationCode("");
+                }}
+                className="text-zinc-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer text-xs"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Back to Register</span>
+              </button>
+              <span className="text-amber-400 font-mono font-medium text-[10px]">Step 2 of 2: Verification</span>
+            </div>
+          )}
 
         {/* Feedback Alerts */}
         {error && (
@@ -479,12 +481,12 @@ export default function LoginPage() {
             <span>Continue as Guest (No account needed) &rarr;</span>
           </button>
         </div>
-      </div>
 
-      {/* Database sync status info */}
-      <div className="pb-8 text-center text-[11px] text-zinc-500 flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-        <span>Connected to MongoDB Cloud · Instant Multi-Device Progress Sync</span>
+        {/* Database sync status info */}
+        <div className="pb-8 text-center text-[11px] text-zinc-500 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Connected to MongoDB Cloud · Instant Multi-Device Progress Sync</span>
+        </div>
       </div>
     </div>
   );
