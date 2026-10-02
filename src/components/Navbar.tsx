@@ -59,8 +59,9 @@ export const Navbar: React.FC = () => {
   const isLanding = currentScreen === "landing" || activeStage === "landing";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#080B12]/95 backdrop-blur-md">
-      <div className="w-full px-4 sm:px-6 md:px-10 h-20 flex items-center justify-between gap-4">
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#080B12]/95 backdrop-blur-md">
+        <div className="w-full px-4 sm:px-6 md:px-10 h-20 flex items-center justify-between gap-4">
         {/* Logo and Tagline */}
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-[0_0_15px_rgba(245,158,11,0.2)]">
@@ -181,7 +182,7 @@ export const Navbar: React.FC = () => {
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
-      </div>
+      </header>
 
       {/* AI Key & Settings Modal */}
       <ApiKeyModal
@@ -197,7 +198,7 @@ export const Navbar: React.FC = () => {
 
       {/* Dedicated Python Academy Modal */}
       <PythonAcademyModal />
-    </header>
+    </>
   );
 };
 
