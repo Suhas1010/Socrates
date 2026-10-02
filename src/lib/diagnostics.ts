@@ -2437,11 +2437,16 @@ print(f"Correct answer for first example: {y_train[0]}")
 # ✏ TODO: Add 2 more rows to X_train and y_train
 # Keep the same column order: ${medFeatures.join(', ')}
 `,
+        hints: [
+          `Each inner list in X_train must contain exactly ${medFeatures.length} values in order: [${medFeatures.join(', ')}].`,
+          `y_train must have the same number of rows as X_train.`,
+          `Ensure len(X_train) >= 4 and len(X_train) == len(y_train).`,
+        ],
         solutionCode: `${medSampleRows}
 
 print(f"Dataset: {len(X_train)} rows x {len(X_train[0])} features")
 print(f"Features: ${medFeatures.join(', ')}")
-print(f"Target  ({medTarget}): {y_train}")
+print("Target (${medTarget}):", y_train)
 `,
         testAssertion: `assert len(X_train) >= 4, f"Need >= 4 rows, got {len(X_train)}"
 assert all(len(r) == ${medFeatures.length} for r in X_train), "Each row must have ${medFeatures.length} features: ${medFeatures.join(', ')}"
@@ -2510,9 +2515,14 @@ predictions = model.predict(___)  # TODO: pass in ${medPredictVarName}
 print("Predictions for new data:", predictions)
 print("(These came from a model that LEARNED — no hardcoded numbers!)")
 `,
+        hints: [
+          `Instantiate the model with: model = ${medSklearnModel.split("\n")[1].trim()}`,
+          `Train the model on the data: model.fit(X_train, y_train)`,
+          `Generate predictions for unseen data: predictions = model.predict(${medPredictVarName})`,
+        ],
         solutionCode: `${medSampleRows}
 
-# sklearn learns the weights "” no handpicking!
+# sklearn learns the weights - no handpicking!
 ${medSklearnModel}
 
 ${medTestSamples}
@@ -2520,7 +2530,7 @@ predictions = model.predict(${medPredictVarName})
 print("✅ Trained on", len(X_train), "examples")
 print("Predictions for new data:", predictions)
 print("Target: ${medTarget}")
-print("\\nðŸ’¡ Weights were LEARNED from data, not hardcoded!")
+print("\\n💡 Weights were LEARNED from data, not hardcoded!")
 `,
         testAssertion: `try:
     preds = model.predict(${medPredictVarName})
@@ -2528,7 +2538,7 @@ print("\\nðŸ’¡ Weights were LEARNED from data, not hardcoded!")
     assert hasattr(model, "fit")
     print(f"✅ Real ML model trained! Predictions: {list(preds)}")
 except NameError:
-    print("âš  Call model.fit(X_train, y_train) first")
+    print("⚠️ Call model.fit(X_train, y_train) first")
     raise
 `,
         predictQuestion: {
@@ -3049,7 +3059,7 @@ ${sampleRows}
 
 print(f"Training samples: {len(X_train)} rows x {len(X_train[0])} features")
 print(f"Feature columns: ${domainFeatures.join(', ')}")
-print(f"Target ({targetName}): {y_train}")
+print("Target (${targetName}):", y_train)
 `,
       testAssertion: `assert len(X_train) >= 4, f"Need at least 4 training rows, got {len(X_train)}"
 assert all(len(row) == ${domainFeatures.length} for row in X_train), "Each row must have ${domainFeatures.length} features: ${domainFeatures.join(', ')}"
