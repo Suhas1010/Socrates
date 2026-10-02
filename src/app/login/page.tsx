@@ -15,6 +15,7 @@ import {
   KeyRound,
   RotateCcw,
   ChevronLeft,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -32,6 +33,7 @@ export default function LoginPage() {
   const [verifyEmailAddress, setVerifyEmailAddress] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [devCode, setDevCode] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -83,6 +85,7 @@ export default function LoginPage() {
       } else if (res.needsVerification) {
         setVerifyEmailAddress(res.email || email);
         if (res.devCode) setDevCode(res.devCode);
+        if (res.previewUrl) setPreviewUrl(res.previewUrl);
         setSuccessMsg(
           res.message || `We sent a 6-digit verification code to ${res.email || email}.`
         );
@@ -145,6 +148,7 @@ export default function LoginPage() {
       setError(res.error || "Failed to resend code.");
     } else {
       if (res.devCode) setDevCode(res.devCode);
+      if (res.previewUrl) setPreviewUrl(res.previewUrl);
       setSuccessMsg(`A fresh verification code was sent to ${verifyEmailAddress}.`);
       setResendCooldown(30);
     }
@@ -256,14 +260,30 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Development Helper Pill if SMTP not yet configured in .env.local */}
+        {/* Free Test Mailbox Preview Banner */}
+        {mode === "verify" && previewUrl && (
+          <div className="mb-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-xs flex items-center justify-between">
+            <span className="truncate pr-2">📬 Delivered to Free Test Mailbox</span>
+            <a
+              href={previewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1 rounded bg-cyan-400 text-zinc-950 font-bold text-[11px] hover:bg-cyan-300 transition-colors inline-flex items-center gap-1 flex-shrink-0 cursor-pointer"
+            >
+              <span>View Email</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        )}
+
+        {/* Development Helper Pill */}
         {mode === "verify" && devCode && (
           <div className="mb-5 p-3 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-200 text-xs flex items-center justify-between">
-            <span className="font-mono">Dev Code: <strong>{devCode}</strong></span>
+            <span className="font-mono">Verification Code: <strong>{devCode}</strong></span>
             <button
               type="button"
               onClick={() => setVerificationCode(devCode)}
-              className="px-2 py-1 rounded bg-amber-400 text-zinc-950 font-bold text-[11px] hover:bg-amber-300 cursor-pointer"
+              className="px-2.5 py-1 rounded bg-amber-400 text-zinc-950 font-bold text-[11px] hover:bg-amber-300 cursor-pointer"
             >
               Auto Fill
             </button>

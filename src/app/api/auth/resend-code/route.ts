@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
         ? `A new verification code was sent to ${normalizedEmail}.`
         : "A new verification code was generated.",
       devCode: emailResult.devMode ? emailResult.code : undefined,
+      previewUrl: emailResult.previewUrl,
+      provider: emailResult.provider,
     });
   } catch (error: any) {
     console.error("Resend code error:", error);

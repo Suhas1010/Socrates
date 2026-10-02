@@ -29,9 +29,9 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string }>;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string; message?: string; devCode?: string }>;
+  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string; message?: string; devCode?: string; previewUrl?: string; provider?: string }>;
   verifyEmail: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
-  resendVerificationCode: (email: string) => Promise<{ success: boolean; error?: string; devCode?: string; message?: string }>;
+  resendVerificationCode: (email: string) => Promise<{ success: boolean; error?: string; devCode?: string; message?: string; previewUrl?: string; provider?: string }>;
   loginAsGuest: () => void;
   logout: () => Promise<void>;
   syncProgress: (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => Promise<void>;
@@ -210,6 +210,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: data.email,
         message: data.message,
         devCode: data.devCode,
+        previewUrl: data.previewUrl,
+        provider: data.provider,
       };
     } catch (err: any) {
       return { success: false, error: err.message || "An unexpected error occurred" };
@@ -252,7 +254,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || "Failed to resend code" };
       }
 
-      return { success: true, devCode: data.devCode, message: data.message };
+      return {
+        success: true,
+        devCode: data.devCode,
+        message: data.message,
+        previewUrl: data.previewUrl,
+        provider: data.provider,
+      };
     } catch (err: any) {
       return { success: false, error: err.message || "An unexpected error occurred" };
     }

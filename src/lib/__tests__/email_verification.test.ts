@@ -1,12 +1,30 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { sendVerificationEmail } from "../email";
 import { User } from "../../models/User";
 
 describe("Email Verification Service & Model", () => {
-  it("generates and returns code safely in dev mode when SMTP is unconfigured", async () => {
-    // Ensure SMTP is unset for dev fallback test
-    const origUser = process.env.SMTP_USER;
-    const origPass = process.env.SMTP_PASS;
+  it("supports Resend API dispatch without Google 2FA or SMS", async () => {
+    process.env.RESEND_API_KEY = "re_test_mock_key_12345";
+    
+    // Mock global fetch for Resend API call
+    const origFetch = global.fetch;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: "msg_12345" }),
+    });
+
+    const result = await sendVerificationEmail("student@example.com", "849201", "Student");
+    expect(result.success).toBe(true);
+    expect(result.sent).toBe(true);
+    expect(result.provider).toBe("resend");
+
+    // Clean up
+    global.fetch = origFetch;
+    delete process.env.RESEND_API_KEY;
+  });
+
+  it("safely generates code and test mailbox or fallback when no credentials set", async () => {
+    delete process.env.RESEND_API_KEY;
     delete process.env.SMTP_USER;
     delete process.env.SMTP_PASS;
 
@@ -14,11 +32,6 @@ describe("Email Verification Service & Model", () => {
     expect(result.success).toBe(true);
     expect(result.devMode).toBe(true);
     expect(result.code).toBe("849201");
-    expect(result.sent).toBe(false);
-
-    // Restore
-    if (origUser) process.env.SMTP_USER = origUser;
-    if (origPass) process.env.SMTP_PASS = origPass;
   });
 
   it("User schema includes isEmailVerified default to false", () => {

@@ -68,9 +68,11 @@ export async function POST(req: NextRequest) {
       needsVerification: true,
       email: normalizedEmail,
       message: emailResult.sent
-        ? `Verification code sent directly to ${normalizedEmail}. Please check your inbox or spam.`
+        ? `Verification code sent to ${normalizedEmail}.`
         : "Verification code generated.",
       devCode: emailResult.devMode ? emailResult.code : undefined,
+      previewUrl: emailResult.previewUrl,
+      provider: emailResult.provider,
     });
   } catch (error: any) {
     console.error("Registration error:", error);
