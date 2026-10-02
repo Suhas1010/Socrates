@@ -85,97 +85,97 @@ export const LessonView: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. TOP BAR: PROJECT STEP + 3-PHASE STEPPER + TRACK SWITCHER               */}
       {/* ========================================================================= */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 px-4 py-2 rounded-xl bg-zinc-900/40 border border-zinc-800/80 flex-shrink-0">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 px-5 py-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/90 flex-shrink-0 shadow-sm">
         {/* Left: Step indicator & Roadmap drawer trigger */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setShowRoadmapDrawer(!showRoadmapDrawer)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs md:text-sm font-medium transition-all text-slate-200 shadow-sm"
+            className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-sm font-bold transition-all text-white shadow-sm cursor-pointer"
           >
-            <Workflow className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono text-amber-300 font-semibold">
+            <Workflow className="w-4 h-4 text-amber-400" />
+            <span className="font-mono text-amber-300 font-extrabold">
               Step {currentIndex + 1}/{concepts.length}
             </span>
-            <span className="text-slate-300 truncate max-w-[150px] sm:max-w-[220px]">
+            <span className="text-slate-200 truncate max-w-[180px] sm:max-w-[260px] font-medium">
               {currentConcept?.title}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="w-4 h-4 text-slate-400" />
           </button>
 
           <button
             type="button"
             onClick={() => setShowVisualGraph(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-xs text-slate-400 hover:text-slate-200 border border-slate-800 transition-all font-medium"
+            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-xs sm:text-sm text-slate-300 hover:text-white border border-slate-700/80 transition-all font-semibold cursor-pointer"
           >
             <span>DAG Graph</span>
           </button>
         </div>
 
         {/* Center: THE 3-PHASE PROGRESSION STEPPER */}
-        <div className="flex items-center justify-center p-1 rounded-lg bg-slate-950 border border-slate-800 overflow-x-auto">
+        <div className="flex items-center justify-center p-1 rounded-xl bg-slate-950 border border-slate-800 overflow-x-auto shadow-inner">
           {/* Phase 1 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("theory")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               learningPhase === "theory"
-                ? "bg-sky-500 text-slate-950 font-semibold shadow-sm"
+                ? "bg-sky-500 text-slate-950 font-black shadow-md"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Brain className="w-3.5 h-3.5" />
+            <Brain className="w-4 h-4" />
             <span>1. Theory</span>
           </button>
 
-          <span className="text-slate-600 px-1 text-xs select-none">→</span>
+          <span className="text-slate-600 px-1.5 text-xs select-none">→</span>
 
           {/* Phase 2 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("building")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               learningPhase === "building"
-                ? "bg-amber-500 text-slate-950 font-semibold shadow-sm"
+                ? "bg-amber-400 text-slate-950 font-black shadow-md"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Code2 className="w-3.5 h-3.5" />
+            <Code2 className="w-4 h-4" />
             <span>2. Build</span>
             {projectParts.length > 0 && (
-              <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded ${
-                learningPhase === "building" ? "bg-slate-950/20 text-slate-950 font-bold" : "bg-slate-800 text-amber-300"
+              <span className={`text-xs font-mono px-2 py-0.5 rounded-md ${
+                learningPhase === "building" ? "bg-slate-950/30 text-slate-950 font-black" : "bg-slate-800 text-amber-300 font-bold"
               }`}>
                 {projectParts.length}/{concepts.length}
               </span>
             )}
           </button>
 
-          <span className="text-slate-600 px-1 text-xs select-none">→</span>
+          <span className="text-slate-600 px-1.5 text-xs select-none">→</span>
 
           {/* Phase 3 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("testing")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+            className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
               learningPhase === "testing"
-                ? "bg-emerald-500 text-slate-950 font-semibold shadow-sm"
+                ? "bg-emerald-400 text-slate-950 font-black shadow-md"
                 : "text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Zap className="w-3.5 h-3.5" />
-            <span>3. Test & Runner</span>
+            <Zap className="w-4 h-4" />
+            <span>3. Test &amp; Runner</span>
           </button>
         </div>
 
         {/* Right: Actions, Track Toggle & Advance */}
-        <div className="flex items-center gap-2 self-end xl:self-auto">
+        <div className="flex items-center gap-2.5 self-end xl:self-auto">
           {/* Dedicated Python Academy Opener */}
           <button
             type="button"
             onClick={openPythonAcademy}
             title="Open dedicated Python Academy: interactive Python tutorials and code playground"
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+            className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 border bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 hover:text-emerald-100 border-emerald-500/40 shadow-sm cursor-pointer"
           >
             <span>Python Academy</span>
           </button>
@@ -185,9 +185,9 @@ export const LessonView: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsTeachBackOpen(true)}
-              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-all flex items-center gap-1 shadow-sm"
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-4 h-4" />
               <span>Teach-Back</span>
             </button>
           )}
@@ -196,10 +196,10 @@ export const LessonView: React.FC = () => {
           <button
             type="button"
             onClick={advanceToNextConcept}
-            className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow-sm transition-all flex items-center gap-1.5"
+            className="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer active:scale-95"
           >
             <span>Next Step</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
