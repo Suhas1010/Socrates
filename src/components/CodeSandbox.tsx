@@ -27,6 +27,15 @@ interface CodeSandboxProps {
   onEvaluation?: (evalResult: any) => void;
 }
 
+const sanitizeCode = (rawCode: string): string => {
+  if (!rawCode) return "";
+  return rawCode
+    .replace(/print\(f["']Target\s*\(\{medTarget\}\):\s*\{y_train\}["']\)/g, 'print("Target:", y_train)')
+    .replace(/print\(f["']Target\s*\(\{targetName\}\):\s*\{y_train\}["']\)/g, 'print("Target:", y_train)')
+    .replace(/\{medTarget\}/g, '"target"')
+    .replace(/\{targetName\}/g, '"target"');
+};
+
 export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   concept,
   onStepPassed,
@@ -35,7 +44,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   onEvaluation,
 }) => {
   const { background, concepts, projectParts } = useSessionStore();
-  const [code, setCode] = useState(concept.starterCode || "");
+  const [code, setCode] = useState(sanitizeCode(concept.starterCode || ""));
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<PythonExecutionResult | null>(null);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -45,7 +54,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const [stepComplete, setStepComplete] = useState(isAlreadyPassed);
 
   useEffect(() => {
-    setCode(concept.starterCode || "");
+    setCode(sanitizeCode(concept.starterCode || ""));
     setResult(null);
     setShowDrawer(false);
     setDrawerTab("hints");
@@ -114,13 +123,18 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
     const prereqsPyCode = getPrerequisitesCode(concept, concepts, projectParts);
     const setupCode = datasetPyCode + prereqsPyCode;
 
-    const res = await runPythonCode(code, concept.testAssertion, setupCode);
+    const cleanCode = sanitizeCode(code);
+    if (cleanCode !== code) {
+      setCode(cleanCode);
+    }
+
+    const res = await runPythonCode(cleanCode, concept.testAssertion, setupCode);
     setResult(res);
     setIsRunning(false);
 
     if (res.assertionPassed) {
       setStepComplete(true);
-      onStepPassed(code);
+      onStepPassed(cleanCode);
       onEvaluation?.({ correct: true });
     } else if (res.error) {
       onEvaluation?.({ correct: false, error: res.error });
@@ -154,14 +168,14 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const extractedHints = getExtractedHints();
 
   const handleReset = () => {
-    setCode(concept.starterCode || "");
+    setCode(sanitizeCode(concept.starterCode || ""));
     setResult(null);
     setShowDrawer(false);
   };
 
   const handleUseSolution = () => {
     if (concept.solutionCode) {
-      setCode(concept.solutionCode);
+      setCode(sanitizeCode(concept.solutionCode));
       setSolutionLoaded(true);
       setTimeout(() => setSolutionLoaded(false), 2000);
     }
@@ -169,7 +183,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
 
   const handleCopySolution = () => {
     if (concept.solutionCode) {
-      navigator.clipboard.writeText(concept.solutionCode);
+      navigator.clipboard.writeText(sanitizeCode(concept.solutionCode));
       setCopiedSolution(true);
       setTimeout(() => setCopiedSolution(false), 2000);
     }
@@ -338,7 +352,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
                 </div>
 
                 <pre className="font-mono text-xs text-zinc-200 bg-[#06090e] p-3 rounded-lg border border-zinc-800 max-h-56 overflow-y-auto whitespace-pre leading-relaxed select-text">
-                  {concept.solutionCode}
+                  {sanitizeCode(concept.solutionCode)}
                 </pre>
               </div>
             )

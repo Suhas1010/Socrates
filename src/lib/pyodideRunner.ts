@@ -205,6 +205,10 @@ if "sklearn" not in sys.modules:
         sys.modules['sklearn.linear_model'] = _lm
         sys.modules['sklearn.svm'] = _svm
         sys.modules['sklearn.metrics'] = _met
+
+# Global resilience variables in case of stale cache strings
+medTarget = "target"
+targetName = "target"
 `;
 
       // Prepare environment with DATASET and shims if needed

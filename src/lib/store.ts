@@ -784,6 +784,27 @@ export const useSessionStore = create<SessionStoreState>()(
     }),
     {
       name: "socrates-tutor-session",
+      onRehydrateStorage: () => (state) => {
+        if (state?.concepts) {
+          state.concepts = state.concepts.map((c) => ({
+            ...c,
+            starterCode: c.starterCode
+              ? c.starterCode
+                  .replace(/print\(f["']Target\s*\(\{medTarget\}\):\s*\{y_train\}["']\)/g, 'print("Target:", y_train)')
+                  .replace(/print\(f["']Target\s*\(\{targetName\}\):\s*\{y_train\}["']\)/g, 'print("Target:", y_train)')
+                  .replace(/\{medTarget\}/g, '"target"')
+                  .replace(/\{targetName\}/g, '"target"')
+              : c.starterCode,
+            solutionCode: c.solutionCode
+              ? c.solutionCode
+                  .replace(/print\(f["']Target\s*\(\{medTarget\}\):\s*\{y_train\}["']\)/g, 'print("Target:", y_train)')
+                  .replace(/print\(f["']Target\s*\(\{targetName\}\):\s*\{y_train\}["']\)/g, 'print("Target:", y_train)')
+                  .replace(/\{medTarget\}/g, '"target"')
+                  .replace(/\{targetName\}/g, '"target"')
+              : c.solutionCode,
+          }));
+        }
+      },
       partialize: (state) => ({
         id: state.id,
         goal: state.goal,
