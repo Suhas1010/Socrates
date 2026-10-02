@@ -35,6 +35,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (user.isEmailVerified === false) {
+      return NextResponse.json(
+        {
+          error: "Your email address is not verified yet. Please enter the verification code sent to your email.",
+          needsVerification: true,
+          email: user.email,
+        },
+        { status: 403 }
+      );
+    }
+
     const token = signToken({
       userId: user._id.toString(),
       email: user.email,

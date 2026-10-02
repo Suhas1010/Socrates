@@ -21,6 +21,9 @@ export interface IUser extends Document {
   avatarColor?: string;
   pythonMasteredModules: string[];
   savedProjects: ISavedProject[];
+  isEmailVerified: boolean;
+  verificationCode?: string;
+  verificationCodeExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,6 +81,18 @@ const UserSchema = new Schema<IUser>(
     savedProjects: {
       type: [SavedProjectSchema],
       default: [],
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationCode: {
+      type: String,
+      select: false,
+    },
+    verificationCodeExpires: {
+      type: Date,
+      select: false,
     },
   },
   {

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
-import { hashPassword, signToken, setAuthCookie } from "@/lib/auth";
+import { hashPassword } from "@/lib/auth";
+import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,42 +27,51 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
 
     const normalizedEmail = email.toLowerCase().trim();
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    const existingUser = await User.findOne({ email: normalizedEmail }).select("+verificationCode +verificationCodeExpires");
+
+    // Generate random 6-digit numeric OTP code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+    const hashedPassword = await hashPassword(password);
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "An account with this email address already exists" },
-        { status: 409 }
-      );
+      if (existingUser.isEmailVerified) {
+        return NextResponse.json(
+          { error: "An account with this email address already exists. Please sign in." },
+          { status: 409 }
+        );
+      }
+
+      // If user started registration previously but hadn't verified email, update code & details
+      existingUser.name = name.trim();
+      existingUser.password = hashedPassword;
+      existingUser.verificationCode = verificationCode;
+      existingUser.verificationCodeExpires = verificationExpires;
+      await existingUser.save();
+    } else {
+      // Create new user awaiting verification
+      await User.create({
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        isEmailVerified: false,
+        verificationCode,
+        verificationCodeExpires: verificationExpires,
+      });
     }
 
-    const hashedPassword = await hashPassword(password);
-    const user = await User.create({
-      name: name.trim(),
-      email: normalizedEmail,
-      password: hashedPassword,
-    });
+    // Send verification email directly to user's email
+    const emailResult = await sendVerificationEmail(normalizedEmail, verificationCode, name.trim());
 
-    const token = signToken({
-      userId: user._id.toString(),
-      email: user.email,
-      name: user.name,
-    });
-
-    const res = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      user: {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        avatarColor: user.avatarColor,
-        savedProjects: user.savedProjects,
-        pythonMasteredModules: user.pythonMasteredModules,
-      },
+      needsVerification: true,
+      email: normalizedEmail,
+      message: emailResult.sent
+        ? `Verification code sent directly to ${normalizedEmail}. Please check your inbox or spam.`
+        : "Verification code generated.",
+      devCode: emailResult.devMode ? emailResult.code : undefined,
     });
-
-    setAuthCookie(res, token);
-    return res;
   } catch (error: any) {
     console.error("Registration error:", error);
 

@@ -1,31 +1,59 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, Mail, Lock, User as UserIcon, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Sparkles,
+  Mail,
+  Lock,
+  User as UserIcon,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  KeyRound,
+  RotateCcw,
+  ChevronLeft,
+} from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login, register, loginAsGuest } = useAuth();
+  const { user, login, register, verifyEmail, resendVerificationCode, loginAsGuest } = useAuth();
 
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "verify">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Email verification state
+  const [verifyEmailAddress, setVerifyEmailAddress] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [devCode, setDevCode] = useState<string | null>(null);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // If already logged in, redirect home
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       router.push("/");
     }
   }, [user, router]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +80,13 @@ export default function LoginPage() {
 
       if (!res.success) {
         setError(res.error || "Failed to create account.");
+      } else if (res.needsVerification) {
+        setVerifyEmailAddress(res.email || email);
+        if (res.devCode) setDevCode(res.devCode);
+        setSuccessMsg(
+          res.message || `We sent a 6-digit verification code to ${res.email || email}.`
+        );
+        setMode("verify");
       } else {
         setSuccessMsg("Account created successfully! Redirecting...");
         setTimeout(() => router.push("/"), 1000);
@@ -62,11 +97,56 @@ export default function LoginPage() {
       setLoading(false);
 
       if (!res.success) {
-        setError(res.error || "Invalid email or password.");
+        if (res.needsVerification) {
+          setVerifyEmailAddress(res.email || email);
+          setError(res.error || "Please verify your email before signing in.");
+          setMode("verify");
+        } else {
+          setError(res.error || "Invalid email or password.");
+        }
       } else {
         setSuccessMsg("Signed in successfully! Redirecting...");
         setTimeout(() => router.push("/"), 1000);
       }
+    }
+  };
+
+  const handleVerifySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = verificationCode.trim();
+    if (!cleanCode || cleanCode.length !== 6) {
+      setError("Please enter the complete 6-digit verification code.");
+      return;
+    }
+
+    setError(null);
+    setSuccessMsg(null);
+    setLoading(true);
+    const res = await verifyEmail(verifyEmailAddress, cleanCode);
+    setLoading(false);
+
+    if (!res.success) {
+      setError(res.error || "Failed to verify code. Please try again.");
+    } else {
+      setSuccessMsg("Email verified successfully! Welcome to Socrates. Redirecting...");
+      setTimeout(() => router.push("/"), 1000);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (isResending || resendCooldown > 0) return;
+    setIsResending(true);
+    setError(null);
+    setSuccessMsg(null);
+    const res = await resendVerificationCode(verifyEmailAddress);
+    setIsResending(false);
+
+    if (!res.success) {
+      setError(res.error || "Failed to resend code.");
+    } else {
+      if (res.devCode) setDevCode(res.devCode);
+      setSuccessMsg(`A fresh verification code was sent to ${verifyEmailAddress}.`);
+      setResendCooldown(30);
     }
   };
 
@@ -91,10 +171,16 @@ export default function LoginPage() {
           </span>
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-          {mode === "login" ? "Welcome back to Socrates" : "Start your AI journey"}
+          {mode === "verify"
+            ? "Verify Your Email Address"
+            : mode === "login"
+            ? "Welcome back to Socrates"
+            : "Start your AI journey"}
         </h1>
         <p className="text-sm text-zinc-400 mt-1 max-w-sm">
-          {mode === "login"
+          {mode === "verify"
+            ? `Enter the 6-digit code sent to ${verifyEmailAddress || "your inbox"} to activate your account.`
+            : mode === "login"
             ? "Sign in to access your saved project roadmaps, code sandboxes, and mastery progress."
             : "Create a free account to sync your AI projects and Python Academy certificates."}
         </p>
@@ -102,37 +188,58 @@ export default function LoginPage() {
 
       {/* Main Card */}
       <div className="w-full max-w-md bg-[#0D121F]/90 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10">
-        {/* Mode Toggle Switch */}
-        <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setMode("login");
-              setError(null);
-            }}
-            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
-              mode === "login"
-                ? "bg-amber-400 text-zinc-950 shadow-sm"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode("register");
-              setError(null);
-            }}
-            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
-              mode === "register"
-                ? "bg-amber-400 text-zinc-950 shadow-sm"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            Create Account
-          </button>
-        </div>
+        {/* Mode Toggle Switch (only shown for login / register) */}
+        {mode !== "verify" ? (
+          <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login");
+                setError(null);
+                setSuccessMsg(null);
+              }}
+              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+                mode === "login"
+                  ? "bg-amber-400 text-zinc-950 shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("register");
+                setError(null);
+                setSuccessMsg(null);
+              }}
+              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+                mode === "register"
+                  ? "bg-amber-400 text-zinc-950 shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-800/80 text-xs">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("register");
+                setError(null);
+                setSuccessMsg(null);
+                setVerificationCode("");
+              }}
+              className="text-zinc-400 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Back to Register</span>
+            </button>
+            <span className="text-amber-400 font-mono font-semibold">Step 2 of 2: Verification</span>
+          </div>
+        )}
 
         {/* Feedback Alerts */}
         {error && (
@@ -149,76 +256,133 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === "register" && (
+        {/* Development Helper Pill if SMTP not yet configured in .env.local */}
+        {mode === "verify" && devCode && (
+          <div className="mb-5 p-3 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-200 text-xs flex items-center justify-between">
+            <span className="font-mono">Dev Code: <strong>{devCode}</strong></span>
+            <button
+              type="button"
+              onClick={() => setVerificationCode(devCode)}
+              className="px-2 py-1 rounded bg-amber-400 text-zinc-950 font-bold text-[11px] hover:bg-amber-300 cursor-pointer"
+            >
+              Auto Fill
+            </button>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* EMAIL VERIFICATION FORM                                                   */}
+        {/* ========================================================================= */}
+        {mode === "verify" ? (
+          <form onSubmit={handleVerifySubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-mono font-semibold text-zinc-300 mb-2 uppercase tracking-wider text-center">
+                Enter 6-Digit Code
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  maxLength={6}
+                  required
+                  autoFocus
+                  value={verificationCode}
+                  onChange={(e) =>
+                    setVerificationCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))
+                  }
+                  placeholder="123456"
+                  className="w-full text-center py-3.5 px-4 rounded-xl bg-zinc-950/90 border border-zinc-700 text-white placeholder-zinc-700 text-2xl sm:text-3xl font-mono font-extrabold tracking-[8px] focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30 transition-all"
+                />
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-2 text-center">
+                Code expires in 15 minutes. Check spam folder if not in inbox.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || verificationCode.length !== 6}
+              className="w-full mt-2 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Verifying Code...</span>
+                </>
+              ) : (
+                <>
+                  <span>Verify Email &amp; Start Learning</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            {/* Resend Code Action */}
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={isResending || resendCooldown > 0}
+                className="text-xs text-zinc-400 hover:text-amber-300 disabled:opacity-50 disabled:hover:text-zinc-400 transition-colors inline-flex items-center gap-1.5 cursor-pointer font-medium"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${isResending ? "animate-spin" : ""}`} />
+                <span>
+                  {resendCooldown > 0
+                    ? `Resend code in ${resendCooldown}s`
+                    : isResending
+                    ? "Sending fresh code..."
+                    : "Didn't receive email? Resend code"}
+                </span>
+              </button>
+            </div>
+          </form>
+        ) : (
+          /* ========================================================================= */
+          /* LOGIN & REGISTRATION FORM                                                 */
+          /* ========================================================================= */
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "register" && (
+              <div>
+                <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                    <UserIcon className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Alex Mercer"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
-                Full Name
+                Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                  <UserIcon className="w-4 h-4" />
+                  <Mail className="w-4 h-4" />
                 </div>
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Alex Mercer"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
                 />
               </div>
             </div>
-          )}
 
-          <div>
-            <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
-              Email Address
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                <Mail className="w-4 h-4" />
-              </div>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
-                <Lock className="w-4 h-4" />
-              </div>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
-              />
-            </div>
-            {mode === "register" && (
-              <span className="text-[11px] text-zinc-500 mt-1 block">
-                Must be at least 6 characters
-              </span>
-            )}
-          </div>
-
-          {mode === "register" && (
             <div>
               <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
-                Confirm Password
+                Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
@@ -227,33 +391,63 @@ export default function LoginPage() {
                 <input
                   type="password"
                   required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
                 />
               </div>
+              {mode === "register" && (
+                <span className="text-[11px] text-zinc-500 mt-1 block">
+                  Must be at least 6 characters
+                </span>
+              )}
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{mode === "login" ? "Signing In..." : "Creating Account..."}</span>
-              </>
-            ) : (
-              <>
-                <span>{mode === "login" ? "Sign In to Socrates" : "Create Account & Continue"}</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
+            {mode === "register" && (
+              <div>
+                <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                  />
+                </div>
+              </div>
             )}
-          </button>
-        </form>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-2 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{mode === "login" ? "Signing In..." : "Creating Account..."}</span>
+                </>
+              ) : (
+                <>
+                  <span>
+                    {mode === "login"
+                      ? "Sign In to Socrates"
+                      : "Create Account & Send Verification Code"}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+        )}
 
         {/* Guest Skip Option */}
         <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center">

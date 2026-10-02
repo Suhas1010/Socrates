@@ -28,8 +28,10 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string }>;
+  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string; needsVerification?: boolean; email?: string; message?: string; devCode?: string }>;
+  verifyEmail: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
+  resendVerificationCode: (email: string) => Promise<{ success: boolean; error?: string; devCode?: string; message?: string }>;
   loginAsGuest: () => void;
   logout: () => Promise<void>;
   syncProgress: (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => Promise<void>;
@@ -41,6 +43,8 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => ({ success: false }),
   register: async () => ({ success: false }),
+  verifyEmail: async () => ({ success: false }),
+  resendVerificationCode: async () => ({ success: false }),
   loginAsGuest: () => {},
   logout: async () => {},
   syncProgress: async () => {},
@@ -169,7 +173,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const data = await res.json();
       if (!res.ok) {
-        return { success: false, error: data.error || "Login failed" };
+        return {
+          success: false,
+          error: data.error || "Login failed",
+          needsVerification: data.needsVerification,
+          email: data.email,
+        };
       }
 
       if (typeof window !== "undefined") {
@@ -195,11 +204,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || "Registration failed" };
       }
 
+      return {
+        success: true,
+        needsVerification: data.needsVerification,
+        email: data.email,
+        message: data.message,
+        devCode: data.devCode,
+      };
+    } catch (err: any) {
+      return { success: false, error: err.message || "An unexpected error occurred" };
+    }
+  };
+
+  const verifyEmail = async (email: string, code: string) => {
+    try {
+      const res = await fetch("/api/auth/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || "Failed to verify email" };
+      }
+
       if (typeof window !== "undefined") {
         localStorage.removeItem("socrates_guest_user");
       }
       setUser(data.user);
       return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message || "An unexpected error occurred" };
+    }
+  };
+
+  const resendVerificationCode = async (email: string) => {
+    try {
+      const res = await fetch("/api/auth/resend-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || "Failed to resend code" };
+      }
+
+      return { success: true, devCode: data.devCode, message: data.message };
     } catch (err: any) {
       return { success: false, error: err.message || "An unexpected error occurred" };
     }
@@ -322,6 +375,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         login,
         register,
+        verifyEmail,
+        resendVerificationCode,
         loginAsGuest,
         logout,
         syncProgress,
