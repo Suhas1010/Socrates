@@ -182,7 +182,8 @@ export const Navbar: React.FC = () => {
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
-      </header>
+      </div>
+    </header>
 
       {/* AI Key & Settings Modal */}
       <ApiKeyModal

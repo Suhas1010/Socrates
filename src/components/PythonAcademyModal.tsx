@@ -217,6 +217,8 @@ export const PythonAcademyModal: React.FC = () => {
   const totalCount = PYTHON_TRACK_CONCEPTS.length;
   const percentComplete = Math.round((masteredCount / totalCount) * 100);
 
+  if (!mounted || !isPythonAcademyOpen) return null;
+
   return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-5 md:p-8 animate-in fade-in duration-200"
@@ -618,6 +620,8 @@ export const PythonAcademyModal: React.FC = () => {
                   </button>
                 </div>
               </div>
+            )}
+
             {/* Tab 2: Practice Code Sandbox */}
             {activeTab === "code" && (
               <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 space-y-4 overflow-hidden">
