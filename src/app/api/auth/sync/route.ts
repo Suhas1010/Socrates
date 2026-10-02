@@ -38,6 +38,10 @@ export async function POST(req: NextRequest) {
         masteryScore: currentProject.masteryScore || 0,
         totalConcepts: currentProject.totalConcepts || 0,
         masteredConcepts: currentProject.masteredConcepts || 0,
+        currentConceptId: currentProject.currentConceptId,
+        activeStage: currentProject.activeStage,
+        screen: currentProject.screen,
+        sessionData: currentProject.sessionData,
         lastUpdated: new Date(),
       };
 

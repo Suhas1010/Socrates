@@ -7,6 +7,10 @@ export interface ISavedProject {
   masteryScore: number;
   totalConcepts: number;
   masteredConcepts: number;
+  currentConceptId?: string;
+  activeStage?: string;
+  screen?: string;
+  sessionData?: any;
   lastUpdated: Date;
 }
 
@@ -29,6 +33,10 @@ const SavedProjectSchema = new Schema<ISavedProject>(
     masteryScore: { type: Number, default: 0 },
     totalConcepts: { type: Number, default: 0 },
     masteredConcepts: { type: Number, default: 0 },
+    currentConceptId: { type: String },
+    activeStage: { type: String },
+    screen: { type: String },
+    sessionData: { type: Schema.Types.Mixed },
     lastUpdated: { type: Date, default: Date.now },
   },
   { _id: false }

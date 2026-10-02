@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { useSessionStore } from "@/lib/store";
 
 export interface AuthUser {
   id: string;
@@ -14,6 +15,10 @@ export interface AuthUser {
     masteryScore: number;
     totalConcepts: number;
     masteredConcepts: number;
+    currentConceptId?: string;
+    activeStage?: string;
+    screen?: string;
+    sessionData?: any;
     lastUpdated: string;
   }>;
   pythonMasteredModules?: string[];
@@ -42,6 +47,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const refreshUser = useCallback(async () => {
     try {
@@ -62,6 +68,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
+
+  // Rehydrate user's saved Python modules and projects into local store on login
+  useEffect(() => {
+    if (!user) return;
+
+    const store = useSessionStore.getState();
+    if (user.pythonMasteredModules && user.pythonMasteredModules.length > 0) {
+      const merged = Array.from(
+        new Set([...(store.pythonMasteredModules || []), ...user.pythonMasteredModules])
+      );
+      useSessionStore.setState({ pythonMasteredModules: merged });
+    }
+  }, [user]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -111,24 +130,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const syncProgress = async (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => {
-    if (!user) return;
-    try {
-      const res = await fetch("/api/auth/sync", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.user) {
-          setUser((prev) => (prev ? { ...prev, ...data.user } : null));
+  const syncProgress = useCallback(
+    async (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => {
+      if (!user) return;
+      try {
+        const res = await fetch("/api/auth/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            setUser((prev) => (prev ? { ...prev, ...data.user } : null));
+          }
         }
+      } catch {
+        // Background sync, suppress network errors
       }
-    } catch {
-      // Background sync, suppress errors
-    }
-  };
+    },
+    [user]
+  );
+
+  // Subscribe to session store to automatically sync learner progress to MongoDB
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = useSessionStore.subscribe((state) => {
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+
+      syncTimeoutRef.current = setTimeout(() => {
+        const totalConcepts = state.concepts?.length || 0;
+        const masteredConcepts = Object.values(state.mastery || {}).filter(
+          (m: any) => m?.status === "mastered"
+        ).length;
+
+        const currentProject = state.goal
+          ? {
+              id: state.id || "default-session",
+              goal: state.goal,
+              templateId: state.templateId || "custom",
+              masteryScore: totalConcepts > 0 ? Math.round((masteredConcepts / totalConcepts) * 100) : 0,
+              totalConcepts,
+              masteredConcepts,
+              currentConceptId: state.currentConceptId,
+              activeStage: state.activeStage,
+              screen: state.screen,
+            }
+          : undefined;
+
+        syncProgress({
+          pythonMasteredModules: state.pythonMasteredModules,
+          currentProject,
+        });
+      }, 1500);
+    });
+
+    return () => {
+      unsubscribe();
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+    };
+  }, [user, syncProgress]);
 
   return (
     <AuthContext.Provider
