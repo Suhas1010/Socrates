@@ -347,36 +347,36 @@ print("=" * 60)
   };
 
   return (
-    <div className="p-6 rounded-xl border border-slate-800 bg-slate-900/60 shadow-sm space-y-5">
+    <div className="p-6 sm:p-8 rounded-2xl border border-slate-800 bg-[#0d111a]/95 shadow-xl space-y-6">
       {/* 1. Header with dynamic badge, title & threshold control */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800">
         <div>
-          <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-medium tracking-wide flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex flex-wrap items-center gap-2.5 mb-2">
+            <span className="px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm font-mono font-bold tracking-wide flex items-center gap-2">
+              <Zap className="w-4 h-4 text-emerald-400" />
               PHASE 3: MODEL RUNNER
             </span>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium">
-              <Activity className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-bold">
+              <Activity className="w-4 h-4" />
               <span>{contract.badge}</span>
             </div>
           </div>
-          <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white mt-1">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white mt-1">
             {contract.title}
           </h3>
-          <p className="text-xs md:text-sm text-slate-400 mt-0.5 max-w-3xl leading-relaxed font-normal">
+          <p className="text-sm sm:text-base md:text-lg text-slate-300 mt-1 max-w-3xl leading-relaxed font-normal">
             {contract.subtitle}
           </p>
         </div>
 
         {/* Dynamic Controls: Threshold slider (for classification) */}
         {!contract.output.type.includes("regression") && (
-          <div className="flex items-center gap-3 bg-slate-950/80 px-3.5 py-2 rounded-lg border border-slate-800 flex-shrink-0 self-start lg:self-auto shadow-sm">
+          <div className="flex items-center gap-3.5 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-700/80 flex-shrink-0 self-start lg:self-auto shadow-md">
             <Sliders className="w-4 h-4 text-amber-400" />
-            <div className="space-y-0.5">
-              <div className="flex items-center justify-between text-xs text-slate-300 font-mono font-medium">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-slate-200 font-mono font-bold">
                 <span>Threshold:</span>
-                <span className="text-amber-400 font-semibold ml-2">
+                <span className="text-amber-400 font-extrabold ml-2">
                   {Math.round(threshold * 100)}%
                 </span>
               </div>
@@ -387,7 +387,7 @@ print("=" * 60)
                 step="0.05"
                 value={threshold}
                 onChange={(e) => setThreshold(parseFloat(e.target.value))}
-                className="w-32 accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                className="w-36 accent-amber-400 cursor-pointer h-2 bg-slate-800 rounded-lg"
               />
             </div>
           </div>
@@ -396,24 +396,24 @@ print("=" * 60)
 
       {/* 2. Quick Cohort Presets (1-click test scenarios) */}
       {contract.presets && contract.presets.length > 0 && (
-        <div className="space-y-2">
-          <span className="text-xs font-mono uppercase text-slate-400 font-medium tracking-wider">
+        <div className="space-y-2.5">
+          <span className="text-xs sm:text-sm font-mono uppercase text-slate-300 font-bold tracking-wider">
             Quick Cohort Presets:
           </span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2.5">
             {contract.presets.map((preset) => {
               const isActive = activePreset === preset.name;
               return (
                 <button
                   key={preset.name}
                   onClick={() => handleApplyPreset(preset.name, preset.values)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${
                     isActive
-                      ? "bg-amber-400/15 border-amber-400/40 text-amber-300 font-semibold shadow-sm"
-                      : "bg-slate-950/60 text-slate-300 hover:text-white hover:bg-slate-850 border border-slate-800"
+                      ? "bg-amber-400/20 border-amber-400 text-amber-200 ring-1 ring-amber-400/40 shadow-sm"
+                      : "bg-slate-950/80 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800"
                   }`}
                 >
-                  {preset.emoji && <span className="text-xs">{preset.emoji}</span>}
+                  {preset.emoji && <span className="text-sm">{preset.emoji}</span>}
                   <span>{preset.name}</span>
                 </button>
               );
@@ -428,7 +428,7 @@ print("=" * 60)
         <div
           className={`${
             inferenceResult.isFaceEmotion ? "lg:col-span-8" : "lg:col-span-12"
-          } grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/80 p-5 rounded-xl border border-slate-800 shadow-sm`}
+          } grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/90 p-5 sm:p-6 rounded-2xl border border-slate-800 shadow-md`}
         >
           {contract.features.map((feature) => {
             const isText = feature.type === "text";
@@ -459,10 +459,10 @@ print("=" * 60)
 
             // Slider input
             return (
-              <div key={feature.id} className="space-y-2 p-3 rounded-lg bg-slate-900/60 border border-slate-800/80">
-                <div className="flex items-center justify-between text-xs md:text-sm font-medium">
-                  <span className="text-slate-200">{feature.label}</span>
-                  <span className="font-mono font-semibold text-amber-300 text-xs">
+              <div key={feature.id} className="space-y-3 p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800/90 shadow-sm">
+                <div className="flex items-center justify-between text-sm sm:text-base font-bold">
+                  <span className="text-white">{feature.label}</span>
+                  <span className="font-mono font-extrabold text-amber-300 text-sm sm:text-base">
                     {typeof val === "number" && val % 1 !== 0 ? val.toFixed(2) : val}{" "}
                     {feature.unit}
                   </span>
@@ -476,9 +476,9 @@ print("=" * 60)
                   onChange={(e) =>
                     handleFeatureChange(feature.id, parseFloat(e.target.value))
                   }
-                  className="w-full accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                  className="w-full accent-amber-400 cursor-pointer h-2 bg-slate-800 rounded-lg"
                 />
-                <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                <div className="flex justify-between text-xs sm:text-sm text-slate-400 font-mono">
                   <span>
                     {feature.min ?? 0} {feature.unit}
                   </span>
@@ -487,7 +487,7 @@ print("=" * 60)
                   </span>
                 </div>
                 {feature.description && (
-                  <p className="text-[11px] text-slate-400 truncate font-normal">{feature.description}</p>
+                  <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">{feature.description}</p>
                 )}
               </div>
             );
@@ -563,40 +563,40 @@ print("=" * 60)
       </div>
 
       {/* 4. Live Model Output Display Card */}
-      <div className="p-5 md:p-6 rounded-xl bg-slate-950/90 border border-slate-800 space-y-4 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
+      <div className="p-6 sm:p-8 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-5 shadow-lg">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-5 border-b border-slate-800">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-2xl flex-shrink-0 shadow-md">
               {inferenceResult.isRegression ? (
-                <TrendingUp className="w-5 h-5 text-amber-400" />
+                <TrendingUp className="w-6 h-6 text-amber-400" />
               ) : (
                 inferenceResult.emoji
               )}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg md:text-2xl font-bold text-white uppercase tracking-tight">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
                   {inferenceResult.isRegression
                     ? `${inferenceResult.unit === "$" ? "$" : ""}${inferenceResult.regressionValue?.toLocaleString()}`
                     : inferenceResult.dominantClass}
                 </span>
-                <span className="text-[11px] font-mono uppercase bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/30 font-medium">
+                <span className="text-xs sm:text-sm font-mono uppercase bg-amber-500/15 text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/30 font-bold">
                   {contract.output.type}
                 </span>
               </div>
-              <p className="text-xs md:text-sm text-slate-300 mt-1 font-normal leading-relaxed">{inferenceResult.summary}</p>
+              <p className="text-sm sm:text-base text-slate-200 mt-1 font-medium leading-relaxed">{inferenceResult.summary}</p>
             </div>
           </div>
 
           {!inferenceResult.isRegression && (
-            <div className="flex flex-col items-end bg-slate-900/60 p-3.5 rounded-lg border border-slate-800 min-w-[170px]">
-              <span className="text-[11px] font-mono uppercase text-slate-400 tracking-wider font-medium">
+            <div className="flex flex-col items-end bg-slate-900/80 p-4 rounded-xl border border-slate-800 min-w-[190px] shadow-sm">
+              <span className="text-xs sm:text-sm font-mono uppercase text-slate-300 tracking-wider font-bold">
                 Model Confidence
               </span>
-              <span className="text-2xl md:text-3xl font-bold font-mono text-cyan-300 mt-0.5">
+              <span className="text-3xl sm:text-4xl font-black font-mono text-cyan-300 mt-1">
                 {inferenceResult.confidence}%
               </span>
-              <span className="text-[11px] text-slate-400 font-mono mt-0.5">
+              <span className="text-xs sm:text-sm text-slate-400 font-mono mt-1">
                 Threshold: {Math.round(threshold * 100)}%
               </span>
             </div>
@@ -606,33 +606,33 @@ print("=" * 60)
         {/* Multi-class Probability Bars (if classification) */}
         {!inferenceResult.isRegression && inferenceResult.probabilities && (
           <div className="space-y-2">
-            <span className="text-xs font-mono uppercase text-slate-400 font-medium block">
+            <span className="text-xs sm:text-sm font-mono uppercase text-slate-300 font-bold block">
               Probability Distribution:
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
               {inferenceResult.probabilities.map((prob) => {
                 const isWinner = prob.name === inferenceResult.dominantClass;
                 return (
                   <div
                     key={prob.name}
-                    className={`p-3 rounded-lg border transition-all ${
+                    className={`p-3.5 rounded-xl border transition-all ${
                       isWinner
-                        ? "bg-cyan-500/15 border-cyan-500/40 shadow-sm"
-                        : "bg-slate-900/40 border-slate-800/80"
+                        ? "bg-cyan-500/20 border-cyan-500/50 shadow-sm"
+                        : "bg-slate-900/60 border-slate-800"
                     }`}
                   >
-                    <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
-                      <span className="text-white flex items-center gap-1">
-                        {prob.emoji && <span className="text-xs">{prob.emoji}</span>}
+                    <div className="flex items-center justify-between text-xs sm:text-sm mb-2 font-bold">
+                      <span className="text-white flex items-center gap-1.5">
+                        {prob.emoji && <span className="text-sm">{prob.emoji}</span>}
                         <span className="truncate">{prob.name.split("/")[0]}</span>
                       </span>
-                      <span className="font-mono text-cyan-300 text-xs">
+                      <span className="font-mono text-cyan-300 font-extrabold text-xs sm:text-sm">
                         {(prob.probability * 100).toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                       <div
-                        className={`h-full transition-all duration-300 ${
+                        className={`h-full transition-all duration-300 rounded-full ${
                           isWinner ? "bg-cyan-400" : "bg-slate-600"
                         }`}
                         style={{ width: `${Math.max(4, prob.probability * 100)}%` }}
@@ -646,18 +646,18 @@ print("=" * 60)
         )}
 
         {/* 5. Live Python Execution in Pyodide Button & Terminal */}
-        <div className="pt-2 flex flex-col space-y-3">
+        <div className="pt-3 flex flex-col space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <span className="text-xs font-mono uppercase text-slate-400 font-medium flex items-center gap-1.5">
-              <Terminal className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-xs sm:text-sm font-mono uppercase text-slate-300 font-bold flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-amber-400" />
               <span>In-Browser Python Execution Verification:</span>
             </span>
             <button
               onClick={handleExecuteInPyodide}
               disabled={isExecutingPython}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-semibold shadow-sm transition-colors disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs sm:text-sm md:text-base font-black shadow-md transition-all disabled:opacity-50 cursor-pointer active:scale-95"
             >
-              <Play className="w-3.5 h-3.5 fill-current" />
+              <Play className="w-4 h-4 fill-current" />
               <span>
                 {isExecutingPython ? "Executing in Pyodide..." : "Execute with Your Python Pipeline"}
               </span>
@@ -665,12 +665,12 @@ print("=" * 60)
           </div>
 
           {pythonResult && (
-            <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800 font-mono text-xs text-slate-200 space-y-1.5 shadow-inner">
-              <div className="flex items-center justify-between text-slate-400 pb-1.5 border-b border-slate-800 text-[11px]">
+            <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs sm:text-sm text-slate-200 space-y-2 shadow-inner">
+              <div className="flex items-center justify-between text-slate-400 pb-2 border-b border-slate-800 text-xs font-semibold">
                 <span>Pyodide Sandbox Output</span>
-                <span className="text-emerald-400 font-medium">Status: Complete</span>
+                <span className="text-emerald-400 font-bold">Status: Complete</span>
               </div>
-              <pre className="whitespace-pre-wrap pt-1 text-slate-200 leading-relaxed">
+              <pre className="whitespace-pre-wrap pt-1 text-slate-200 leading-relaxed font-medium">
                 {pythonResult.stdout || pythonResult.stderr || "Pipeline executed cleanly."}
               </pre>
             </div>
@@ -679,12 +679,12 @@ print("=" * 60)
 
         {/* Bottom Navigation Buttons */}
         {(onBackToBuild || onBackToTheory) && (
-          <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
             {onBackToBuild && (
               <button
                 type="button"
                 onClick={onBackToBuild}
-                className="w-full sm:w-auto px-4 py-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 <span>◄ Back to Phase 2: Build Studio</span>
               </button>
@@ -693,7 +693,7 @@ print("=" * 60)
               <button
                 type="button"
                 onClick={onBackToTheory}
-                className="w-full sm:w-auto px-4 py-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ml-auto"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 border border-cyan-500/40 text-xs sm:text-sm font-bold transition-colors flex items-center justify-center gap-2 ml-auto cursor-pointer shadow-sm"
               >
                 <span>Review Phase 1: Theory Masterclass</span>
               </button>

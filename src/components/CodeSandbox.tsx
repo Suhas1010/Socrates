@@ -193,41 +193,41 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
 
       {/* Background-specific syntax hints */}
       {background === "beginner" && (
-        <div className="bg-zinc-900/40 border-b border-zinc-800/60 px-4 py-2 text-xs text-zinc-400 flex items-start gap-2">
-          <span className="text-zinc-500 font-mono">Tip:</span>
-          <div className="leading-relaxed">
-            <span className="text-zinc-300">
-              Indentation defines blocks. Define functions with <code className="text-zinc-200 font-mono">def name():</code>, lists with <code className="text-zinc-200 font-mono">[a, b]</code>, and count elements with <code className="text-zinc-200 font-mono">len(items)</code>.
+        <div className="bg-zinc-900/60 border-b border-zinc-800/80 px-4 py-2.5 text-xs sm:text-sm text-zinc-300 flex items-start gap-2">
+          <span className="text-amber-400 font-mono font-bold">Tip:</span>
+          <div className="leading-relaxed font-medium">
+            <span>
+              Indentation defines blocks. Define functions with <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">def name():</code>, lists with <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">[a, b]</code>, and count elements with <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">len(items)</code>.
             </span>
           </div>
         </div>
       )}
 
       {background === "other_languages" && (
-        <div className="bg-zinc-900/40 border-b border-zinc-800/60 px-4 py-2 text-xs text-zinc-400 flex items-start gap-2">
-          <span className="text-zinc-500 font-mono">C++/Java Bridge:</span>
-          <div className="leading-relaxed">
-            <span className="text-zinc-300">
-              No semicolons or braces; indentation defines scope. <code className="text-zinc-200 font-mono">dict.get(key, 0)</code> is like <code className="text-zinc-200 font-mono">map.getOrDefault()</code>, and <code className="text-zinc-200 font-mono">len(x)</code> is like <code className="text-zinc-200 font-mono">x.size()</code>.
+        <div className="bg-zinc-900/60 border-b border-zinc-800/80 px-4 py-2.5 text-xs sm:text-sm text-zinc-300 flex items-start gap-2">
+          <span className="text-amber-400 font-mono font-bold">C++/Java Bridge:</span>
+          <div className="leading-relaxed font-medium">
+            <span>
+              No semicolons or braces; indentation defines scope. <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">dict.get(key, 0)</code> is like <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">map.getOrDefault()</code>, and <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">len(x)</code> is like <code className="text-amber-300 font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded bg-zinc-800">x.size()</code>.
             </span>
           </div>
         </div>
       )}
 
       {/* Code Textarea Area */}
-      <div className="relative flex-1 min-h-[240px] bg-[#09090b]">
+      <div className="relative flex-1 min-h-[260px] bg-[#07090e]">
         <textarea
           value={code}
           onChange={(e) => setCode(e.target.value)}
           spellCheck={false}
-          className="w-full h-full p-4 bg-transparent font-mono text-xs md:text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none resize-none leading-relaxed selection:bg-zinc-800"
+          className="w-full h-full p-4 sm:p-5 bg-transparent font-mono text-sm sm:text-base text-zinc-100 placeholder-zinc-600 focus:outline-none resize-none leading-relaxed selection:bg-zinc-800"
           placeholder="# Write or complete Python code here..."
         />
       </div>
 
       {/* Terminal Output Console */}
-      <div className="border-t border-zinc-800/80 bg-zinc-950 p-3.5 font-mono text-xs max-h-40 overflow-y-auto">
-        <div className="flex items-center justify-between text-zinc-500 text-[11px] uppercase mb-1.5 font-medium tracking-wider">
+      <div className="border-t border-zinc-800/80 bg-zinc-950 p-4 font-mono text-xs sm:text-sm max-h-44 overflow-y-auto">
+        <div className="flex items-center justify-between text-zinc-400 text-xs uppercase mb-2 font-bold tracking-wider">
           <span>Output Console</span>
           {result?.usedFallback && (
             <span className="text-zinc-500 font-normal">Offline Fast Engine</span>
@@ -235,49 +235,49 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
         </div>
 
         {isRunning ? (
-          <div className="text-zinc-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-zinc-400 animate-ping" />
+          <div className="text-amber-400 flex items-center gap-2 font-medium">
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
             Executing in Pyodide sandbox...
           </div>
         ) : result ? (
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {result.stdout && (
-              <pre className="text-emerald-400 whitespace-pre-wrap leading-relaxed">{result.stdout}</pre>
+              <pre className="text-emerald-400 whitespace-pre-wrap leading-relaxed font-medium">{result.stdout}</pre>
             )}
             {result.stderr && (
-              <pre className="text-red-400 whitespace-pre-wrap leading-relaxed">{result.stderr}</pre>
+              <pre className="text-red-400 whitespace-pre-wrap leading-relaxed font-medium">{result.stderr}</pre>
             )}
             {result.error && (
-              <div className="text-rose-400 font-medium">{result.error}</div>
+              <div className="text-rose-400 font-bold">{result.error}</div>
             )}
             {result.friendlyTip && (
-              <div className="mt-2 p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs flex items-start gap-2">
-                <span className="text-zinc-400">💡</span>
+              <div className="mt-2 p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs sm:text-sm flex items-start gap-2.5 shadow-sm">
+                <span className="text-amber-400 text-base">💡</span>
                 <span className="leading-relaxed">{result.friendlyTip}</span>
               </div>
             )}
           </div>
         ) : (
-          <span className="text-zinc-600">
+          <span className="text-zinc-500 font-mono">
             Click &quot;Run Code&quot; to test your implementation.
           </span>
         )}
       </div>
 
       {/* Footer Run Controls */}
-      <div className="p-3 bg-zinc-900/60 border-t border-zinc-800/80 flex items-center justify-between gap-3">
-        <span className="text-xs text-zinc-500 hidden sm:inline">
-          Fill in blanks (<code className="text-zinc-300 font-mono">___</code>) and run assertions.
+      <div className="p-3.5 bg-zinc-900/80 border-t border-zinc-800/80 flex items-center justify-between gap-3">
+        <span className="text-xs sm:text-sm text-zinc-400 hidden sm:inline">
+          Fill in blanks (<code className="text-amber-300 font-mono font-bold">___</code>) and run assertions.
         </span>
 
-        <div className="flex items-center gap-2.5 ml-auto">
+        <div className="flex items-center gap-3 ml-auto">
           <button
             type="button"
             disabled={isRunning}
             onClick={handleRun}
-            className="px-4 py-2 rounded-lg bg-zinc-100 hover:bg-white text-zinc-900 font-medium text-xs md:text-sm transition-all flex items-center gap-2 shadow-sm"
+            className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs sm:text-sm md:text-base transition-all flex items-center gap-2 shadow-md cursor-pointer active:scale-95 disabled:opacity-50"
           >
-            <Play className="w-3.5 h-3.5 fill-current text-zinc-900" />
+            <Play className="w-4 h-4 fill-current text-zinc-950" />
             <span>Run Code</span>
           </button>
 
@@ -285,9 +285,9 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
             <button
               type="button"
               onClick={onOpenTeachBack}
-              className="px-4 py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-medium text-xs md:text-sm transition-all flex items-center gap-2 shadow-sm"
+              className="px-5 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/50 font-bold text-xs sm:text-sm md:text-base transition-all flex items-center gap-2 shadow-md cursor-pointer active:scale-95"
             >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              <Sparkles className="w-4 h-4 text-emerald-400" />
               <span>Step Passed! Teach-It-Back &rarr;</span>
             </button>
           )}
