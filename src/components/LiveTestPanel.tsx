@@ -361,10 +361,10 @@ print("=" * 60)
               <span>{contract.badge}</span>
             </div>
           </div>
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white mt-1">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white mt-1">
             {contract.title}
           </h3>
-          <p className="text-sm sm:text-base md:text-lg text-slate-300 mt-1 max-w-3xl leading-relaxed font-normal">
+          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-3xl leading-relaxed font-normal">
             {contract.subtitle}
           </p>
         </div>
@@ -574,17 +574,17 @@ print("=" * 60)
               )}
             </div>
             <div>
-              <div className="flex items-center gap-2.5">
-                <span className="text-xl sm:text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
+              <div className="flex items-center gap-2">
+                <span className="text-base sm:text-lg md:text-xl font-bold text-white uppercase tracking-tight">
                   {inferenceResult.isRegression
                     ? `${inferenceResult.unit === "$" ? "$" : ""}${inferenceResult.regressionValue?.toLocaleString()}`
                     : inferenceResult.dominantClass}
                 </span>
-                <span className="text-xs sm:text-sm font-mono uppercase bg-amber-500/15 text-amber-400 px-2.5 py-1 rounded-md border border-amber-500/30 font-bold">
+                <span className="text-[10px] sm:text-xs font-mono uppercase bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-md border border-amber-500/30 font-bold">
                   {contract.output.type}
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-slate-200 mt-1 font-medium leading-relaxed">{inferenceResult.summary}</p>
+              <p className="text-xs sm:text-sm text-slate-200 mt-0.5 font-medium leading-relaxed">{inferenceResult.summary}</p>
             </div>
           </div>
 
