@@ -506,8 +506,13 @@ class SocratesSpamClassifier:
             "log_ham": log_prob_ham,
             "tokens": tokens
         }
+
+if 'DATASET' in globals():
+    clf = SocratesSpamClassifier(DATASET)
+    model = clf
 `,
-    testAssertion: `clf = SocratesSpamClassifier(DATASET)
+    testAssertion: `if 'clf' not in globals() and 'SocratesSpamClassifier' in globals():
+    clf = SocratesSpamClassifier(DATASET)
 res_spam = clf.predict("Urgent: Win free $1000 prize now!")
 res_ham = clf.predict("Hey let us meet for lunch and coffee tomorrow.")
 assert res_spam["prediction"] == "spam", f"Expected spam but got {res_spam['prediction']}"
@@ -693,7 +698,11 @@ print(f"Accuracy: {metrics['accuracy']:.1%}, Precision: {metrics['precision']:.1
     
     return {"accuracy": accuracy, "precision": precision, "recall": recall, "tp": tp, "fp": fp, "fn": fn, "tn": tn}
 `,
-    testAssertion: `dummy_metrics = evaluate_model(clf, DATASET)
+    testAssertion: `if 'clf' not in globals() and 'SocratesSpamClassifier' in globals():
+    clf = SocratesSpamClassifier(DATASET)
+elif 'model' in globals() and 'clf' not in globals():
+    clf = model
+dummy_metrics = evaluate_model(clf, DATASET)
 assert 0.0 <= dummy_metrics["accuracy"] <= 1.0, "Accuracy must be between 0 and 1"
 assert 0.0 <= dummy_metrics["precision"] <= 1.0, "Precision must be between 0 and 1"
 assert 0.0 <= dummy_metrics["recall"] <= 1.0, "Recall must be between 0 and 1"
@@ -742,6 +751,11 @@ print(f"Assertion Passed: Evaluation metrics calculated accurately! (Accuracy: {
     },
     buildStep: "Package the calibrated model into a final production inference function with adjustable sensitivity threshold.",
     starterCode: `# Step 8: Calibrated Production Classifier with Confidence Threshold
+if 'clf' not in globals() and 'SocratesSpamClassifier' in globals():
+    clf = SocratesSpamClassifier(DATASET)
+elif 'model' in globals() and 'clf' not in globals():
+    clf = model
+
 def production_classify(model, raw_text: str, threshold: float = 0.65) -> dict:
     """
     Classifies raw text with adjustable security threshold.
@@ -779,7 +793,11 @@ print(production_classify(clf, "CONGRATULATIONS you won $10,000 lottery cash rig
         "status": "FLAGGED_AS_SPAM" if is_spam else "DELIVERED_TO_INBOX"
     }
 `,
-    testAssertion: `res_ham = production_classify(clf, "Let's review the document this evening", 0.65)
+    testAssertion: `if 'clf' not in globals() and 'SocratesSpamClassifier' in globals():
+    clf = SocratesSpamClassifier(DATASET)
+elif 'model' in globals() and 'clf' not in globals():
+    clf = model
+res_ham = production_classify(clf, "Let's review the document this evening", 0.65)
 res_spam = production_classify(clf, "WINNER! Free vacation cash giftcard click now!", 0.65)
 assert res_ham["label"] == "ham", "Legit email should be delivered to inbox"
 assert res_spam["label"] == "spam", "Clear spam should be flagged"

@@ -51,36 +51,36 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
   return (
     <div className="flex-1 flex flex-col min-h-0 space-y-4 animate-in fade-in duration-200">
       {/* 1. Header Toolbar: Mode Toggle (Step Code vs Pipeline) & Progression CTA */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 rounded-xl bg-slate-900/60 border border-slate-800 shadow-sm flex-shrink-0">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-sm">
-            <Code2 className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-200 shadow-sm">
+            <Code2 className="w-3.5 h-3.5 text-zinc-300" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-semibold text-amber-400 uppercase tracking-wider">
-                PHASE 2: BUILD STUDIO
+              <span className="text-[11px] font-mono font-medium text-zinc-400 uppercase tracking-wider">
+                Phase 2 · Build Studio
               </span>
-              <span className="text-xs text-slate-400 font-mono">
+              <span className="text-[11px] text-zinc-500 font-mono">
                 Step {currentIndex + 1} of {concepts.length}
               </span>
             </div>
-            <h3 className="text-sm md:text-base font-semibold text-white">
+            <h3 className="text-sm md:text-base font-semibold text-zinc-100">
               {concept.title}
             </h3>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           {/* View toggle */}
-          <div className="flex items-center p-1 rounded-lg bg-slate-950/80 border border-slate-800">
+          <div className="flex items-center p-0.5 rounded-lg bg-zinc-950 border border-zinc-800/80">
             <button
               type="button"
               onClick={() => setViewMode("step_editor")}
               className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                 viewMode === "step_editor"
-                  ? "bg-amber-400/10 text-amber-300 border border-amber-400/30 font-semibold shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-zinc-800 text-zinc-100 shadow-sm font-medium"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               <FileCode className="w-3.5 h-3.5" />
@@ -91,13 +91,13 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
               onClick={() => setViewMode("assembled_pipeline")}
               className={`px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 ${
                 viewMode === "assembled_pipeline"
-                  ? "bg-amber-400/10 text-amber-300 border border-amber-400/30 font-semibold shadow-sm"
-                  : "text-slate-400 hover:text-slate-200"
+                  ? "bg-zinc-800 text-zinc-100 shadow-sm font-medium"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
               <span>main_model.py</span>
-              <span className="text-[11px] font-mono px-1.5 py-0.2 rounded bg-slate-900 text-amber-300 font-medium border border-slate-800">
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-850 text-zinc-300 font-medium border border-zinc-750">
                 {projectParts.length}/{concepts.length}
               </span>
             </button>
@@ -125,23 +125,23 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
           {/* Left Column: Build Spec Guide */}
           <div className="lg:col-span-4 flex flex-col space-y-4 overflow-y-auto pr-1">
             {/* Build Objective Box */}
-            <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 shadow-sm">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
-                <span className="text-xs font-mono uppercase text-amber-400 font-semibold tracking-wider block">
+            <div className="p-5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-3 shadow-sm">
+              <div className="flex items-center gap-2 pb-2 border-b border-zinc-800/80">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                <span className="text-xs font-mono uppercase text-zinc-400 font-medium tracking-wider block">
                   Coding Objective
                 </span>
               </div>
-              <p className="text-xs md:text-sm text-slate-200 leading-relaxed font-sans font-normal">
+              <p className="text-xs md:text-sm text-zinc-300 leading-relaxed font-sans font-normal">
                 {concept.buildStep}
               </p>
 
               {concept.corePrinciple && (
-                <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-500/20 space-y-1">
-                  <span className="text-xs font-mono uppercase text-amber-300 font-semibold block tracking-wide">
-                    Mathematical Principle
+                <div className="p-3 rounded-lg bg-zinc-950/80 border border-zinc-800 space-y-1">
+                  <span className="text-[11px] font-mono uppercase text-zinc-400 font-medium block tracking-wide">
+                    Underlying Principle
                   </span>
-                  <p className="text-xs text-amber-100/90 font-mono">
+                  <p className="text-xs text-zinc-400 font-sans leading-relaxed">
                     {concept.corePrinciple}
                   </p>
                 </div>
@@ -149,30 +149,30 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
             </div>
 
             {/* Blanks Guided Checklist */}
-            <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 shadow-sm">
-              <span className="text-xs font-mono uppercase text-slate-400 font-semibold tracking-wider block">
-                Implementation Checklist:
+            <div className="p-5 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-3 shadow-sm">
+              <span className="text-xs font-mono uppercase text-zinc-400 font-medium tracking-wider block">
+                Implementation Guide:
               </span>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Find the <code className="px-2 py-0.5 rounded bg-slate-950 border border-amber-400/30 text-amber-300 font-mono text-xs font-semibold">___</code> blanks in the code editor:
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Find the <code className="px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700/60 text-zinc-200 font-mono text-xs">___</code> blanks in the code editor:
               </p>
               <div className="space-y-2 pt-1">
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
-                  <span className="text-xs text-slate-200 leading-relaxed">
-                    Replace every <code className="text-amber-300 font-mono text-xs font-semibold">___</code> blank with Python logic.
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-1.5 flex-shrink-0" />
+                  <span className="text-xs text-zinc-300 leading-relaxed">
+                    Replace each <code className="text-zinc-200 font-mono text-xs px-1 rounded bg-zinc-800">___</code> blank with Python code.
                   </span>
                 </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
-                  <span className="text-xs text-slate-200 leading-relaxed">
-                    Read the inline <code className="text-slate-400 font-mono text-xs font-semibold"># TODO:</code> comments for step-by-step hints.
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 mt-1.5 flex-shrink-0" />
+                  <span className="text-xs text-zinc-300 leading-relaxed">
+                    Inspect the <code className="text-zinc-400 font-mono text-xs"># TODO:</code> comments for hints.
                   </span>
                 </div>
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/80">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0" />
-                  <span className="text-xs text-slate-200 leading-relaxed">
-                    Click <strong>Run Code</strong> to test assertions in Pyodide.
+                  <span className="text-xs text-zinc-300 leading-relaxed">
+                    Click <strong>Run Code</strong> to validate in Pyodide.
                   </span>
                 </div>
               </div>

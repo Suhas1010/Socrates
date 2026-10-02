@@ -85,50 +85,50 @@ export const LessonView: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. TOP BAR: PROJECT STEP + 3-PHASE STEPPER + TRACK SWITCHER               */}
       {/* ========================================================================= */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-slate-900/90 border border-slate-800/80 shadow-md flex-shrink-0 backdrop-blur-xl">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 px-4 py-2 rounded-xl bg-zinc-900/40 border border-zinc-800/80 flex-shrink-0">
         {/* Left: Step indicator & Roadmap drawer trigger */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setShowRoadmapDrawer(!showRoadmapDrawer)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs md:text-sm font-medium transition-all text-slate-200 shadow-sm"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-850 hover:bg-zinc-800 border border-zinc-750 text-xs md:text-sm font-medium transition-all text-zinc-200 shadow-sm"
           >
-            <Workflow className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono text-amber-300 font-semibold">
+            <Workflow className="w-3.5 h-3.5 text-zinc-400" />
+            <span className="font-mono text-zinc-300 font-medium">
               Step {currentIndex + 1}/{concepts.length}
             </span>
-            <span className="text-slate-300 truncate max-w-[150px] sm:max-w-[220px]">
+            <span className="text-zinc-400 truncate max-w-[150px] sm:max-w-[220px]">
               {currentConcept?.title}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
           </button>
 
           <button
             type="button"
             onClick={() => setShowVisualGraph(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 text-xs text-slate-400 hover:text-slate-200 border border-slate-800 transition-all font-medium"
+            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900/60 hover:bg-zinc-800 text-xs text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-all font-medium"
           >
-            <span>DAG Graph</span>
+            <span>Roadmap Graph</span>
           </button>
         </div>
 
         {/* Center: THE 3-PHASE PROGRESSION STEPPER */}
-        <div className="flex items-center justify-center p-1 rounded-lg bg-slate-950 border border-slate-800 overflow-x-auto">
+        <div className="flex items-center justify-center p-0.5 rounded-lg bg-zinc-950 border border-zinc-800/80 overflow-x-auto">
           {/* Phase 1 Button */}
           <button
             type="button"
             onClick={() => setLearningPhase("theory")}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               learningPhase === "theory"
-                ? "bg-sky-500 text-slate-950 font-semibold shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-zinc-800 text-zinc-100 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Brain className="w-3.5 h-3.5" />
+            <Brain className="w-3.5 h-3.5 text-zinc-300" />
             <span>1. Theory</span>
           </button>
 
-          <span className="text-slate-600 px-1 text-xs select-none">→</span>
+          <span className="text-zinc-700 px-1 text-xs select-none">/</span>
 
           {/* Phase 2 Button */}
           <button
@@ -136,22 +136,22 @@ export const LessonView: React.FC = () => {
             onClick={() => setLearningPhase("building")}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               learningPhase === "building"
-                ? "bg-amber-500 text-slate-950 font-semibold shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-zinc-800 text-zinc-100 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Code2 className="w-3.5 h-3.5" />
+            <Code2 className="w-3.5 h-3.5 text-zinc-300" />
             <span>2. Build</span>
             {projectParts.length > 0 && (
-              <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded ${
-                learningPhase === "building" ? "bg-slate-950/20 text-slate-950 font-bold" : "bg-slate-800 text-amber-300"
+              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                learningPhase === "building" ? "bg-zinc-700 text-zinc-200" : "bg-zinc-850 text-zinc-400"
               }`}>
                 {projectParts.length}/{concepts.length}
               </span>
             )}
           </button>
 
-          <span className="text-slate-600 px-1 text-xs select-none">→</span>
+          <span className="text-zinc-700 px-1 text-xs select-none">/</span>
 
           {/* Phase 3 Button */}
           <button
@@ -159,11 +159,11 @@ export const LessonView: React.FC = () => {
             onClick={() => setLearningPhase("testing")}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               learningPhase === "testing"
-                ? "bg-emerald-500 text-slate-950 font-semibold shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-zinc-800 text-zinc-100 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Zap className="w-3.5 h-3.5" />
+            <Zap className="w-3.5 h-3.5 text-zinc-300" />
             <span>3. Test & Runner</span>
           </button>
         </div>
@@ -175,7 +175,7 @@ export const LessonView: React.FC = () => {
             type="button"
             onClick={openPythonAcademy}
             title="Open dedicated Python Academy: interactive Python tutorials and code playground"
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 border bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 border-zinc-800"
           >
             <span>Python Academy</span>
           </button>
@@ -185,9 +185,9 @@ export const LessonView: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsTeachBackOpen(true)}
-              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-all flex items-center gap-1 shadow-sm"
+              className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium text-xs transition-all flex items-center gap-1.5 shadow-sm"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>Teach-Back</span>
             </button>
           )}
@@ -196,7 +196,7 @@ export const LessonView: React.FC = () => {
           <button
             type="button"
             onClick={advanceToNextConcept}
-            className="px-3.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow-sm transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-900 font-medium text-xs shadow-sm transition-all flex items-center gap-1.5"
           >
             <span>Next Step</span>
             <ArrowRight className="w-3.5 h-3.5" />
