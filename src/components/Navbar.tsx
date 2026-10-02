@@ -1,18 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Sparkles,
   RotateCcw,
   Layers,
   CheckCircle2,
   Lightbulb,
+  Cpu,
+  User as UserIcon,
+  LogOut,
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
+import { useAuth } from "@/lib/AuthContext";
 import { JargonBusterModal } from "./JargonBusterModal";
 import { ApiKeyModal } from "./ApiKeyModal";
 import { PythonAcademyModal } from "./PythonAcademyModal";
-import { Cpu } from "lucide-react";
 
 export const Navbar: React.FC = () => {
   const {
@@ -25,6 +29,7 @@ export const Navbar: React.FC = () => {
     openPythonAcademy,
   } = useSessionStore();
 
+  const { user, logout } = useAuth();
   const [isJargonModalOpen, setIsJargonModalOpen] = useState(false);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
 
@@ -181,6 +186,38 @@ export const Navbar: React.FC = () => {
           >
             <RotateCcw className="w-4 h-4" />
           </button>
+
+          {/* User Account / Sign In */}
+          {user ? (
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono text-zinc-950 shadow-sm"
+                style={{ backgroundColor: user.avatarColor || "#F59E0B" }}
+                title={`Logged in as ${user.name} (${user.email})`}
+              >
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-xs font-semibold text-slate-200 hidden xl:inline max-w-[100px] truncate">
+                {user.name}
+              </span>
+              <button
+                type="button"
+                onClick={logout}
+                title="Sign Out"
+                className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 hover:border-amber-400/50 text-amber-300 hover:text-amber-200 text-xs md:text-sm font-bold transition-all shadow-sm ml-1"
+            >
+              <UserIcon className="w-4 h-4 text-amber-400" />
+              <span>Sign In</span>
+            </Link>
+          )}
         </div>
       </div>
     </header>

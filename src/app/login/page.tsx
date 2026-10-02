@@ -1,0 +1,271 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Sparkles, Mail, Lock, User as UserIcon, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { user, login, register } = useAuth();
+
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // If already logged in, redirect home
+  React.useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMsg(null);
+
+    if (mode === "register") {
+      if (!name.trim()) {
+        setError("Please enter your full name.");
+        return;
+      }
+      if (password.length < 6) {
+        setError("Password must be at least 6 characters.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+      }
+
+      setLoading(true);
+      const res = await register(name, email, password);
+      setLoading(false);
+
+      if (!res.success) {
+        setError(res.error || "Failed to create account.");
+      } else {
+        setSuccessMsg("Account created successfully! Redirecting...");
+        setTimeout(() => router.push("/"), 1000);
+      }
+    } else {
+      setLoading(true);
+      const res = await login(email, password);
+      setLoading(false);
+
+      if (!res.success) {
+        setError(res.error || "Invalid email or password.");
+      } else {
+        setSuccessMsg("Signed in successfully! Redirecting...");
+        setTimeout(() => router.push("/"), 1000);
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#070A10] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden select-none">
+      {/* Background radial glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
+
+      {/* Brand Header */}
+      <div className="flex flex-col items-center mb-8 relative z-10 text-center">
+        <Link href="/" className="inline-flex items-center gap-3 group mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform">
+            <Sparkles className="w-6 h-6 fill-current" />
+          </div>
+          <span className="text-2xl font-black tracking-tight text-white font-sans">
+            Socrates
+          </span>
+        </Link>
+        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+          {mode === "login" ? "Welcome back to Socrates" : "Start your AI journey"}
+        </h1>
+        <p className="text-sm text-zinc-400 mt-1 max-w-sm">
+          {mode === "login"
+            ? "Sign in to access your saved project roadmaps, code sandboxes, and mastery progress."
+            : "Create a free account to sync your AI projects and Python Academy certificates."}
+        </p>
+      </div>
+
+      {/* Main Card */}
+      <div className="w-full max-w-md bg-[#0D121F]/90 border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10">
+        {/* Mode Toggle Switch */}
+        <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-6">
+          <button
+            type="button"
+            onClick={() => {
+              setMode("login");
+              setError(null);
+            }}
+            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+              mode === "login"
+                ? "bg-amber-400 text-zinc-950 shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode("register");
+              setError(null);
+            }}
+            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+              mode === "register"
+                ? "bg-amber-400 text-zinc-950 shadow-sm"
+                : "text-zinc-400 hover:text-white"
+            }`}
+          >
+            Create Account
+          </button>
+        </div>
+
+        {/* Feedback Alerts */}
+        {error && (
+          <div className="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex items-start gap-2.5">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-400" />
+            <span className="leading-relaxed">{error}</span>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm flex items-start gap-2.5">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-400" />
+            <span className="leading-relaxed">{successMsg}</span>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "register" && (
+            <div>
+              <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                Full Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                  <UserIcon className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Alex Mercer"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+              Email Address
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                <Mail className="w-4 h-4" />
+              </div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                <Lock className="w-4 h-4" />
+              </div>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+              />
+            </div>
+            {mode === "register" && (
+              <span className="text-[11px] text-zinc-500 mt-1 block">
+                Must be at least 6 characters
+              </span>
+            )}
+          </div>
+
+          {mode === "register" && (
+            <div>
+              <label className="block text-xs font-mono font-semibold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <input
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-white placeholder-zinc-600 text-sm focus:outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/50 transition-all font-sans"
+                />
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-2 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)] disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>{mode === "login" ? "Signing In..." : "Creating Account..."}</span>
+              </>
+            ) : (
+              <>
+                <span>{mode === "login" ? "Sign In to Socrates" : "Create Account & Continue"}</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Guest Skip Option */}
+        <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center">
+          <Link
+            href="/"
+            className="text-xs text-zinc-400 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5 font-medium"
+          >
+            <span>Continue as Guest without account &rarr;</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Database sync status info */}
+      <div className="mt-8 text-center text-xs text-zinc-500 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span>Connected to MongoDB Cloud · Instant Multi-Device Progress Sync</span>
+      </div>
+    </div>
+  );
+}
