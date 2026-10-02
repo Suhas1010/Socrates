@@ -60,22 +60,22 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#080B12]/95 backdrop-blur-md">
-      <div className="w-full px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between gap-4">
+      <div className="w-full px-4 sm:px-6 md:px-10 h-20 flex items-center justify-between gap-4">
         {/* Logo and Tagline */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-            <Sparkles className="w-4 h-4 fill-current" />
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <Sparkles className="w-6 h-6 fill-current" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-base md:text-lg font-bold tracking-tight text-white font-sans">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl md:text-2xl font-black tracking-tight text-white font-sans">
                 Socrates
               </span>
-              <span className="text-[11px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-semibold">
+              <span className="text-xs uppercase font-mono tracking-wider px-2.5 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold">
                 AI Tutor
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-normal hidden lg:block">
+            <p className="text-xs sm:text-sm text-slate-300 font-medium hidden lg:block">
               Learn AI by building real projects · 0 setup
             </p>
           </div>
@@ -83,7 +83,7 @@ export const Navbar: React.FC = () => {
 
         {/* Stage breadcrumb pills - only during active project workflow */}
         {!isLanding && (
-          <div className="hidden md:flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800 shadow-sm">
+          <div className="hidden md:flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 shadow-sm">
             {stages.map((stage, idx) => {
               const isActive = currentScreen === stage.id;
               const isDone =
@@ -92,18 +92,18 @@ export const Navbar: React.FC = () => {
               return (
                 <div
                   key={stage.id}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-amber-400/15 text-amber-300 border border-amber-400/30 shadow-sm font-semibold"
+                      ? "bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-sm font-bold"
                       : isDone
-                      ? "text-emerald-400 hover:text-emerald-300 font-medium"
+                      ? "text-emerald-400 hover:text-emerald-300 font-semibold"
                       : "text-slate-400"
                   }`}
                 >
                   {isDone ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   ) : (
-                    <span className="text-[11px] font-mono opacity-70">{idx + 1}.</span>
+                    <span className="text-xs font-mono opacity-80">{idx + 1}.</span>
                   )}
                   <span>{stage.label}</span>
                 </div>
@@ -113,26 +113,26 @@ export const Navbar: React.FC = () => {
         )}
 
         {/* Right stats and controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           {/* Beginner Jargon Buster Button */}
           <button
             type="button"
             onClick={() => setIsJargonModalOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-colors shadow-sm"
+            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 hover:text-white text-xs md:text-sm font-semibold transition-colors shadow-sm"
             title="Open plain-English glossary for confusing AI terms"
           >
-            <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+            <Lightbulb className="w-4 h-4 text-amber-400" />
             <span>Jargon Buster</span>
           </button>
 
-          {currentScreen !== "landing" && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs font-medium">
-              <Layers className="w-3.5 h-3.5 text-amber-400" />
-              <span className="text-slate-400 hidden sm:inline">Mastery:</span>
-              <span className="font-mono font-semibold text-white">
+          {!isLanding && (
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs md:text-sm font-semibold">
+              <Layers className="w-4 h-4 text-amber-400" />
+              <span className="text-slate-300 hidden sm:inline">Mastery:</span>
+              <span className="font-mono font-bold text-white">
                 {masteredCount}/{totalCount}
               </span>
-              <div className="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden ml-1">
+              <div className="w-14 h-2 bg-slate-800 rounded-full overflow-hidden ml-1">
                 <div
                   className="h-full bg-emerald-400 transition-all duration-300 rounded-full"
                   style={{ width: `${progressPercent}%` }}
@@ -146,11 +146,11 @@ export const Navbar: React.FC = () => {
             type="button"
             onClick={() => setIsApiKeyModalOpen(true)}
             title="Configure Google Gemini API Key and AI model settings"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-300 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-xs md:text-sm font-mono text-slate-200 hover:text-white font-semibold transition-colors"
           >
-            <Cpu className="w-3.5 h-3.5 text-amber-400" />
+            <Cpu className="w-4 h-4 text-amber-400" />
             <span className="hidden sm:inline">{apiKey ? "Gemini Live" : "AI Settings"}</span>
-            <span className={`w-1.5 h-1.5 rounded-full ${apiKey ? "bg-emerald-400" : "bg-amber-400"}`} />
+            <span className={`w-2 h-2 rounded-full ${apiKey ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]"}`} />
           </button>
 
           {/* Dedicated Learn Python Academy Button */}
@@ -158,9 +158,9 @@ export const Navbar: React.FC = () => {
             type="button"
             onClick={openPythonAcademy}
             title="Open dedicated Python Academy: interactive Python tutorials and code playground"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 hover:border-emerald-500/50 text-xs text-emerald-300 hover:text-emerald-200 font-medium transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 hover:border-emerald-500/60 text-xs md:text-sm text-emerald-300 hover:text-emerald-100 font-bold transition-all shadow-sm"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>Learn Python</span>
           </button>
 
@@ -176,9 +176,9 @@ export const Navbar: React.FC = () => {
               }
             }}
             title="Reset and start over"
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-800"
+            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </div>
