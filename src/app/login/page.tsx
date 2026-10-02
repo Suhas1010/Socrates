@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login, register } = useAuth();
+  const { user, login, register, loginAsGuest } = useAuth();
 
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
@@ -70,8 +70,13 @@ export default function LoginPage() {
     }
   };
 
+  const handleGuestLogin = () => {
+    loginAsGuest();
+    router.push("/");
+  };
+
   return (
-    <div className="min-h-screen bg-[#070A10] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden select-none">
+    <div className="min-h-screen bg-[#070A10] flex flex-col justify-center items-center px-4 pt-10 pb-16 relative overflow-y-auto select-none">
       {/* Background radial glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-500/10 blur-[130px] rounded-full pointer-events-none" />
 
@@ -252,12 +257,13 @@ export default function LoginPage() {
 
         {/* Guest Skip Option */}
         <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center">
-          <Link
-            href="/"
-            className="text-xs text-zinc-400 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5 font-medium"
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            className="w-full py-2.5 px-4 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs sm:text-sm text-zinc-300 hover:text-white transition-all inline-flex items-center justify-center gap-2 font-medium cursor-pointer"
           >
-            <span>Continue as Guest without account &rarr;</span>
-          </Link>
+            <span>Continue as Guest (No account needed) &rarr;</span>
+          </button>
         </div>
       </div>
 

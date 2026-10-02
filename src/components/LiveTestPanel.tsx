@@ -347,7 +347,7 @@ print("=" * 60)
   };
 
   return (
-    <div className="p-6 sm:p-8 rounded-2xl border border-slate-800 bg-[#0d111a]/95 shadow-xl space-y-6">
+    <div className="p-6 sm:p-8 pb-14 sm:pb-16 rounded-2xl border border-slate-800 bg-[#0d111a]/95 shadow-xl space-y-6 mb-8">
       {/* 1. Header with dynamic badge, title & threshold control */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800">
         <div>

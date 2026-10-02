@@ -7,6 +7,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  isGuest?: boolean;
   avatarColor?: string;
   savedProjects?: Array<{
     id: string;
@@ -29,6 +30,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginAsGuest: () => void;
   logout: () => Promise<void>;
   syncProgress: (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -39,6 +41,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => ({ success: false }),
   register: async () => ({ success: false }),
+  loginAsGuest: () => {},
   logout: async () => {},
   syncProgress: async () => {},
   refreshUser: async () => {},
@@ -54,15 +57,89 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
-        setUser(data.user || null);
-      } else {
-        setUser(null);
+        if (data.user) {
+          setUser(data.user);
+          // If previously stored guest session, clear it now that main account is authenticated
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("socrates_guest_user");
+          }
+          return;
+        }
       }
+
+      // If server has no authenticated session, check if user logged in as Guest
+      if (typeof window !== "undefined") {
+        const guestData = localStorage.getItem("socrates_guest_user");
+        if (guestData) {
+          try {
+            const parsed = JSON.parse(guestData);
+            setUser(parsed);
+            return;
+          } catch {
+            localStorage.removeItem("socrates_guest_user");
+          }
+        }
+      }
+
+      setUser(null);
     } catch {
+      if (typeof window !== "undefined") {
+        const guestData = localStorage.getItem("socrates_guest_user");
+        if (guestData) {
+          try {
+            setUser(JSON.parse(guestData));
+            return;
+          } catch {}
+        }
+      }
       setUser(null);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const loginAsGuest = useCallback(() => {
+    let guestUser: AuthUser;
+    if (typeof window !== "undefined") {
+      const existing = localStorage.getItem("socrates_guest_user");
+      if (existing) {
+        try {
+          guestUser = JSON.parse(existing);
+        } catch {
+          guestUser = {
+            id: "guest_" + Math.random().toString(36).substring(2, 9),
+            name: "Guest Learner",
+            email: "guest@socrates.local",
+            isGuest: true,
+            avatarColor: "#10B981",
+            pythonMasteredModules: [],
+            savedProjects: [],
+          };
+        }
+      } else {
+        guestUser = {
+          id: "guest_" + Math.random().toString(36).substring(2, 9),
+          name: "Guest Learner",
+          email: "guest@socrates.local",
+          isGuest: true,
+          avatarColor: "#10B981",
+          pythonMasteredModules: [],
+          savedProjects: [],
+        };
+      }
+      localStorage.setItem("socrates_guest_user", JSON.stringify(guestUser));
+    } else {
+      guestUser = {
+        id: "guest_" + Math.random().toString(36).substring(2, 9),
+        name: "Guest Learner",
+        email: "guest@socrates.local",
+        isGuest: true,
+        avatarColor: "#10B981",
+        pythonMasteredModules: [],
+        savedProjects: [],
+      };
+    }
+    setUser(guestUser);
   }, []);
 
   useEffect(() => {
@@ -95,6 +172,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || "Login failed" };
       }
 
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("socrates_guest_user");
+      }
       setUser(data.user);
       return { success: true };
     } catch (err: any) {
@@ -115,6 +195,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || "Registration failed" };
       }
 
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("socrates_guest_user");
+      }
       setUser(data.user);
       return { success: true };
     } catch (err: any) {
@@ -125,7 +208,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Suppress network errors during logout
     } finally {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("socrates_guest_user");
+      }
       setUser(null);
     }
   };
@@ -133,6 +221,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const syncProgress = useCallback(
     async (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => {
       if (!user) return;
+
+      // Handle guest user local persistence
+      if (user.isGuest) {
+        setUser((prev) => {
+          if (!prev) return null;
+          const updated: AuthUser = {
+            ...prev,
+            pythonMasteredModules: payload.pythonMasteredModules || prev.pythonMasteredModules,
+          };
+          if (payload.currentProject) {
+            const projects = prev.savedProjects ? [...prev.savedProjects] : [];
+            const idx = projects.findIndex((p) => p.id === payload.currentProject.id || p.goal === payload.currentProject.goal);
+            const projEntry = {
+              ...payload.currentProject,
+              lastUpdated: new Date().toISOString(),
+            };
+            if (idx >= 0) {
+              projects[idx] = { ...projects[idx], ...projEntry };
+            } else {
+              projects.unshift(projEntry);
+            }
+            updated.savedProjects = projects;
+          }
+          if (typeof window !== "undefined") {
+            localStorage.setItem("socrates_guest_user", JSON.stringify(updated));
+          }
+          return updated;
+        });
+        return;
+      }
+
       try {
         const res = await fetch("/api/auth/sync", {
           method: "POST",
@@ -203,6 +322,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         login,
         register,
+        loginAsGuest,
         logout,
         syncProgress,
         refreshUser,

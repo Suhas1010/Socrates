@@ -81,7 +81,7 @@ export const LessonView: React.FC = () => {
   const isCodePassed = projectParts.some((p) => p.conceptId === currentConcept?.id);
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden px-4 md:px-8 py-4 space-y-4 text-slate-100">
+    <div className="flex-1 flex flex-col h-full overflow-hidden px-3 sm:px-6 md:px-8 pt-3 pb-6 space-y-4 text-slate-100">
       {/* ========================================================================= */}
       {/* 1. TOP BAR: PROJECT STEP + 3-PHASE STEPPER + TRACK SWITCHER               */}
       {/* ========================================================================= */}
@@ -207,7 +207,7 @@ export const LessonView: React.FC = () => {
       {/* ========================================================================= */}
       {/* 2. UNCLUTTERED DEDICATED WORKSPACE FOR THE ACTIVE PHASE                   */}
       {/* ========================================================================= */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto pb-8">
         {learningPhase === "theory" ? (
           <Phase1TheoryView
             concept={currentConcept}

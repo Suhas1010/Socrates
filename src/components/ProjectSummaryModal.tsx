@@ -58,7 +58,7 @@ ${projectParts.map((p) => `# Step: ${p.functionName}\n${p.code}\n`).join("\n")}
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-300">
+    <div className="w-full max-w-5xl mx-auto px-4 pt-6 pb-24 space-y-8 animate-in fade-in duration-300">
       {/* Celebration Header */}
       <div className="text-center space-y-3">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold tracking-wide">

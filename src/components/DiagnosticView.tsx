@@ -45,7 +45,7 @@ export const DiagnosticView: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-10 md:py-14 text-slate-100">
+    <div className="w-full max-w-3xl mx-auto px-4 pt-8 pb-16 md:pb-24 text-slate-100">
       {/* Header with goal context and progress dots */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

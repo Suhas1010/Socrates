@@ -235,7 +235,7 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12 animate-in fade-in duration-200">
+    <div className="max-w-5xl mx-auto space-y-6 pb-20 animate-in fade-in duration-200">
       {/* 1. Sleek Concept Header */}
       <div className="py-2 space-y-2.5 border-b border-zinc-800/80 pb-5">
         <div className="flex items-center gap-2">

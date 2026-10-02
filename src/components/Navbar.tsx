@@ -197,9 +197,16 @@ export const Navbar: React.FC = () => {
               >
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-xs font-semibold text-slate-200 hidden xl:inline max-w-[100px] truncate">
-                {user.name}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-200 hidden xl:inline max-w-[100px] truncate">
+                  {user.name}
+                </span>
+                {user.isGuest && (
+                  <span className="text-[10px] uppercase font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300">
+                    Guest
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={logout}

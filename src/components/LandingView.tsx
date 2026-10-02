@@ -72,7 +72,7 @@ export const LandingView: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full max-w-5xl md:max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-5 text-slate-100 flex flex-col justify-between h-full max-h-[calc(100vh-5rem)] overflow-hidden">
+    <div className="relative w-full max-w-5xl md:max-w-6xl mx-auto px-4 sm:px-6 pt-3 sm:pt-5 pb-10 sm:pb-12 text-slate-100 flex flex-col justify-between min-h-full">
       {/* Ambient background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
 
@@ -209,7 +209,7 @@ export const LandingView: React.FC = () => {
       </div>
 
       {/* Micro Trust Indicators / Bottom Row */}
-      <div className="flex items-center justify-between text-xs sm:text-sm text-slate-300 px-3 py-2 border-t border-slate-800/80 flex-shrink-0 font-medium">
+      <div className="flex items-center justify-between text-xs sm:text-sm text-slate-300 px-3 py-3.5 mt-4 border-t border-slate-800/80 flex-shrink-0 font-medium">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-amber-400" />
           <span>In-browser Python (0 install)</span>

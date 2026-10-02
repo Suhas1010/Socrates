@@ -28,7 +28,7 @@ export const PlanReviewView: React.FC = () => {
     concepts.find((c) => c.id === currentConceptId) || concepts[0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8">
+    <div className="w-full max-w-6xl mx-auto px-4 pt-6 pb-20 md:pb-24">
       {/* Friendly Approval Gate Header */}
       <div className="text-center max-w-3xl mx-auto mb-8 space-y-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">

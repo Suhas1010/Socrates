@@ -227,7 +227,7 @@ export const Phase2BuildView: React.FC<Phase2BuildViewProps> = ({
       )}
 
       {/* 3. Bottom Navigation Bar */}
-      <div className="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
+      <div className="flex items-center justify-between pt-3 pb-8 border-t border-slate-800 flex-shrink-0">
         <button
           type="button"
           onClick={onBackToTheory}
