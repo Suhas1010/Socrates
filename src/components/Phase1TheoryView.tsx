@@ -323,13 +323,13 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
 
           {/* Everyday Analogy Card */}
           {concept.corePrinciple && (
-            <div className="p-4 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-start gap-3.5">
-              <div className="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700/60 flex items-center justify-center flex-shrink-0 text-zinc-300 text-xs">
-                <Lightbulb className="w-3.5 h-3.5 text-zinc-300" />
+            <div className="p-4 rounded-lg bg-amber-950/20 border border-amber-500/25 flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center flex-shrink-0 text-amber-400 text-xs">
+                <Lightbulb className="w-4 h-4 text-amber-400" />
               </div>
               <div className="space-y-1.5 flex-1 min-w-0">
-                <span className="text-xs font-mono font-medium text-zinc-400 uppercase tracking-wider block">
-                  Everyday Analogy
+                <span className="text-xs font-mono font-semibold text-amber-400 uppercase tracking-wider block">
+                  The Everyday Real-World Analogy
                 </span>
                 <FormattedContent text={concept.corePrinciple} />
               </div>
@@ -520,7 +520,7 @@ export const Phase1TheoryView: React.FC<Phase1TheoryViewProps> = ({
         <button
           type="button"
           onClick={onProceedToBuild}
-          className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-900 font-medium text-xs md:text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold text-xs md:text-sm shadow-sm transition-all flex items-center justify-center gap-2"
         >
           <span>Proceed to Phase 2: Build in Python</span>
           <ArrowRight className="w-4 h-4" />
