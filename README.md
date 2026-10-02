@@ -30,18 +30,31 @@ Traditional AI courses demand 40+ hours of abstract mathematical lectures before
 
 ## 🚀 Key Features
 
-### 1. 5 Curated Production AI Project Templates + Dynamic Goals
-- **Spam Classifier** (NLP / Bag-of-Words & Naive Bayes / Logistic Regression)
-- **Real Estate Price Predictor** (Tabular Regression, Feature Engineering & Scaling)
-- **Digit Recognizer** (Computer Vision, 2D Arrays & Convolutional Neural Networks)
-- **Mini ChatGPT** (Self-Attention, Token Embeddings & Transformers)
-- **Sentiment Analysis** (Financial Sentiment & Transformer Fine-Tuning)
-- **Dynamic Goal Engine**: Socrates can dynamically plan and scaffold learning roadmaps for *any* custom project goal entered by the user.
+### 1. Build ANY AI Project: Dynamic Goal Engine + 5 Flagship Presets
+Socrates is **not limited to a fixed set of projects**. It is an open-ended AI project compiler:
+- **Unlimited Custom Projects**: Type *any* machine learning or AI project idea into the goal intake (e.g. *"predict hospital readmission"*, *"detect fraudulent credit card transactions"*, *"classify agricultural crop diseases"*, *"forecast retail store sales"*, or *"estimate electric vehicle battery life"*).
+- **Dynamic DAG Reverse-Engineering (`/api/plan`)**: Powered by Google Gemini, Socrates analyzes your goal, coding background, and interests to generate a custom 5-to-8 node Directed Acyclic Graph (DAG) with:
+  - **Authentic, Domain-Specific Features**: (e.g., for weather: `temperature`, `humidity`, `barometric_pressure`, `wind_speed` instead of generic `feature_1`, `feature_2`).
+  - **Full Training Pipelines**: Real `scikit-learn` or neural architectures, synthetic dataset generation, `model.fit()`, and inference functions.
+  - **Automated Verification**: Concrete test assertions and verified working reference solutions for every milestone.
+- **Built-In Domain Fallbacks (Zero-API Offline Mode)**: Even without an internet connection or Gemini API key, Socrates features deep, rule-based roadmap generators covering:
+  - **Clinical Diagnostics & Healthcare** (Diabetes risk, tumor classification, patient vitals)
+  - **Computer Vision & Agriculture** (Plant & leaf pathogen recognition)
+  - **Cybersecurity & Threat Detection** (Packet inspection, brute-force & intrusion detection)
+  - **Time-Series & Demand Forecasting** (Retail sales, inventory demand)
+  - **Customer Churn & Retention Analytics**
+  - **Audio, Voice & Emotion Classification**
+- **5 Curated 1-Click Flagship Launchpads**: Pre-built, fully optimized showcase templates for immediate onboarding without "blank canvas" hesitation:
+  1. **Spam Classifier** (NLP / Bag-of-Words & Naive Bayes)
+  2. **Real Estate Price Predictor** (Tabular Regression, Feature Engineering & Scaling)
+  3. **Digit Recognizer** (Computer Vision, 2D Arrays & Convolutional Neural Networks)
+  4. **Mini ChatGPT** (Self-Attention, Token Embeddings & Transformers)
+  5. **Sentiment Analysis** (Financial Sentiment & Transformer Fine-Tuning)
 
 ### 2. 3-Phase Project Journey
 - **Phase 1 (Intuition & Math)**: Visual analogies, plain-English explanations, formula breakdowns, and comprehension checks.
 - **Phase 2 (Code & Building)**: Live code editor with starter code, unit tests, step hints, and complete verified reference solutions.
-- **Phase 3 (Live Interactive Testing)**: Interactive sandbox where learners test their trained model in real time on realistic sliders, inputs, or sample data.
+- **Phase 3 (Live Interactive Testing)**: Interactive sandbox where learners test their trained model in real time on realistic sliders, inputs, or sample data tailored to their specific project domain.
 
 ### 3. Dedicated Python Academy
 - 6 standalone foundational modules covering variables, data types, control flow, functions, loops, and vector math.
@@ -141,6 +154,26 @@ Browser (Next.js 14 App Router / React 18 / TypeScript)
 
 ---
 
+## 🎯 Interactive Demo Flow
+
+1. **Option A: Enter ANY Custom AI Project**:
+   - Type an idea like `"predict hospital readmissions"`, `"classify crop diseases"`, `"detect credit card fraud"`, or `"forecast retail demand"`.
+   - Socrates immediately reverse-engineers a domain-specific 5-to-8 node prerequisite DAG with named real-world features.
+2. **Option B: Select a 1-Click Flagship Preset**:
+   - Choose one of the 5 curated templates (e.g. *Spam Classifier* or *Real Estate Price Predictor*).
+3. **Adaptive 60-Second Diagnostic**:
+   - Answer 3 targeted baseline questions. Socrates prunes concepts you already know and marks your starting node.
+4. **Human Approval Gate**:
+   - Inspect the interactive DAG graph generated via React Flow. Confirm the plan to begin.
+5. **The 3-Phase Mastery Loop**:
+   - **Phase 1 (Theory)**: Read intuitive visual analogies, review mathematical intuition, and pass a quick comprehension check.
+   - **Phase 2 (Building)**: Open the in-browser WebAssembly code editor. Fill in blanks or write model code with guidance from the dual-tab Hints & Solutions drawer. Run code against automated Python assertions.
+   - **Phase 3 (Live Testing)**: Slide input controls, toggle parameters, and test your model against real-time simulated inference directly in your browser.
+6. **Feynman Teach-Back Check**:
+   - Explain the core concept in your own plain English. Socrates evaluates conceptual understanding before granting **Mastered ✓** status.
+
+---
+
 ## 📁 Repository Structure
 
 ```
@@ -181,3 +214,4 @@ Socrates/
 ## 📄 License
 
 This project is licensed under the MIT License.
+
