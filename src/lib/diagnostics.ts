@@ -2335,6 +2335,11 @@ model.fit(X_train, y_train)`;
         corePrinciple: `🎓 Plain English: Features are facts you ALREADY KNOW. Target is the unknown thing you want to FIND OUT. Like a doctor who already knows your age, weight, and test results (features) and needs to predict your diagnosis (target).`,
         whyItMatters: `The most common beginner mistake: accidentally including the target in the feature list. Example: if "will_rain_tomorrow" is inside your weather features, the model reads the answer directly and learns nothing. This is called target leakage and is dangerous because the model fails completely on real new data.`,
         buildStep: `Write the data contract: list exact input features and target for ${safeGoal}.`,
+        hints: [
+          `Blank 1 ("task_type"): "${medTaskType}" (${isRegression ? "predicting continuous numbers like BPM" : "predicting discrete categories"}).`,
+          `Blank 2 ("features"): ${medFeaturesStr} (the list of measurable input facts).`,
+          `Blank 3 ("target"): "${medTarget}" (the single output you want to predict). Do not include this in features!`,
+        ],
         starterCode: `# Step 1: Data Contract for ${safeGoal}
 # Real input features:
 ${medFeaturesComment}
@@ -2350,7 +2355,12 @@ def define_project_spec():
 
 print("Spec:", define_project_spec())
 `,
-        solutionCode: `def define_project_spec():
+        solutionCode: `# Step 1: Data Contract for ${safeGoal}
+# Real input features:
+${medFeaturesComment}
+# Target: ${medTarget}
+
+def define_project_spec():
     return {
         "project": "${safeGoal}",
         "task_type": "${medTaskType}",

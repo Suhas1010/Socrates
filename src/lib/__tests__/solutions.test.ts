@@ -5,6 +5,7 @@ import { PYTHON_TRACK_CONCEPTS } from "../templates/pythonTrack";
 import { CHATGPT_CONCEPTS } from "../templates/chatGpt";
 import { DIGIT_RECOGNIZER_CONCEPTS } from "../templates/digitRecognizer";
 import { SENTIMENT_ANALYSIS_CONCEPTS } from "../templates/sentimentAnalysis";
+import { generateFallbackConceptsForGoal } from "../diagnostics";
 import { runPythonCode } from "../pyodideRunner";
 
 describe("Solution Code Verification", () => {
@@ -15,6 +16,9 @@ describe("Solution Code Verification", () => {
     { name: "chatGpt", concepts: CHATGPT_CONCEPTS },
     { name: "digit", concepts: DIGIT_RECOGNIZER_CONCEPTS },
     { name: "sentiment", concepts: SENTIMENT_ANALYSIS_CONCEPTS },
+    { name: "heartRateFallback", concepts: generateFallbackConceptsForGoal("heart rate prediction by ai") },
+    { name: "diabetesFallback", concepts: generateFallbackConceptsForGoal("Diabetes disease predictor") },
+    { name: "emotionFallback", concepts: generateFallbackConceptsForGoal("facial emotion detector") },
   ];
 
   for (const track of allTemplates) {

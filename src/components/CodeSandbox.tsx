@@ -11,6 +11,8 @@ import {
   Check,
   Sparkles,
   ArrowRight,
+  Copy,
+  X,
 } from "lucide-react";
 import { runPythonCode, initPyodide, PythonExecutionResult } from "@/lib/pyodideRunner";
 import { Concept } from "@/lib/types";
@@ -36,13 +38,19 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const [code, setCode] = useState(concept.starterCode || "");
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<PythonExecutionResult | null>(null);
-  const [showSolution, setShowSolution] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<"hints" | "solution">("hints");
+  const [copiedSolution, setCopiedSolution] = useState(false);
+  const [solutionLoaded, setSolutionLoaded] = useState(false);
   const [stepComplete, setStepComplete] = useState(isAlreadyPassed);
 
   useEffect(() => {
     setCode(concept.starterCode || "");
     setResult(null);
-    setShowSolution(false);
+    setShowDrawer(false);
+    setDrawerTab("hints");
+    setCopiedSolution(false);
+    setSolutionLoaded(false);
     setStepComplete(isAlreadyPassed);
   }, [concept.id, isAlreadyPassed]);
 
@@ -119,16 +127,51 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
     }
   };
 
+  const getExtractedHints = (): string[] => {
+    if (concept.hints && concept.hints.length > 0) {
+      return concept.hints;
+    }
+    const lines = (concept.starterCode || "").split("\n");
+    const extracted: string[] = [];
+    for (const line of lines) {
+      const todoMatch = line.match(/#\s*(?:✏\s*)?TODO:\s*(.+)$/i);
+      if (todoMatch && todoMatch[1]) {
+        const hintText = todoMatch[1].trim();
+        if (!extracted.includes(hintText)) {
+          extracted.push(hintText);
+        }
+      }
+    }
+    if (extracted.length === 0 && concept.corePrinciple) {
+      extracted.push(concept.corePrinciple);
+    }
+    if (extracted.length === 0 && concept.buildStep) {
+      extracted.push(concept.buildStep);
+    }
+    return extracted;
+  };
+
+  const extractedHints = getExtractedHints();
+
   const handleReset = () => {
     setCode(concept.starterCode || "");
     setResult(null);
-    setShowSolution(false);
+    setShowDrawer(false);
   };
 
   const handleUseSolution = () => {
     if (concept.solutionCode) {
       setCode(concept.solutionCode);
-      setShowSolution(false);
+      setSolutionLoaded(true);
+      setTimeout(() => setSolutionLoaded(false), 2000);
+    }
+  };
+
+  const handleCopySolution = () => {
+    if (concept.solutionCode) {
+      navigator.clipboard.writeText(concept.solutionCode);
+      setCopiedSolution(true);
+      setTimeout(() => setCopiedSolution(false), 2000);
     }
   };
 
@@ -149,22 +192,26 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {concept.solutionCode && (
             <button
               type="button"
-              onClick={() => setShowSolution(!showSolution)}
-              className="text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-zinc-800/80"
+              onClick={() => setShowDrawer(!showDrawer)}
+              className={`text-xs font-semibold transition-all flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${
+                showDrawer
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                  : "bg-zinc-900 text-zinc-300 hover:text-white border-zinc-700/80 hover:bg-zinc-800"
+              }`}
             >
-              <Lightbulb className="w-3.5 h-3.5 text-zinc-400" />
-              <span>{showSolution ? "Hide Hint" : "Hint / Solution"}</span>
+              <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+              <span>{showDrawer ? "Hide Assistant" : "Hints & Solution"}</span>
             </button>
           )}
 
           <button
             type="button"
             onClick={handleReset}
-            title="Reset code"
+            title="Reset code to starter template"
             className="text-xs text-zinc-400 hover:text-zinc-200 p-1.5 rounded-md hover:bg-zinc-800/80 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -172,22 +219,130 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
         </div>
       </div>
 
-      {/* Solution drawer if toggled */}
-      {showSolution && concept.solutionCode && (
-        <div className="bg-zinc-900/90 border-b border-zinc-800 p-3.5 text-xs text-zinc-300 flex items-center justify-between gap-4">
-          <div className="space-y-1 overflow-hidden">
-            <span className="font-medium text-zinc-200 text-xs">Solution Reference:</span>
-            <pre className="font-mono text-[11px] text-zinc-400 whitespace-pre-wrap max-h-20 overflow-y-auto">
-              {concept.solutionCode.slice(0, 160)}...
-            </pre>
+      {/* Comprehensive Hints & Solution Drawer */}
+      {showDrawer && (
+        <div className="bg-[#0b0f19] border-b border-zinc-800 p-4 space-y-3.5 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            {/* Tabs */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setDrawerTab("hints")}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                  drawerTab === "hints"
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                <span>Step Hints ({extractedHints.length})</span>
+              </button>
+              {concept.solutionCode && (
+                <button
+                  type="button"
+                  onClick={() => setDrawerTab("solution")}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+                    drawerTab === "solution"
+                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Complete Solution</span>
+                </button>
+              )}
+            </div>
+
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setShowDrawer(false)}
+              className="text-zinc-400 hover:text-zinc-200 p-1 rounded hover:bg-zinc-800 transition-colors"
+              title="Close drawer"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleUseSolution}
-            className="px-3.5 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition-colors flex-shrink-0 shadow-sm"
-          >
-            Load Solution
-          </button>
+
+          {drawerTab === "hints" ? (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-semibold text-zinc-300">Guided Walkthrough for Blanks:</span>
+                {concept.solutionCode && (
+                  <button
+                    type="button"
+                    onClick={() => setDrawerTab("solution")}
+                    className="text-amber-400 hover:text-amber-300 font-medium inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    Need complete code? View Solution &rarr;
+                  </button>
+                )}
+              </div>
+
+              <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                {extractedHints.map((hint, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-2.5 p-2.5 rounded-lg bg-zinc-900/80 border border-zinc-800 text-xs text-zinc-200"
+                  >
+                    <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 font-bold flex items-center justify-center flex-shrink-0 text-[11px] border border-amber-500/30">
+                      {idx + 1}
+                    </span>
+                    <div className="leading-relaxed font-mono text-zinc-300 whitespace-pre-wrap">
+                      {hint}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            concept.solutionCode && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-400 font-medium">
+                    Verified working reference solution (never truncated):
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopySolution}
+                      className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1.5 transition-colors border border-zinc-700 cursor-pointer"
+                    >
+                      {copiedSolution ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                          <span>Copy Code</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleUseSolution}
+                      className="px-3 py-1 rounded bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                    >
+                      {solutionLoaded ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Loaded into Editor!</span>
+                        </>
+                      ) : (
+                        <span>Load Solution into Editor</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <pre className="font-mono text-xs text-zinc-200 bg-[#06090e] p-3 rounded-lg border border-zinc-800 max-h-56 overflow-y-auto whitespace-pre leading-relaxed select-text">
+                  {concept.solutionCode}
+                </pre>
+              </div>
+            )
+          )}
         </div>
       )}
 

@@ -58,6 +58,7 @@ export interface Concept {
   starterCode?: string;
   solutionCode?: string;
   testAssertion?: string;
+  hints?: string[];
   predictQuestion?: {
     prompt: string;
     options: string[];
