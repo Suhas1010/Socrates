@@ -204,14 +204,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || "Registration failed" };
       }
 
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("socrates_guest_user");
+      }
+      if (data.user) {
+        setUser(data.user);
+      }
+
       return {
         success: true,
-        needsVerification: data.needsVerification,
-        email: data.email,
-        message: data.message,
-        devCode: data.devCode,
-        previewUrl: data.previewUrl,
-        provider: data.provider,
+        message: data.message || "Account created successfully!",
       };
     } catch (err: any) {
       return { success: false, error: err.message || "An unexpected error occurred" };
