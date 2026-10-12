@@ -17,7 +17,7 @@ import { useAuth } from "@/lib/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login, register, loginAsGuest } = useAuth();
+  const { user, login, register } = useAuth();
 
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   // If already logged in, redirect home
   useEffect(() => {
-    if (user) {
+    if (user && !user.isGuest) {
       router.push("/");
     }
   }, [user, router]);
@@ -79,11 +79,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGuestLogin = () => {
-    loginAsGuest();
-    router.push("/");
-  };
-
   return (
     <div className="min-h-screen w-full bg-[#070A10] flex flex-col items-center justify-start py-6 sm:py-8 px-4 relative overflow-y-auto">
       {/* Background radial glow */}
@@ -93,26 +88,27 @@ export default function LoginPage() {
       <div className="w-full max-w-md my-auto flex flex-col items-center">
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-4 relative z-10 text-center">
-          <Link href="/" className="inline-flex items-center gap-2 group mb-2">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_12px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold shadow-[0_0_12px_rgba(245,158,11,0.25)]">
               <Sparkles className="w-4.5 h-4.5 fill-current" />
             </div>
             <span className="text-lg font-black tracking-tight text-white font-sans">
               Socrates
             </span>
-          </Link>
+          </div>
           <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
             {mode === "login" ? "Welcome back to Socrates" : "Start your AI journey"}
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5 max-w-sm leading-normal">
             {mode === "login"
               ? "Sign in to access your saved project roadmaps, code sandboxes, and mastery progress."
-              : "Create a free account to sync your AI projects and Python Academy certificates."}
+              : "Create a free account to access Socrates AI Tutor and Python Academy."}
           </p>
         </div>
 
         {/* Main Card */}
         <div className="w-full bg-[#0D121F]/90 border border-zinc-800 rounded-2xl p-4 sm:p-6 shadow-[0_10px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl relative z-10 mb-4">
+
           {/* Mode Toggle Switch */}
           <div className="flex items-center p-1 bg-zinc-950/80 border border-zinc-800 rounded-xl mb-4">
             <button
@@ -270,15 +266,39 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Guest Skip Option */}
+          {/* Mode Switch Helper */}
           <div className="mt-5 pt-4 border-t border-zinc-800/80 text-center">
-            <button
-              type="button"
-              onClick={handleGuestLogin}
-              className="w-full py-2 px-3 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs text-zinc-300 hover:text-white transition-all inline-flex items-center justify-center gap-1.5 font-medium cursor-pointer"
-            >
-              <span>Continue as Guest (No account needed) &rarr;</span>
-            </button>
+            {mode === "login" ? (
+              <p className="text-xs text-zinc-400">
+                Don&apos;t have an account yet?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("register");
+                    setError(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="text-amber-400 hover:text-amber-300 font-semibold cursor-pointer underline transition-colors ml-1"
+                >
+                  Create Account
+                </button>
+              </p>
+            ) : (
+              <p className="text-xs text-zinc-400">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("login");
+                    setError(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="text-amber-400 hover:text-amber-300 font-semibold cursor-pointer underline transition-colors ml-1"
+                >
+                  Sign In
+                </button>
+              </p>
+            )}
           </div>
         </div>
 

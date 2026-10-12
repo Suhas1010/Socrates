@@ -36,6 +36,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   syncProgress: (payload: { pythonMasteredModules?: string[]; currentProject?: any }) => Promise<void>;
   refreshUser: () => Promise<void>;
+  exportProfile: () => void;
+  importProfile: (jsonString: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -49,6 +51,8 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   syncProgress: async () => {},
   refreshUser: async () => {},
+  exportProfile: () => {},
+  importProfile: () => false,
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -63,7 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await res.json();
         if (data.user) {
           setUser(data.user);
-          // If previously stored guest session, clear it now that main account is authenticated
           if (typeof window !== "undefined") {
             localStorage.removeItem("socrates_guest_user");
           }
@@ -71,30 +74,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
 
-      // If server has no authenticated session, check if user logged in as Guest
       if (typeof window !== "undefined") {
-        const guestData = localStorage.getItem("socrates_guest_user");
-        if (guestData) {
-          try {
-            const parsed = JSON.parse(guestData);
-            setUser(parsed);
-            return;
-          } catch {
-            localStorage.removeItem("socrates_guest_user");
-          }
-        }
+        localStorage.removeItem("socrates_guest_user");
       }
-
       setUser(null);
     } catch {
       if (typeof window !== "undefined") {
-        const guestData = localStorage.getItem("socrates_guest_user");
-        if (guestData) {
-          try {
-            setUser(JSON.parse(guestData));
-            return;
-          } catch {}
-        }
+        localStorage.removeItem("socrates_guest_user");
       }
       setUser(null);
     } finally {
@@ -278,6 +264,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem("socrates_guest_user");
       }
       setUser(null);
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
   };
 
@@ -378,6 +367,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, [user, syncProgress]);
 
+  const exportProfile = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const sessionState = localStorage.getItem("socrates-tutor-session");
+    const guestState = localStorage.getItem("socrates_guest_user");
+    const bundle = {
+      version: "2.0",
+      exportedAt: new Date().toISOString(),
+      user,
+      guestUser: guestState ? JSON.parse(guestState) : null,
+      session: sessionState ? JSON.parse(sessionState) : null,
+    };
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `socrates-profile-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [user]);
+
+  const importProfile = useCallback((jsonString: string): boolean => {
+    if (typeof window === "undefined") return false;
+    try {
+      const data = JSON.parse(jsonString);
+      if (data.session) {
+        localStorage.setItem("socrates-tutor-session", JSON.stringify(data.session));
+      }
+      if (data.guestUser || data.user) {
+        const u = data.guestUser || data.user;
+        localStorage.setItem("socrates_guest_user", JSON.stringify(u));
+        setUser(u);
+      }
+      window.location.reload();
+      return true;
+    } catch (e) {
+      console.error("Failed to import profile:", e);
+      return false;
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -391,6 +422,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         syncProgress,
         refreshUser,
+        exportProfile,
+        importProfile,
       }}
     >
       {children}

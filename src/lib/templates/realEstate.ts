@@ -312,7 +312,7 @@ print("Assertion Passed: Loss computation and optimization step verified!")
 # 1. Call predict_price with normalized features
 # 2. Round the estimated price
 
-def estimate_home_value(listing: dict, weights: list[float], bias: float = 30000.0) -> dict:
+def estimate_home_value(listing: dict, weights: list[float] = [150000.0, 20000.0], bias: float = 30000.0) -> dict:
     features = normalize_features(listing["sqft"], listing["bedrooms"])
     price_pred = ___             # TODO: predict_price(features, weights, bias)
     return {
@@ -325,7 +325,7 @@ w = [150000.0, 20000.0]
 sample_home = {"sqft": 2000, "bedrooms": 3}
 print(estimate_home_value(sample_home, w, 30000.0))
 `,
-    solutionCode: `def estimate_home_value(listing: dict, weights: list[float], bias: float = 30000.0) -> dict:
+    solutionCode: `def estimate_home_value(listing: dict, weights: list[float] = [150000.0, 20000.0], bias: float = 30000.0) -> dict:
     features = normalize_features(listing["sqft"], listing["bedrooms"])
     price_pred = predict_price(features, weights, bias)
     return {
@@ -356,6 +356,63 @@ print("Assertion Passed: Full real estate price prediction engine ready for depl
       correctIndex: 0,
       explanation: "2.0 * 150k = 300k, 3 * 20k = 60k, bias = 30k -> $390,000."
     }
+  },
+  {
+    id: "evaluation-metrics",
+    title: "Evaluation Metrics: Mean Absolute Error (MAE)",
+    prereqs: ["inference-pipeline"],
+    difficulty: 3,
+    hook: "After deploying your valuation model, how do you verify its dollar prediction error on a test set of recently sold homes? We compute Mean Absolute Error (MAE).",
+    explanationSummary:
+      "Mean Absolute Error measures the average dollar deviation between predicted prices and actual sale prices: MAE = (1/m) * sum(|y_hat - y|). A lower MAE indicates a more reliable valuation engine.",
+    buildStep: "Implement compute_mae to measure average dollar pricing error across held-out test home sales.",
+    starterCode: `# Step 6: Mean Absolute Error Evaluation
+test_sales = [
+    ({"sqft": 1800, "bedrooms": 3}, 365000.0),
+    ({"sqft": 2400, "bedrooms": 4}, 480000.0),
+    ({"sqft": 1500, "bedrooms": 2}, 305000.0),
+]
+
+def compute_mae(listings_with_actual, weights, bias=30000.0):
+    total_abs_error = 0.0
+    for home, actual_price in listings_with_actual:
+        est = estimate_home_value(home, weights, bias)["estimated_price"]
+        # TODO: Add absolute difference |est - actual_price|
+        total_abs_error += abs(est - ___)
+    return round(total_abs_error / len(listings_with_actual), 2)
+
+w = [150000.0, 20000.0]
+print("Validation MAE: $", compute_mae(test_sales, w, 30000.0))
+`,
+    solutionCode: `test_sales = [
+    ({"sqft": 1800, "bedrooms": 3}, 365000.0),
+    ({"sqft": 2400, "bedrooms": 4}, 480000.0),
+    ({"sqft": 1500, "bedrooms": 2}, 305000.0),
+]
+
+def compute_mae(listings_with_actual, weights, bias=30000.0):
+    total_abs_error = 0.0
+    for home, actual_price in listings_with_actual:
+        est = estimate_home_value(home, weights, bias)["estimated_price"]
+        total_abs_error += abs(est - actual_price)
+    return round(total_abs_error / len(listings_with_actual), 2)
+`,
+    testAssertion: `w = [150000.0, 20000.0]
+mae = compute_mae(test_sales, w, 30000.0)
+assert isinstance(mae, float) and mae >= 0.0
+print("Assertion Passed: Real estate valuation MAE verified!")
+`,
+    predictQuestion: {
+      prompt: "What does an MAE of $12,500 mean for a house price predictor?",
+      options: [
+        "On average, the model's price estimates differ from actual selling prices by $12,500.",
+        "The house was sold for exactly $12,500.",
+        "The model made 12,500 errors in total.",
+        "The model operates with 12.5% accuracy."
+      ],
+      correctIndex: 0,
+      explanation: "Mean Absolute Error expresses the expected magnitude of error in the target metric's natural units (dollars)."
+    }
   }
 ];
 
@@ -363,7 +420,8 @@ export const REAL_ESTATE_EDGES: ConceptEdge[] = [
   { from: "problem-framing", to: "feature-engineering" },
   { from: "feature-engineering", to: "model-architecture" },
   { from: "model-architecture", to: "loss-and-optimization" },
-  { from: "loss-and-optimization", to: "inference-pipeline" }
+  { from: "loss-and-optimization", to: "inference-pipeline" },
+  { from: "inference-pipeline", to: "evaluation-metrics" }
 ];
 
 export const REAL_ESTATE_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
@@ -388,5 +446,28 @@ export const REAL_ESTATE_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
       { text: "To eliminate the need for training data", isCorrect: false, errorType: "CONCEPTUAL_GAP", rationale: "Scaling does not remove the need for training data." },
       { text: "Because real estate prices are secretly all equal", isCorrect: false, errorType: "OVERCONFIDENT_MISCONCEPTION", rationale: "Home prices vary dramatically based on features." }
     ]
+  },
+  {
+    id: "diag-re-3",
+    targetConceptId: "loss-and-optimization",
+    question: "When training a price predictor, why do we use Squared Error (predicted - actual)² rather than raw error (predicted - actual)?",
+    options: [
+      { text: "Squaring penalizes large valuation errors much more severely and prevents positive and negative errors from canceling each other out.", isCorrect: true, errorType: "NONE" },
+      { text: "Squaring makes the numbers smaller so calculations finish faster.", isCorrect: false, errorType: "CALCULATION_SLIP", rationale: "Squaring numbers > 1 makes them larger, not smaller." },
+      { text: "Calculus forbids taking derivatives of linear numbers.", isCorrect: false, errorType: "TERMINOLOGY_CONFUSION", rationale: "Linear derivatives exist and equal constants; squaring provides smooth parabolic gradients." },
+      { text: "Because negative prices are legally prohibited in real estate.", isCorrect: false, errorType: "CONCEPTUAL_GAP", rationale: "The math loss penalizes residual deviations, independent of real estate legalities." }
+    ]
+  },
+  {
+    id: "diag-re-4",
+    targetConceptId: "evaluation-metrics",
+    question: "Your model scores a Mean Absolute Error (MAE) of $15,000 on training listings, but $85,000 on newly listed test homes. What does this diagnosis mean?",
+    options: [
+      { text: "Overfitting: The model memorized specific training homes and fails to generalize to fresh market listings.", isCorrect: true, errorType: "NONE" },
+      { text: "Underfitting: The model is too simple and failed to learn any pricing patterns at all.", isCorrect: false, errorType: "CONCEPTUAL_GAP", rationale: "Underfitting results in high error on BOTH training and test data." },
+      { text: "The model is 100% perfect because $15,000 is under $20,000.", isCorrect: false, errorType: "OVERCONFIDENT_MISCONCEPTION", rationale: "A five-fold gap between train and test error indicates severe overfitting." },
+      { text: "The housing market suffered an immediate economic collapse.", isCorrect: false, errorType: "TERMINOLOGY_CONFUSION", rationale: "A train-test divergence is an algorithmic generalization failure." }
+    ]
   }
 ];
+

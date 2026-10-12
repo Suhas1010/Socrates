@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   ReactFlow,
-  MiniMap,
   Controls,
   Background,
   BackgroundVariant,
@@ -11,6 +10,7 @@ import {
   Edge,
   MarkerType,
 } from "@xyflow/react";
+import { Maximize2, Minimize2, X, Info } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 import { CustomConceptNode } from "./CustomConceptNode";
 
@@ -21,7 +21,8 @@ const nodeTypes = {
 export const ConceptMap: React.FC<{
   interactive?: boolean;
   className?: string;
-}> = ({ interactive = true, className = "h-full w-full" }) => {
+  allowExpand?: boolean;
+}> = ({ interactive = true, className = "h-full w-full", allowExpand = true }) => {
   const {
     concepts,
     edges,
@@ -32,10 +33,22 @@ export const ConceptMap: React.FC<{
     selectConcept,
   } = useSessionStore();
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreen]);
+
   // Layout concepts in a structured DAG flow
   const nodes: Node[] = useMemo(() => {
     return concepts.map((concept, index) => {
-      // 2 columns or horizontal layout
       const col = index % 2;
       const row = Math.floor(index / 2);
       const x = 50 + col * 280;
@@ -86,52 +99,93 @@ export const ConceptMap: React.FC<{
   const onNodeClick = (_: any, node: Node) => {
     if (interactive) {
       selectConcept(node.id);
+      if (isFullscreen) {
+        setIsFullscreen(false);
+      }
     }
   };
 
-  return (
-    <div className={`relative ${className} bg-[#080B11] rounded-2xl overflow-hidden border border-white/10`}>
+  const renderFlowContent = (isModal: boolean = false) => (
+    <div className={`relative h-full w-full bg-[#090b10] ${isModal ? "" : "rounded-xl overflow-hidden border border-zinc-800"}`}>
       <ReactFlow
         nodes={nodes}
         edges={flowEdges}
         nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.5}
-        maxZoom={1.5}
+        fitViewOptions={{ padding: 0.25 }}
+        minZoom={0.4}
+        maxZoom={1.6}
         proOptions={{ hideAttribution: true }}
       >
         <Background
-          color="#1F2937"
-          gap={20}
+          color="#27272a"
+          gap={24}
           size={1}
           variant={BackgroundVariant.Dots}
         />
         <Controls
-          className="!bg-zinc-900/90 !border-white/10 !fill-zinc-300"
+          className="!bg-zinc-900/90 !border-zinc-800 !fill-zinc-300"
           showInteractive={false}
-        />
-        <MiniMap
-          nodeColor={(n) => {
-            const nodeData = n.data as any;
-            if (nodeData.status === "mastered") return "#10B981";
-            if (nodeData.status === "shaky") return "#EF4444";
-            if (nodeData.status === "learning") return "#F59E0B";
-            return "#374151";
-          }}
-          className="!bg-zinc-950/90 !border-white/10 !rounded-lg"
-          maskColor="rgba(0, 0, 0, 0.65)"
         />
       </ReactFlow>
 
+      {/* Expand / Collapse Button */}
+      {allowExpand && !isModal && (
+        <button
+          onClick={() => setIsFullscreen(true)}
+          className="absolute top-3 right-3 p-1.5 rounded-lg bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-300 hover:text-white transition-colors z-10 flex items-center gap-1.5 text-xs font-mono"
+          title="Expand Flowchart to Fullscreen"
+          aria-label="Expand Flowchart to Fullscreen"
+        >
+          <Maximize2 className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Expand</span>
+        </button>
+      )}
+
       {/* Weak-prerequisite alert banner */}
       {highlightedEdge && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-red-950/90 border border-red-500/80 px-4 py-1.5 rounded-full text-xs font-medium text-red-200 shadow-lg shadow-red-950/50 flex items-center gap-2 animate-bounce">
-          <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
-          Weak prerequisite detected! Traced back to rebuild foundation.
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-red-950/90 border border-red-500/80 px-3.5 py-1.5 rounded-lg text-xs font-medium text-red-200 shadow-md flex items-center gap-2 z-10">
+          <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+          Weak prerequisite detected. Rerouted to rebuild foundation.
         </div>
       )}
     </div>
+  );
+
+  return (
+    <>
+      <div className={`relative ${className}`}>
+        {renderFlowContent(false)}
+      </div>
+
+      {/* Fullscreen Flowchart Modal */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-[#090b10] flex flex-col">
+          <div className="h-14 border-b border-zinc-800 px-6 flex items-center justify-between bg-zinc-950/80 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="font-semibold text-sm text-zinc-100 font-mono">
+                Project Prerequisite Graph ({concepts.length} Nodes)
+              </span>
+              <span className="text-xs text-zinc-400 hidden sm:inline">
+                Click any step to inspect or jump directly
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFullscreen(false)}
+                className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-mono flex items-center gap-1.5 border border-zinc-700 transition-colors"
+              >
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span>Exit Fullscreen (Esc)</span>
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 w-full h-full relative">
+            {renderFlowContent(true)}
+          </div>
+        </div>
+      )}
+    </>
   );
 };

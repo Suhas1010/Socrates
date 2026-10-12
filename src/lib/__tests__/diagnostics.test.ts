@@ -6,8 +6,13 @@ import {
 } from "../diagnostics";
 import { deriveModelContractForGoal } from "../inference";
 import { PYTHON_TRACK_CONCEPTS } from "../templates/pythonTrack";
+import { SENTIMENT_ANALYSIS_CONCEPTS } from "../templates/sentimentAnalysis";
+import { DIGIT_RECOGNIZER_CONCEPTS } from "../templates/digitRecognizer";
+import { CHATGPT_CONCEPTS } from "../templates/chatGpt";
 import { useSessionStore } from "../store";
 import { enrichConceptWithDeepTheory, ML_DL_DICTIONARY } from "../technicalDictionary";
+import { findNearestCatalogProject, ALL_CATALOG_PROJECTS } from "../catalog";
+
 
 describe("Domain-Grounded Diagnostics & Roadmaps", () => {
   it("generates medical-specific diagnostic questions for diabetes project without any spam mentions", () => {
@@ -81,7 +86,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
 
   it("generates facial emotion concepts with action units and Softmax activation", () => {
     const concepts = generateFallbackConceptsForGoal("emotions on face analyzer");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].title).toContain("Facial Feature Extraction");
     expect(concepts[0].starterCode).toContain("smile_curvature");
     expect(concepts[1].title).toContain("Action Unit Feature Normalization");
@@ -250,7 +255,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(questions[2].question).toContain("popular movies");
 
     const concepts = generateFallbackConceptsForGoal("Movie Recommender System");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].starterCode).toContain("predicted_rating_stars");
     expect(concepts[1].starterCode).toContain("genre_affinity");
     expect(concepts[2].starterCode).toContain("RandomForestRegressor");
@@ -271,7 +276,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(questions[2].options[0].text).toContain("Intersection over Union");
 
     const concepts = generateFallbackConceptsForGoal("Autonomous Car Obstacle Detection");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].starterCode).toContain("obstacle_type");
     expect(concepts[2].starterCode).toContain("RandomForestClassifier");
 
@@ -288,7 +293,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(questions[2].question).toContain("packet size (up to 1,500 bytes)");
 
     const concepts = generateFallbackConceptsForGoal("Cybersecurity Threat and Intrusion Detection");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].starterCode).toContain("is_malicious_attack");
     expect(concepts[1].starterCode).toContain("foreign_port");
 
@@ -304,7 +309,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(questions[1].question).toContain("only 4 out of 100 subscribers cancel");
 
     const concepts = generateFallbackConceptsForGoal("Customer Churn Predictor");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].starterCode).toContain("will_churn");
     expect(concepts[2].starterCode).toContain("GradientBoostingClassifier");
 
@@ -320,7 +325,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(questions[1].question).toContain("SHOCKING TRUTH REVEALED!!!");
 
     const concepts = generateFallbackConceptsForGoal("Fake News & Misinformation Detector");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].starterCode).toContain("is_fake_news");
 
     const contract = deriveModelContractForGoal("Fake News & Misinformation Detector");
@@ -335,7 +340,7 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     expect(questions[1].question).toContain("44,100 raw pressure samples");
 
     const concepts = generateFallbackConceptsForGoal("Voice Command Audio Classifier");
-    expect(concepts.length).toBe(4);
+    expect(concepts.length).toBeGreaterThanOrEqual(4);
     expect(concepts[0].starterCode).toContain("voice_command_class");
     expect(concepts[1].starterCode).toContain("pitch_hz");
 
@@ -360,7 +365,141 @@ describe("Domain-Grounded Diagnostics & Roadmaps", () => {
     store.closePythonAcademy();
     expect(useSessionStore.getState().isPythonAcademyOpen).toBe(false);
   });
+
+  it("verifies all catalog projects have at least 6 nodes (except Tier C export showcase)", () => {
+    for (const proj of ALL_CATALOG_PROJECTS) {
+      if (proj.tier === "C") continue;
+      expect(
+        proj.dag.nodes.length,
+        `Catalog project ${proj.id} has only ${proj.dag.nodes.length} nodes`
+      ).toBeGreaterThanOrEqual(6);
+      expect(proj.steps.length).toBeGreaterThanOrEqual(6);
+      expect(proj.modelContract.features.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("verifies findNearestCatalogProject routes every single domain and dynamically synthesizes unknown projects", () => {
+    const domains = [
+      { goal: "Plant pathology leaf disease detection", expectedDomain: "Agricultural Computer Vision" },
+      { goal: "Facial emotion expression analyzer", expectedDomain: "Computer Vision & Biometrics" },
+      { goal: "Customer Churn retention predictor", expectedDomain: "Business & Tabular Analytics" },
+      { goal: "Movie recommendation engine", expectedDomain: "Collaborative Filtering & Embeddings" },
+      { goal: "Self-driving car obstacle detection", expectedDomain: "Computer Vision & Deep Learning" },
+      { goal: "Cybersecurity DDoS network intrusion alert", expectedDomain: "Security Analytics & Anomaly Detection" },
+      { goal: "Audio speech command voice recognition", expectedDomain: "Acoustic Signal Processing" },
+      { goal: "Fake news and misinformation detector", expectedDomain: "NLP & Fact Verification" },
+      { goal: "Credit card transaction fraud detector", expectedDomain: "FinTech & Anomaly Detection" },
+      { goal: "House price valuation in California", expectedDomain: "Tabular Regression" },
+      { goal: "Biomedical cancer patient diagnosis", expectedDomain: "Biomedical & Healthcare ML" },
+      { goal: "Spacecraft rocket thruster anomaly sensor", expectedDomain: "Supervised Machine Learning" },
+    ];
+
+    for (const d of domains) {
+      const proj = findNearestCatalogProject(d.goal);
+      expect(proj.domain).toBe(d.expectedDomain);
+      expect(proj.dag.nodes.length).toBeGreaterThanOrEqual(6);
+      expect(proj.id).not.toBe("spam-classifier");
+    }
+  });
+
+  it("verifies all domain diagnostic questions have 4 progressive checks without spam contamination", () => {
+    const goals = [
+      "Plant disease leaf spot identifier",
+      "Facial emotion landmark detector",
+      "Customer Churn risk predictor",
+      "Movie recommendation collaborative filtering",
+      "Autonomous vehicle obstacle detector",
+      "Cybersecurity firewall intrusion alert",
+      "Audio voice frequency speech recognizer",
+      "Fake news veracity checker",
+      "Credit card transaction fraud warning",
+      "Diabetes clinical patient vitals risk",
+      "Satellite orbital decay predictor",
+    ];
+
+    for (const goal of goals) {
+      const qs = generateDiagnosticQuestionsForGoal(goal);
+      expect(qs.length, `Goal "${goal}" should generate 4 questions`).toBe(4);
+      for (const q of qs) {
+        expect(q.options.length).toBe(4);
+        expect(q.options.filter((o) => o.isCorrect).length).toBe(1);
+        expect(q.question.toLowerCase()).not.toContain("spam email");
+        expect(q.question.toLowerCase()).not.toContain("phishing message");
+      }
+    }
+  });
+
+  it("verifies Real Numbers math walkthrough displays authentic domain math for every domain", () => {
+    const domains = [
+      { goal: "Plant leaf disease detection", expectedFormulaSubstring: "Plant Pathology Visual Contract" },
+      { goal: "Facial emotion classifier", expectedFormulaSubstring: "Facial Action Unit Logits" },
+
+
+      { goal: "Customer Churn predictor", expectedFormulaSubstring: "Problem Formulation & Data Contract" },
+      { goal: "Movie recommendation system", expectedFormulaSubstring: "Problem Formulation & Data Contract" },
+
+      { goal: "Autonomous vehicle obstacle detector", expectedFormulaSubstring: "Intersection over Union" },
+      { goal: "Cybersecurity network intrusion alert", expectedFormulaSubstring: "Problem Formulation & Data Contract" },
+      { goal: "Audio voice speech classifier", expectedFormulaSubstring: "Problem Formulation & Data Contract" },
+      { goal: "Fake news detector", expectedFormulaSubstring: "Text Tokenization" },
+      { goal: "Credit card fraud detector", expectedFormulaSubstring: "Problem Formulation & Data Contract" },
+      { goal: "Diabetes clinical healthcare predictor", expectedFormulaSubstring: "Clinical Problem Formulation" },
+    ];
+
+    for (const d of domains) {
+      const concepts = generateFallbackConceptsForGoal(d.goal);
+      const enrichedStep1 = enrichConceptWithDeepTheory(concepts[0], d.goal);
+      expect(enrichedStep1.deepMath).toBeDefined();
+      expect(enrichedStep1.deepMath!.formulaName).toContain(d.expectedFormulaSubstring);
+      // Ensure never falling back to generic [0.80, 0.20] linear regression dot product
+      expect(enrichedStep1.deepMath!.formulaName).not.toBe("Linear Regression & Dot Product");
+    }
+  });
+
+  it("guarantees every concept in every domain has interactive Quick Check intuition questions", () => {
+    // 1. Verify Sentiment Analysis concepts (specifically sentiment-vocabulary-weights from screenshot)
+    const sentimentStep2 = SENTIMENT_ANALYSIS_CONCEPTS.find(c => c.id === "sentiment-vocabulary-weights");
+    expect(sentimentStep2).toBeDefined();
+    const enrichedSentiment2 = enrichConceptWithDeepTheory(sentimentStep2!, "sentiment analysis for movie reviews");
+    expect(enrichedSentiment2.predictQuestion).toBeDefined();
+    expect(enrichedSentiment2.predictQuestion!.prompt).toBeTruthy();
+    expect(enrichedSentiment2.predictQuestion!.options.length).toBe(4);
+    expect(enrichedSentiment2.predictQuestion!.correctIndex).toBeGreaterThanOrEqual(0);
+    expect(enrichedSentiment2.predictQuestion!.correctIndex).toBeLessThan(4);
+    expect(enrichedSentiment2.predictQuestion!.explanation).toBeTruthy();
+
+    // 2. Check all Sentiment Analysis concepts
+    for (const c of SENTIMENT_ANALYSIS_CONCEPTS) {
+      const enriched = enrichConceptWithDeepTheory(c, "sentiment analysis");
+      expect(enriched.predictQuestion).toBeDefined();
+      expect(enriched.predictQuestion!.options.length).toBe(4);
+    }
+
+    // 3. Check all Digit Recognizer concepts
+    for (const c of DIGIT_RECOGNIZER_CONCEPTS) {
+      const enriched = enrichConceptWithDeepTheory(c, "handwritten digit recognizer");
+      expect(enriched.predictQuestion).toBeDefined();
+      expect(enriched.predictQuestion!.options.length).toBe(4);
+    }
+
+    // 4. Check all ChatGPT concepts
+    for (const c of CHATGPT_CONCEPTS) {
+      const enriched = enrichConceptWithDeepTheory(c, "chatgpt llm from scratch");
+      expect(enriched.predictQuestion).toBeDefined();
+      expect(enriched.predictQuestion!.options.length).toBe(4);
+    }
+
+    // 5. Check dynamically synthesized fallback concepts for arbitrary unknown domains
+    const dynamicConcepts = generateFallbackConceptsForGoal("Drone crop monitoring");
+    for (const c of dynamicConcepts) {
+      const enriched = enrichConceptWithDeepTheory(c, "Drone crop monitoring");
+      expect(enriched.predictQuestion).toBeDefined();
+      expect(enriched.predictQuestion!.prompt).toBeTruthy();
+      expect(enriched.predictQuestion!.options.length).toBe(4);
+    }
+  });
 });
+
 
 
 

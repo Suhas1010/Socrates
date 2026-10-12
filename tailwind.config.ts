@@ -46,19 +46,30 @@ const config: Config = {
           shaky: "#E05252",
           mastered: "#2ECC71",
         },
+        highlight: "#ffedd5",
+        "card-edge": "rgba(255, 247, 237, 0.12)",
+        "card-edge-hover": "rgba(255, 247, 237, 0.28)",
+        "card-fill": "rgba(0, 0, 0, 0.15)",
+        brand: "#f97316",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        sans: ["var(--font-manrope)", "var(--font-inter)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        montserrat: ["var(--font-montserrat)", "-apple-system", "sans-serif"],
+        display: ["var(--font-montserrat)", "-apple-system", "sans-serif"],
         mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
       },
       animation: {
         "pulse-subtle": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "shimmer": "shimmer 2s linear infinite",
+        shimmer: "shimmer 2s linear infinite",
+        "chai-spin": "chai-spin 4s linear infinite",
       },
       keyframes: {
         shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
+        },
+        "chai-spin": {
+          to: { transform: "translate(-50%, -50%) rotate(360deg)" },
         },
       },
     },

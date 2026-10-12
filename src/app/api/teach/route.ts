@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateStructuredLLM, TeachOutputSchema } from "@/lib/llm";
+import { generateStructuredLLM, TeachOutputSchema, extractLLMRequestCredentials } from "@/lib/llm";
 import { SPAM_CLASSIFIER_CONCEPTS } from "@/lib/templates/spamClassifier";
 import { DIGIT_RECOGNIZER_CONCEPTS } from "@/lib/templates/digitRecognizer";
 import { generateFallbackConceptsForGoal } from "@/lib/diagnostics";
@@ -91,11 +91,15 @@ RULES:
 3. Keep explanation concise, punchy, and crystal clear.
 4. Output JSON adhering to TeachOutputSchema.`;
 
+    const { apiKey: activeKey, provider: activeProvider } = extractLLMRequestCredentials(req.headers, body);
+
     const result = await generateStructuredLLM({
       systemPrompt,
       userPrompt: `Teach concept: ${matchedConcept.title}. Last error diagnosis: ${lastDiagnosis?.diagnosis || "none"}.`,
       schema: TeachOutputSchema,
       fallbackData,
+      apiKeyOverride: activeKey,
+      provider: activeProvider,
     });
 
     return NextResponse.json(result);

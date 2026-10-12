@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import {
   Sparkles,
@@ -9,6 +9,9 @@ import {
   CheckCircle2,
   Lightbulb,
   Cpu,
+  Download,
+  Upload,
+  Bot,
   User as UserIcon,
   LogOut,
 } from "lucide-react";
@@ -18,7 +21,11 @@ import { JargonBusterModal } from "./JargonBusterModal";
 import { ApiKeyModal } from "./ApiKeyModal";
 import { PythonAcademyModal } from "./PythonAcademyModal";
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  currentScreenOverride?: string;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ currentScreenOverride }) => {
   const {
     activeStage,
     screen,
@@ -29,9 +36,10 @@ export const Navbar: React.FC = () => {
     openPythonAcademy,
   } = useSessionStore();
 
-  const { user, logout } = useAuth();
+  const { user, exportProfile, importProfile, logout } = useAuth();
   const [isJargonModalOpen, setIsJargonModalOpen] = useState(false);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -45,205 +53,228 @@ export const Navbar: React.FC = () => {
     }
   }, []);
 
-  const currentScreen = screen || (activeStage === "plan_review" ? "plan" : activeStage === "learning" ? "learn" : activeStage === "completed" ? "complete" : activeStage);
+  const currentScreen =
+    currentScreenOverride ||
+    screen ||
+    (activeStage === "plan_review"
+      ? "plan"
+      : activeStage === "learning"
+      ? "learn"
+      : activeStage === "completed"
+      ? "complete"
+      : activeStage);
 
-  const masteredCount = concepts.filter(
-    (c) => status[c.id] === "mastered"
-  ).length;
+  const masteredCount = concepts.filter((c) => status[c.id] === "mastered").length;
   const totalCount = concepts.length;
-  const progressPercent = Math.round((masteredCount / totalCount) * 100);
 
   const stages = [
     { id: "landing", label: "Goal" },
     { id: "diagnostic", label: "Diagnostic" },
     { id: "plan", label: "Plan" },
-    { id: "learn", label: "Learn & Code" },
+    { id: "learn", label: "Build" },
     { id: "complete", label: "Complete" },
   ];
 
   const isLanding = currentScreen === "landing" || activeStage === "landing";
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const ok = importProfile(content);
+        if (!ok) alert("Invalid profile JSON format.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-[#080B12]/95 backdrop-blur-md">
-        <div className="w-full px-4 sm:px-6 md:px-10 h-20 flex items-center justify-between gap-4">
-        {/* Logo and Tagline */}
-        <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-semibold shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <Sparkles className="w-6 h-6 fill-current" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2.5">
-              <span className="text-xl md:text-2xl font-black tracking-tight text-white font-sans">
-                Socrates
+      <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[#0a0a0a]/80 backdrop-blur-md">
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Logo and Brand */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 text-white hover:opacity-90 transition-opacity">
+              <span className="flex items-center gap-1.5 font-sans font-semibold text-base sm:text-lg tracking-tight">
+                <span className="w-2 h-2 rounded-full bg-orange-500 inline-block" />
+                <span>Socrates</span>
+                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded border border-orange-500/25 text-orange-400 bg-orange-950/20 ml-0.5">
+                  v2
+                </span>
               </span>
-              <span className="text-xs uppercase font-mono tracking-wider px-2.5 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold">
-                AI Tutor
+              <span className="text-xs text-neutral-400 font-mono hidden md:inline border-l border-white/10 pl-2.5">
+                Verified ML/DL
               </span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium hidden lg:block">
-              Learn AI by building real projects · 0 setup
-            </p>
+            </Link>
           </div>
-        </div>
 
-        {/* Stage breadcrumb pills - only during active project workflow */}
-        {!isLanding && (
-          <div className="hidden md:flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800 shadow-sm">
-            {stages.map((stage, idx) => {
-              const isActive = currentScreen === stage.id;
-              const isDone =
-                stages.findIndex((s) => s.id === currentScreen) > idx;
-
-              return (
-                <div
-                  key={stage.id}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs md:text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-sm font-bold"
-                      : isDone
-                      ? "text-emerald-400 hover:text-emerald-300 font-semibold"
-                      : "text-slate-400"
-                  }`}
-                >
-                  {isDone ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  ) : (
-                    <span className="text-xs font-mono opacity-80">{idx + 1}.</span>
-                  )}
-                  <span>{stage.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Right stats and controls */}
-        <div className="flex items-center gap-3">
-          {/* Beginner Jargon Buster Button */}
-          <button
-            type="button"
-            onClick={() => setIsJargonModalOpen(true)}
-            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-slate-200 hover:text-white text-xs md:text-sm font-semibold transition-colors shadow-sm"
-            title="Open plain-English glossary for confusing AI terms"
-          >
-            <Lightbulb className="w-4 h-4 text-amber-400" />
-            <span>Jargon Buster</span>
-          </button>
-
+          {/* Stepper Breadcrumb */}
           {!isLanding && (
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs md:text-sm font-semibold">
-              <Layers className="w-4 h-4 text-amber-400" />
-              <span className="text-slate-300 hidden sm:inline">Mastery:</span>
-              <span className="font-mono font-bold text-white">
-                {masteredCount}/{totalCount}
-              </span>
-              <div className="w-14 h-2 bg-slate-800 rounded-full overflow-hidden ml-1">
-                <div
-                  className="h-full bg-emerald-400 transition-all duration-300 rounded-full"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+            <div className="hidden md:flex items-center gap-1.5 text-xs font-sans">
+              {stages.map((stage, idx) => {
+                const isActive = currentScreen === stage.id;
+                const isDone = stages.findIndex((s) => s.id === currentScreen) > idx;
+
+                return (
+                  <div
+                    key={stage.id}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors ${
+                      isActive
+                        ? "text-orange-200 font-medium bg-orange-950/40 border border-orange-500/20"
+                        : isDone
+                        ? "text-neutral-300"
+                        : "text-neutral-500"
+                    }`}
+                  >
+                    {isDone ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <span className="text-[10px] text-neutral-500 font-mono">{idx + 1}.</span>
+                    )}
+                    <span>{stage.label}</span>
+                  </div>
+                );
+              })}
             </div>
           )}
 
-          {/* AI Settings button */}
-          <button
-            type="button"
-            onClick={() => setIsApiKeyModalOpen(true)}
-            title="Configure Google Gemini API Key and AI model settings"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-xs md:text-sm font-mono text-slate-200 hover:text-white font-semibold transition-colors"
-          >
-            <Cpu className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">{apiKey ? "Gemini Live" : "AI Settings"}</span>
-            <span className={`w-2 h-2 rounded-full ${apiKey ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]" : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]"}`} />
-          </button>
+          {/* Right Actions & Utilities */}
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
 
-          {/* Dedicated Learn Python Academy Button */}
-          <button
-            type="button"
-            onClick={openPythonAcademy}
-            title="Open dedicated Python Academy: interactive Python tutorials and code playground"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 hover:border-emerald-500/60 text-xs md:text-sm text-emerald-300 hover:text-emerald-100 font-bold transition-all shadow-sm"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Learn Python</span>
-          </button>
+            {/* Jargon Glossary Button */}
+            <button
+              type="button"
+              onClick={() => setIsJargonModalOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white text-xs font-medium transition-colors"
+              title="Plain-English AI Glossary"
+            >
+              <Lightbulb className="w-3.5 h-3.5 text-orange-300" />
+              <span>Glossary</span>
+            </button>
 
-          {/* Reset session button */}
-          <button
-            onClick={() => {
-              if (
-                window.confirm(
-                  "Reset tutor session and choose a new project goal?"
-                )
-              ) {
-                resetSession();
-              }
-            }}
-            title="Reset and start over"
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-700"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
+            {/* Python Academy Modal Trigger */}
+            <button
+              type="button"
+              onClick={openPythonAcademy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white text-xs font-medium transition-colors"
+              title="Python Foundations Course"
+            >
+              <span>Python Academy</span>
+            </button>
 
-          {/* User Account / Sign In */}
-          {user ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-mono text-zinc-950 shadow-sm"
-                style={{ backgroundColor: user.avatarColor || "#F59E0B" }}
-                title={`Logged in as ${user.name} (${user.email})`}
-              >
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-slate-200 hidden xl:inline max-w-[100px] truncate">
-                  {user.name}
-                </span>
-                {user.isGuest && (
-                  <span className="text-[10px] uppercase font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300">
-                    Guest
-                  </span>
-                )}
-              </div>
+            {/* Export / Import Profile (M-4) */}
+            <div className="hidden lg:flex items-center gap-1 border-l border-white/10 pl-2">
               <button
                 type="button"
-                onClick={logout}
-                title="Sign Out"
-                className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 transition-colors cursor-pointer"
+                onClick={exportProfile}
+                className="p-1.5 rounded-md text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+                title="Export Progress File (JSON)"
               >
-                <LogOut className="w-4 h-4" />
+                <Download className="w-3.5 h-3.5" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-1.5 rounded-md text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+                title="Import Progress File (JSON)"
+              >
+                <Upload className="w-3.5 h-3.5" />
               </button>
             </div>
-          ) : (
-            <Link
-              href="/login"
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 hover:border-amber-400/50 text-amber-300 hover:text-amber-200 text-xs md:text-sm font-bold transition-all shadow-sm ml-1"
-            >
-              <UserIcon className="w-4 h-4 text-amber-400" />
-              <span>Sign In</span>
-            </Link>
-          )}
-        </div>
-      </div>
-    </header>
 
-      {/* AI Key & Settings Modal */}
+            {/* Provider & BYOK Settings Button */}
+            <button
+              type="button"
+              onClick={() => setIsApiKeyModalOpen(true)}
+              title="AI Provider & Key Settings (BYOK)"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white text-xs font-medium transition-colors"
+            >
+              <Cpu className="w-3.5 h-3.5 text-neutral-300" />
+              <span className="hidden sm:inline">Settings</span>
+            </button>
+
+            {/* Reset Session */}
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm("Reset learning session and choose a new project goal?")) {
+                  resetSession();
+                }
+              }}
+              title="Reset and start over"
+              className="p-1.5 rounded-md text-neutral-500 hover:text-neutral-300 hover:bg-white/5 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Authentication Controls */}
+            {user && !user.isGuest ? (
+              <div className="flex items-center gap-2 border-l border-white/10 pl-2">
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-sm ring-1 ring-white/10"
+                  style={{ backgroundColor: user.avatarColor || "#F59E0B" }}
+                  title={`${user.name} (${user.email})`}
+                >
+                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </div>
+                <div className="hidden xl:flex flex-col text-left">
+                  <span className="text-xs font-semibold text-neutral-200 max-w-[100px] truncate leading-tight">
+                    {user.name}
+                  </span>
+                  <span className="text-[10px] text-neutral-400 font-mono truncate max-w-[100px]">
+                    {user.email}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={logout}
+                  title="Sign Out"
+                  className="p-1.5 rounded-md text-neutral-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 border-l border-white/10 pl-2">
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 hover:text-amber-200 text-xs font-medium transition-all shadow-sm"
+                  title="Sign In or Create Account"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Sign In</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+
+      {/* Settings Modal */}
       <ApiKeyModal
         isOpen={isApiKeyModalOpen}
         onClose={() => setIsApiKeyModalOpen(false)}
       />
 
-      {/* Jargon Buster Modal */}
+      {/* Jargon Glossary Modal */}
       <JargonBusterModal
         isOpen={isJargonModalOpen}
         onClose={() => setIsJargonModalOpen(false)}
       />
 
-      {/* Dedicated Python Academy Modal */}
+      {/* Python Academy Modal */}
       <PythonAcademyModal />
     </>
   );
 };
-

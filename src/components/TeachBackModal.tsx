@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 import { Concept, TeachBackResult } from "@/lib/types";
+import { getClientLLMConfig } from "@/lib/clientLLM";
 
 interface TeachBackModalProps {
   concept: Concept;
@@ -43,10 +44,20 @@ export const TeachBackModal: React.FC<TeachBackModalProps> = ({
     setResult(null);
 
     try {
+      const llmConfig = getClientLLMConfig();
+
       const res = await fetch("/api/teachback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ concept, explanation }),
+        headers: {
+          "Content-Type": "application/json",
+          ...llmConfig.headers,
+        },
+        body: JSON.stringify({
+          concept,
+          explanation,
+          apiKey: llmConfig.apiKey,
+          provider: llmConfig.provider,
+        }),
       });
       const data: TeachBackResult = await res.json();
       setResult(data);

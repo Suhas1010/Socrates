@@ -21,7 +21,9 @@ import {
 import {
   DIGIT_RECOGNIZER_CONCEPTS,
   DIGIT_RECOGNIZER_EDGES,
+  DIGIT_RECOGNIZER_DIAGNOSTIC_QUESTIONS,
 } from "./templates/digitRecognizer";
+
 import {
   CHATGPT_CONCEPTS,
   CHATGPT_EDGES,
@@ -53,6 +55,8 @@ import {
   initializeMasteryFromDiagnostic,
 } from "./mastery";
 import { getNextConcept } from "./graph";
+import { findNearestCatalogProject } from "./catalog";
+import { getClientLLMConfig } from "./clientLLM";
 
 export interface SessionStoreState {
   id: string;
@@ -341,20 +345,9 @@ export const useSessionStore = create<SessionStoreState>()(
           chosenTemplate = "digit-recognizer";
           concepts = DIGIT_RECOGNIZER_CONCEPTS;
           edges = DIGIT_RECOGNIZER_EDGES;
-          questions = [
-            {
-              id: "diag-digit-1",
-              targetConceptId: "pixels-to-vectors",
-              question: "How does a neural network process an image of a handwritten digit?",
-              options: [
-                { text: "It flattens pixel brightness numbers into a numerical vector.", isCorrect: true, errorType: "NONE" },
-                { text: "It prints out the image on paper and scans it with a laser.", isCorrect: false, errorType: "TERMINOLOGY_CONFUSION" },
-                { text: "It ignores pixel brightness and counts the colors.", isCorrect: false, errorType: "CONCEPTUAL_GAP" },
-                { text: "It requires human handwriting experts to grade each pixel live.", isCorrect: false, errorType: "OVERCONFIDENT_MISCONCEPTION" },
-              ],
-            },
-          ];
+          questions = DIGIT_RECOGNIZER_DIAGNOSTIC_QUESTIONS;
         }
+
 
         const initMastery = Object.fromEntries(concepts.map((c) => [c.id, 0.0]));
         const initStatus = Object.fromEntries(
@@ -380,89 +373,107 @@ export const useSessionStore = create<SessionStoreState>()(
       },
 
       generatePlanForGoal: async (goal, interests, background = "beginner") => {
-        set({ isLoadingPlan: true });
-        const lower = goal.toLowerCase();
+        set({
+          isLoadingPlan: true,
+          goal,
+          interests,
+          background,
+        });
 
-        // 1. Initial fast local resolution
-        get().setGoalAndInterests(goal, interests, background);
-
-        // 2. Fetch /api/plan with LLM or dynamic backend generator
+        // 1. Primary path: Attempt dynamic AI Agent Generation via /api/plan
         try {
-          const storedKey =
-            get().apiKey ||
-            (typeof window !== "undefined"
-              ? localStorage.getItem("socrates_gemini_api_key") || ""
-              : "");
+          const llmConfig = getClientLLMConfig(get().apiKey);
 
-          const res = await fetch("/api/plan", {
+          // Add a 15s timeout controller so /api/plan never hangs the user
+          const planController = new AbortController();
+          const planTimeout = setTimeout(() => planController.abort(), 15000);
+
+          const planRes = await fetch("/api/plan", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              ...(storedKey ? { "x-gemini-api-key": storedKey } : {}),
+              ...llmConfig.headers,
             },
+            signal: planController.signal,
             body: JSON.stringify({
               goal,
               interests,
               background,
-              apiKey: storedKey,
+              apiKey: llmConfig.apiKey,
+              provider: llmConfig.provider,
             }),
           });
+          clearTimeout(planTimeout);
 
-          if (res.ok) {
-            const plan = await res.json();
-            if (plan.concepts && plan.concepts.length > 0) {
-              const concepts: Concept[] = plan.concepts;
-              const edges: ConceptEdge[] = plan.edges || [];
-              const initMastery = Object.fromEntries(concepts.map((c) => [c.id, 0.0]));
-              const initStatus = Object.fromEntries(
-                concepts.map((c) => [c.id, "unseen" as ConceptStatus])
-              );
+          if (!planRes.ok) {
+            throw new Error(`Plan generation failed with status ${planRes.status}`);
+          }
 
-              // Also fetch dynamic diagnostic questions for this plan
-              let questions = get().diagnosticQuestions;
-              try {
-                const diagRes = await fetch("/api/diagnostic/next", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    ...(storedKey ? { "x-gemini-api-key": storedKey } : {}),
-                  },
-                  body: JSON.stringify({
-                    goal,
-                    templateId: plan.templateId,
-                    concepts,
-                    history: [],
-                    apiKey: storedKey,
-                  }),
-                });
-                if (diagRes.ok) {
-                  const diagData = await diagRes.json();
-                  if (diagData.questions && Array.isArray(diagData.questions) && diagData.questions.length > 0) {
-                    questions = diagData.questions;
-                  } else if (diagData.question && (!questions || questions.length === 0)) {
-                    questions = [diagData.question];
+          const plan = await planRes.json();
+          if (!plan.concepts || !Array.isArray(plan.concepts) || plan.concepts.length < 4) {
+            throw new Error("Invalid concepts returned from AI planner");
+          }
+
+          const concepts: Concept[] = plan.concepts;
+          const edges: ConceptEdge[] = plan.edges || [];
+          const startingConceptId = plan.startingConceptId || concepts[0].id;
+
+          // Instant domain-grounded diagnostic questions
+          const dynamicQuestions = generateDiagnosticQuestionsForGoal(goal);
+
+          const initMastery = Object.fromEntries(concepts.map((c) => [c.id, 0.0]));
+          const initStatus = Object.fromEntries(
+            concepts.map((c) => [c.id, "unseen" as ConceptStatus])
+          );
+
+          // Transition to diagnostic screen immediately
+          set({
+            goal,
+            interests,
+            background,
+            templateId: plan.templateId || "custom",
+            concepts,
+            edges,
+            mastery: initMastery,
+            status: initStatus,
+            diagnosticQuestions: dynamicQuestions,
+            diagnosticIndex: 0,
+            diagnosticHistory: [],
+            currentConceptId: startingConceptId,
+            screen: "diagnostic",
+            activeStage: "diagnostic",
+            isLoadingPlan: false,
+          });
+
+          // Non-blocking background enhancement for questions
+          fetch("/api/diagnostic/next", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...llmConfig.headers,
+            },
+            body: JSON.stringify({
+              goal,
+              concepts,
+              history: [],
+              apiKey: llmConfig.apiKey,
+              provider: llmConfig.provider,
+            }),
+          })
+            .then(async (diagRes) => {
+              if (diagRes.ok) {
+                const diagData = await diagRes.json();
+                if (diagData.questions && Array.isArray(diagData.questions) && diagData.questions.length > 0) {
+                  if (get().diagnosticIndex === 0) {
+                    set({ diagnosticQuestions: diagData.questions });
                   }
                 }
-              } catch (e) {
-                console.warn("Could not fetch remote diagnostic questions:", e);
               }
-
-              set({
-                templateId: plan.templateId || "custom",
-                concepts,
-                edges,
-                mastery: initMastery,
-                status: initStatus,
-                currentConceptId: plan.startingConceptId || concepts[0].id,
-                diagnosticQuestions: questions,
-                diagnosticIndex: 0,
-                diagnosticHistory: [],
-              });
-            }
-          }
+            })
+            .catch(() => {});
         } catch (err) {
-          console.warn("Error calling /api/plan, using local roadmap:", err);
-        } finally {
+          console.warn("AI Agent generation failed or timed out. Switching to curated domain fallback:", err);
+          get().setGoalAndInterests(goal, interests, background);
           set({
             isLoadingPlan: false,
             screen: "diagnostic",

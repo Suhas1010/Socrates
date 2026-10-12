@@ -13,11 +13,16 @@ import {
   ArrowRight,
   Copy,
   X,
+  Lock,
+  Unlock,
+  Stethoscope,
 } from "lucide-react";
 import { runPythonCode, initPyodide, PythonExecutionResult } from "@/lib/pyodideRunner";
 import { Concept } from "@/lib/types";
 import { SPAM_DATASET } from "@/lib/templates/spamClassifier";
 import { useSessionStore } from "@/lib/store";
+import { runDiagnosticianAgent } from "@/lib/agents/diagnostician";
+import { DiagnosticianOutput } from "@/lib/agents/types";
 
 interface CodeSandboxProps {
   concept: Concept;
@@ -52,15 +57,23 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const [copiedSolution, setCopiedSolution] = useState(false);
   const [solutionLoaded, setSolutionLoaded] = useState(false);
   const [stepComplete, setStepComplete] = useState(isAlreadyPassed);
+  const [attemptsCount, setAttemptsCount] = useState(0);
+  const [manuallyUnlocked, setManuallyUnlocked] = useState(false);
+  const [diagnosis, setDiagnosis] = useState<DiagnosticianOutput | null>(null);
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
 
   useEffect(() => {
     setCode(sanitizeCode(concept.starterCode || ""));
     setResult(null);
+    setDiagnosis(null);
+    setIsDiagnosing(false);
     setShowDrawer(false);
     setDrawerTab("hints");
     setCopiedSolution(false);
     setSolutionLoaded(false);
     setStepComplete(isAlreadyPassed);
+    setAttemptsCount(0);
+    setManuallyUnlocked(false);
   }, [concept.id, isAlreadyPassed]);
 
   // Preload Pyodide in background
@@ -117,6 +130,7 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
   const handleRun = async () => {
     setIsRunning(true);
     setResult(null);
+    setAttemptsCount((prev) => prev + 1);
 
     // Bundle dataset variable and prerequisite functions in python environment
     const datasetPyCode = `DATASET = ${JSON.stringify(SPAM_DATASET)}\n\n`;
@@ -128,16 +142,43 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
       setCode(cleanCode);
     }
 
+    // 1. Identify required target function/class for this concept
+    const defMatches = Array.from((concept.solutionCode || concept.starterCode || "").matchAll(/(?:def|class)\s+([a-zA-Z0-9_]+)/g));
+    const targetNames = defMatches.map((m) => m[1]);
+    const primaryTarget = targetNames.length > 0 ? targetNames[targetNames.length - 1] : null;
+
+    // 2. Validate that user code actually defines the required function/class
+    if (primaryTarget && !new RegExp(`(?:def|class)\\s+${primaryTarget}\\b`).test(cleanCode)) {
+      const missingResult = {
+        stdout: cleanCode.includes("print(")
+          ? `[Output]\n${cleanCode.split("\n").filter((l) => l.trim().startsWith("print(")).join("\n")}\n`
+          : "",
+        stderr: `NameError: Missing required definition '${primaryTarget}'.\nYou must define 'def ${primaryTarget}(...)' to complete this step!`,
+        success: false,
+        assertionPassed: false,
+        error: `Missing required function: 'def ${primaryTarget}' was not found in your code.`,
+        friendlyTip: `Please define 'def ${primaryTarget}(...)' as requested. Check the starter code or TODO hints!`,
+        usedFallback: false,
+      };
+      setResult(missingResult);
+      setIsRunning(false);
+      onEvaluation?.({ correct: false, error: missingResult.error });
+      return;
+    }
+
     const res = await runPythonCode(cleanCode, concept.testAssertion, setupCode);
     setResult(res);
     setIsRunning(false);
 
-    if (res.assertionPassed) {
+    if (res.assertionPassed && (!primaryTarget || new RegExp(`(?:def|class)\\s+${primaryTarget}\\b`).test(cleanCode))) {
       setStepComplete(true);
       onStepPassed(cleanCode);
       onEvaluation?.({ correct: true });
-    } else if (res.error) {
-      onEvaluation?.({ correct: false, error: res.error });
+    } else {
+      setStepComplete(false);
+      if (res.error) {
+        onEvaluation?.({ correct: false, error: res.error });
+      }
     }
   };
 
@@ -186,6 +227,23 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
       navigator.clipboard.writeText(sanitizeCode(concept.solutionCode));
       setCopiedSolution(true);
       setTimeout(() => setCopiedSolution(false), 2000);
+    }
+  };
+
+  const handleRunDiagnostician = async () => {
+    setIsDiagnosing(true);
+    try {
+      const diag = await runDiagnosticianAgent({
+        conceptId: concept.id,
+        userCode: code,
+        goldenTest: concept.goldenTest,
+        errorTrace: result?.stderr || result?.error || "",
+      });
+      setDiagnosis(diag);
+    } catch (e) {
+      console.error("Diagnosis error:", e);
+    } finally {
+      setIsDiagnosing(false);
     }
   };
 
@@ -257,12 +315,21 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
                   onClick={() => setDrawerTab("solution")}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                     drawerTab === "solution"
-                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                      ? "bg-zinc-800 text-amber-300 border border-zinc-700"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Complete Solution</span>
+                  {!stepComplete && attemptsCount < 2 && !manuallyUnlocked ? (
+                    <>
+                      <Lock className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Solution Locked ({attemptsCount}/2)</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Complete Solution</span>
+                    </>
+                  )}
                 </button>
               )}
             </div>
@@ -311,50 +378,74 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
             </div>
           ) : (
             concept.solutionCode && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-400 font-medium">
-                    Verified working reference solution (never truncated):
-                  </span>
-                  <div className="flex items-center gap-2">
+              !stepComplete && attemptsCount < 2 && !manuallyUnlocked ? (
+                <div className="p-4 rounded-lg bg-zinc-900/90 border border-zinc-800 text-xs space-y-2.5">
+                  <div className="flex items-center gap-2 text-amber-400 font-semibold font-mono">
+                    <Lock className="w-4 h-4" />
+                    <span>Attempt-First Lock (L-5 Protocol)</span>
+                  </div>
+                  <p className="text-zinc-300 leading-relaxed">
+                    To build genuine understanding, please make at least 2 attempts running your code with filled blanks before viewing the verified reference solution.
+                  </p>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="font-mono text-zinc-400 text-[11px]">
+                      Attempts completed: <strong className="text-amber-300">{attemptsCount} / 2</strong>
+                    </span>
                     <button
                       type="button"
-                      onClick={handleCopySolution}
-                      className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1.5 transition-colors border border-zinc-700 cursor-pointer"
+                      onClick={() => setManuallyUnlocked(true)}
+                      className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-mono border border-zinc-700 transition-colors cursor-pointer"
                     >
-                      {copiedSolution ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-zinc-400" />
-                          <span>Copy Code</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleUseSolution}
-                      className="px-3 py-1 rounded bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-                    >
-                      {solutionLoaded ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Loaded into Editor!</span>
-                        </>
-                      ) : (
-                        <span>Load Solution into Editor</span>
-                      )}
+                      Unlock Solution Anyway
                     </button>
                   </div>
                 </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-400 font-medium">
+                      Verified working reference solution:
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCopySolution}
+                        className="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium flex items-center gap-1.5 transition-colors border border-zinc-700 cursor-pointer"
+                      >
+                        {copiedSolution ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-zinc-400" />
+                            <span>Copy Code</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleUseSolution}
+                        className="px-3 py-1 rounded bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                      >
+                        {solutionLoaded ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Loaded into Editor!</span>
+                          </>
+                        ) : (
+                          <span>Load Solution into Editor</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
 
-                <pre className="font-mono text-xs text-zinc-200 bg-[#06090e] p-3 rounded-lg border border-zinc-800 max-h-56 overflow-y-auto whitespace-pre leading-relaxed select-text">
-                  {sanitizeCode(concept.solutionCode)}
-                </pre>
-              </div>
+                  <pre className="font-mono text-xs text-zinc-200 bg-[#06090e] p-3 rounded-lg border border-zinc-800 max-h-56 overflow-y-auto whitespace-pre leading-relaxed select-text">
+                    {sanitizeCode(concept.solutionCode)}
+                  </pre>
+                </div>
+              )
             )
           )}
         </div>
@@ -423,6 +514,37 @@ export const CodeSandbox: React.FC<CodeSandboxProps> = ({
               <div className="mt-2 p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs sm:text-sm flex items-start gap-2.5 shadow-sm">
                 <span className="text-amber-400 text-base">💡</span>
                 <span className="leading-relaxed">{result.friendlyTip}</span>
+              </div>
+            )}
+
+            {/* AI Diagnostician Agent Integration */}
+            {(result.error || result.stderr || !stepComplete) && (
+              <div className="pt-2 border-t border-zinc-800/60 space-y-2">
+                <button
+                  type="button"
+                  onClick={handleRunDiagnostician}
+                  disabled={isDiagnosing}
+                  className="text-xs font-mono px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/50 text-purple-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Stethoscope className="w-3.5 h-3.5" />
+                  <span>{isDiagnosing ? "Diagnosing with AI..." : "Run AI Diagnostician Agent (4-Type Taxonomy)"}</span>
+                </button>
+
+                {diagnosis && (
+                  <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/30 font-mono text-xs space-y-2 animate-in fade-in">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2 py-0.5 rounded bg-purple-900/60 text-purple-200 border border-purple-500/40 font-bold text-[11px]">
+                        Taxonomy: {diagnosis.errorType}
+                      </span>
+                      <span className="text-zinc-400 text-[10px]">Strategy: {diagnosis.strategy}</span>
+                    </div>
+                    <p className="text-zinc-200 leading-relaxed">{diagnosis.diagnosis}</p>
+                    <div className="text-[11px] text-amber-300 bg-zinc-900/80 p-2 rounded border border-zinc-800">
+                      Evidence: {diagnosis.evidence}
+                    </div>
+                    <p className="text-[11px] text-purple-300 leading-relaxed">{diagnosis.matchedExplanation}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>

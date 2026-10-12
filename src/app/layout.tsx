@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Manrope, Montserrat, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import "@xyflow/react/dist/style.css";
 import { AuthProvider } from "@/lib/AuthContext";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,7 +29,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Socrates — Project-First AI Tutor for Learning AI",
+  title: "Socrates: Project-First AI Tutor for Learning AI",
   description:
     "Tell it your project goal. Socrates teaches exactly the AI concepts you need, right when you need it, with typed error diagnosis and live execution.",
 };
@@ -28,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="min-h-screen bg-[#09090b] text-zinc-100 antialiased selection:bg-zinc-800 selection:text-zinc-100 font-sans">
+    <html lang="en" className={`dark ${manrope.variable} ${montserrat.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+      <body className="min-h-screen bg-[#0a0a0a] text-neutral-100 antialiased selection:bg-neutral-800 selection:text-white font-sans">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateStructuredLLM, TeachBackOutputSchema } from "@/lib/llm";
+import { generateStructuredLLM, TeachBackOutputSchema, extractLLMRequestCredentials } from "@/lib/llm";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,11 +45,15 @@ Evaluate whether the learner understands the intuition.
 Provide strengths, specific conceptual gaps (if any), constructive feedback, and a pass/fail boolean (passed=true if core understanding is sound).
 Return JSON adhering to TeachBackOutputSchema.`;
 
+    const { apiKey: activeKey, provider: activeProvider } = extractLLMRequestCredentials(req.headers, body);
+
     const result = await generateStructuredLLM({
       systemPrompt,
       userPrompt: `Learner's own explanation: "${trimmed}"`,
       schema: TeachBackOutputSchema,
       fallbackData,
+      apiKeyOverride: activeKey,
+      provider: activeProvider,
     });
 
     return NextResponse.json(result);

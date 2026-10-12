@@ -466,6 +466,112 @@ export function deriveModelContractForGoal(
     };
   }
 
+  // 1.2 Computer Vision / Handwritten Digit Recognizer (MNIST)
+  if (
+    lower.includes("digit") ||
+    lower.includes("mnist") ||
+    lower.includes("handwriting") ||
+    lower.includes("handwritten") ||
+    lower.includes("number recogni")
+  ) {
+    return {
+      functionName: "classify_digit",
+      title: "Live Handwritten Digit Recognizer (MNIST)",
+      subtitle:
+        "Adjust simulated handwriting stroke metrics and pixel density values to test your neural digit classifier live in real time.",
+      badge: "Neural Digit Classifier",
+      defaultThreshold: 0.50,
+      features: [
+        {
+          id: "strokeDensity",
+          label: "Center Stroke Density",
+          type: "slider",
+          min: 0.05,
+          max: 1.0,
+          step: 0.05,
+          default: 0.40,
+          unit: "",
+          description: "Normalized ink concentration in center bounding box (high for 0, 8; low for 1, 7)",
+        },
+        {
+          id: "verticalBias",
+          label: "Vertical Stroke Bias",
+          type: "slider",
+          min: 0.05,
+          max: 1.0,
+          step: 0.05,
+          default: 0.70,
+          unit: "",
+          description: "Dominance of vertical stroke vectors (high for 1, 4, 7)",
+        },
+        {
+          id: "loopRatio",
+          label: "Enclosed Loop Ratio",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.02,
+          unit: "",
+          description: "Topological presence of enclosed loops (high for 0, 6, 8, 9)",
+        },
+        {
+          id: "horizontalCross",
+          label: "Horizontal Crossbar Density",
+          type: "slider",
+          min: 0.0,
+          max: 1.0,
+          step: 0.05,
+          default: 0.90,
+          unit: "",
+          description: "Horizontal stroke presence across top and middle (high for 4, 5, 7)",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Predicted Digit",
+        classes: [
+          { name: "Digit 0", emoji: "0️⃣", color: "#6B7280" },
+          { name: "Digit 1", emoji: "1️⃣", color: "#3B82F6" },
+          { name: "Digit 2", emoji: "2️⃣", color: "#10B981" },
+          { name: "Digit 3", emoji: "3️⃣", color: "#F59E0B" },
+          { name: "Digit 4", emoji: "4️⃣", color: "#8B5CF6" },
+          { name: "Digit 5", emoji: "5️⃣", color: "#EC4899" },
+          { name: "Digit 6", emoji: "6️⃣", color: "#14B8A6" },
+          { name: "Digit 7", emoji: "7️⃣", color: "#F97316" },
+          { name: "Digit 8", emoji: "8️⃣", color: "#6366F1" },
+          { name: "Digit 9", emoji: "9️⃣", color: "#EF4444" },
+        ],
+      },
+      presets: [
+        {
+          name: "Digit 7 (Crossed Angle)",
+          emoji: "7️⃣",
+          description: "Strong top crossbar with diagonal drop",
+          values: { strokeDensity: 0.40, verticalBias: 0.70, loopRatio: 0.02, horizontalCross: 0.90 },
+        },
+        {
+          name: "Digit 1 (Straight Vertical Line)",
+          emoji: "1️⃣",
+          description: "Pure vertical stroke, zero loops",
+          values: { strokeDensity: 0.20, verticalBias: 0.95, loopRatio: 0.05, horizontalCross: 0.10 },
+        },
+        {
+          name: "Digit 8 (Dual Loop Geometry)",
+          emoji: "8️⃣",
+          description: "High density with upper and lower loops",
+          values: { strokeDensity: 0.85, verticalBias: 0.50, loopRatio: 0.90, horizontalCross: 0.75 },
+        },
+        {
+          name: "Digit 0 (Large Open Loop)",
+          emoji: "0️⃣",
+          description: "Wide perimeter boundary, zero crossbar",
+          values: { strokeDensity: 0.60, verticalBias: 0.65, loopRatio: 0.85, horizontalCross: 0.20 },
+        },
+      ],
+    };
+  }
+
   const isPlantOrAgri =
     lower.includes("plant") ||
     lower.includes("crop") ||
@@ -816,6 +922,91 @@ export function deriveModelContractForGoal(
               },
             },
           ],
+    };
+  }
+
+  // 4.05 Large Language Models, ChatGPT, Transformers, Tokenization & Generative Text
+  if (
+    lower.includes("chatgpt") ||
+    lower.includes("gpt") ||
+    lower.includes("llm") ||
+    lower.includes("language model") ||
+    lower.includes("transformer") ||
+    lower.includes("token") ||
+    lower.includes("attention") ||
+    lower.includes("bpe") ||
+    lower.includes("autoregressive") ||
+    concepts?.some(
+      (c) =>
+        c.id.includes("token") ||
+        c.id.includes("chatgpt") ||
+        c.id.includes("autoregressive") ||
+        c.id.includes("attention") ||
+        c.title.toLowerCase().includes("token") ||
+        c.title.toLowerCase().includes("transformer") ||
+        c.title.toLowerCase().includes("embedding") ||
+        c.title.toLowerCase().includes("attention")
+    )
+  ) {
+    return {
+      functionName: "run_llm_pipeline",
+      title: "Live LLM Tokenizer & Generation Runner",
+      subtitle:
+        "Test your subword tokenizer, prompt templating, and language model pipeline live in your browser.",
+      badge: "Generative LLM Engine",
+      defaultThreshold: 0.50,
+      features: [
+        {
+          id: "prompt",
+          label: "User Prompt / Input Text",
+          type: "text",
+          default: "ChatGPT is an AI",
+          description: "Text input to encode with Byte-Pair Tokenization and feed to model",
+        },
+        {
+          id: "system",
+          label: "System Instruction Directive",
+          type: "text",
+          default: "You are Socrates, a patient and thoughtful AI tutor.",
+          description: "System role persona formatting developer instructions",
+        },
+      ],
+      output: {
+        type: "classification",
+        label: "Tokenizer & Generation Output",
+        positiveClass: "GENERATION COMPLETE",
+        negativeClass: "TOKENIZATION READY",
+        classes: [
+          { name: "GENERATION COMPLETE", emoji: "🤖", color: "#3B82F6" },
+          { name: "TOKENIZATION READY", emoji: "💬", color: "#10B981" },
+        ],
+      },
+      presets: [
+        {
+          name: "Subword Tokenizer Test",
+          emoji: "🔤",
+          values: {
+            prompt: "ChatGPT is an AI",
+            system: "You are Socrates, a patient and thoughtful AI tutor.",
+          },
+        },
+        {
+          name: "Concept Explanation Prompt",
+          emoji: "💡",
+          values: {
+            prompt: "What is backpropagation in neural networks?",
+            system: "You are an expert machine learning educator.",
+          },
+        },
+        {
+          name: "Code Generation Prompt",
+          emoji: "💻",
+          values: {
+            prompt: "Implement binary search in Python",
+            system: "You are a concise software engineering assistant.",
+          },
+        },
+      ],
     };
   }
 
@@ -1377,7 +1568,7 @@ export function deriveModelContractForGoal(
   let extractedFeatureNames: string[] = [];
   if (concepts && concepts.length > 0) {
     const code = concepts[0].starterCode || concepts[0].solutionCode || "";
-    const match = code.match(/["']inputs["']\s*:\s*\[([^\]]+)\]/);
+    const match = code.match(/(?:["'](?:inputs|features|action_units|visual_features)["'])\s*:\s*\[([^\]]+)\]/);
     if (match && match[1]) {
       extractedFeatureNames = match[1]
         .split(",")

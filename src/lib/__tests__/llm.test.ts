@@ -89,3 +89,107 @@ describe("Gemini Model Hierarchy & Priority Cascade", () => {
     expect(result.message).toBe("Success from low-tier model");
   });
 });
+
+describe("xAI Grok Integration & Dual-Provider Failover", () => {
+  const originalEnv = { ...process.env };
+
+  beforeEach(() => {
+    process.env = { ...originalEnv };
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+    vi.restoreAllMocks();
+  });
+
+  it("routes directly to Grok when apiKeyOverride begins with xai-", async () => {
+    let capturedUrl = "";
+    let capturedAuth = "";
+    let capturedBody: any = null;
+
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url: any, init: any) => {
+      capturedUrl = String(url);
+      capturedAuth = init?.headers?.["Authorization"] || init?.headers?.authorization;
+      capturedBody = JSON.parse(init?.body || "{}");
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({ message: "Hello from Grok 2" }),
+              },
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    });
+
+    const schema = z.object({ message: z.string() });
+    const result = await generateStructuredLLM({
+      systemPrompt: "Grok System",
+      userPrompt: "Grok User",
+      schema,
+      fallbackData: { message: "Fallback" },
+      apiKeyOverride: "xai-secret-key-456",
+    });
+
+    expect(capturedUrl).toBe("https://api.x.ai/v1/chat/completions");
+    expect(capturedAuth).toBe("Bearer xai-secret-key-456");
+    expect(capturedBody.model).toBe("grok-2-latest");
+    expect(capturedBody.response_format).toEqual({ type: "json_object" });
+    expect(result.message).toBe("Hello from Grok 2");
+  });
+
+  it("fails over to Grok when Gemini returns an error and GROK_API_KEY is configured", async () => {
+    process.env.GEMINI_API_KEY = "gemini-quota-exhausted";
+    process.env.GROK_API_KEY = "xai-failover-key";
+
+    const attemptedEndpoints: string[] = [];
+
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url: any) => {
+      const urlStr = String(url);
+      attemptedEndpoints.push(urlStr);
+
+      if (urlStr.includes("googleapis.com")) {
+        return new Response(
+          JSON.stringify({ error: { code: 429, message: "RESOURCE_EXHAUSTED" } }),
+          { status: 429, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      if (urlStr.includes("api.x.ai")) {
+        return new Response(
+          JSON.stringify({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({ message: "Saved by Grok failover" }),
+                },
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response("Not found", { status: 404 });
+    });
+
+    const schema = z.object({ message: z.string() });
+    const result = await generateStructuredLLM({
+      systemPrompt: "System",
+      userPrompt: "User",
+      schema,
+      fallbackData: { message: "Fallback" },
+    });
+
+    expect(attemptedEndpoints.some((u) => u.includes("googleapis.com"))).toBe(true);
+    expect(attemptedEndpoints.some((u) => u.includes("api.x.ai"))).toBe(true);
+    expect(result.message).toBe("Saved by Grok failover");
+  });
+});
+

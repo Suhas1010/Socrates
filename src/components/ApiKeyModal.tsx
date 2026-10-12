@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Sparkles,
   Key,
   CheckCircle2,
   AlertCircle,
-  ExternalLink,
   X,
   Cpu,
   ShieldCheck,
-  RefreshCw,
+  Zap,
+  Globe,
+  Settings2,
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 
@@ -19,30 +19,90 @@ interface ApiKeyModalProps {
   onClose: () => void;
 }
 
+export type LLMProviderType = "grok" | "gemini" | "groq" | "openrouter" | "custom";
+
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => {
   const { apiKey, setApiKey } = useSessionStore();
+  const [provider, setProvider] = useState<LLMProviderType>("grok");
   const [inputKey, setInputKey] = useState(apiKey || "");
-  const [model, setModel] = useState("gemini-2.5-flash");
+  const [model, setModel] = useState("grok-2-latest");
+  const [customBaseUrl, setCustomBaseUrl] = useState("https://api.x.ai/v1");
   const [testing, setTesting] = useState(false);
   const [testStatus, setTestStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    setInputKey(apiKey || "");
-  }, [apiKey, isOpen]);
+    if (typeof window !== "undefined") {
+      const savedProvider = (localStorage.getItem("socrates_llm_provider") as LLMProviderType) || "grok";
+      const savedKey =
+        localStorage.getItem("socrates_grok_api_key") ||
+        localStorage.getItem("socrates_user_api_key") ||
+        apiKey ||
+        "";
+      const savedModel = localStorage.getItem("socrates_llm_model") || "grok-2-latest";
+      const savedUrl = localStorage.getItem("socrates_custom_base_url") || "https://api.x.ai/v1";
+
+      setProvider(savedProvider);
+      setInputKey(savedKey);
+      setModel(savedModel);
+      setCustomBaseUrl(savedUrl);
+    }
+  }, [isOpen, apiKey]);
 
   if (!isOpen) return null;
 
+  const handleProviderChange = (newProvider: LLMProviderType) => {
+    setProvider(newProvider);
+    setTestStatus("idle");
+    setErrorMessage("");
+
+    if (newProvider === "grok") {
+      setModel("grok-2-latest");
+      setCustomBaseUrl("https://api.x.ai/v1");
+    } else if (newProvider === "gemini") {
+      setModel("gemini-2.5-flash");
+      setCustomBaseUrl("https://generativelanguage.googleapis.com/v1beta");
+    } else if (newProvider === "groq") {
+      setModel("llama-3.3-70b-versatile");
+      setCustomBaseUrl("https://api.groq.com/openai/v1");
+    } else if (newProvider === "openrouter") {
+      setModel("meta-llama/llama-3.3-70b-instruct:free");
+      setCustomBaseUrl("https://openrouter.ai/api/v1");
+    } else if (newProvider === "custom") {
+      setModel("gpt-4o-mini");
+      setCustomBaseUrl("https://api.openai.com/v1");
+    }
+  };
+
   const handleSave = () => {
-    setApiKey(inputKey.trim());
+    const trimmed = inputKey.trim();
+    setApiKey(trimmed);
     if (typeof window !== "undefined") {
-      localStorage.setItem("socrates_gemini_api_key", inputKey.trim());
+      localStorage.setItem("socrates_llm_provider", provider);
+      localStorage.setItem("socrates_user_api_key", trimmed);
       localStorage.setItem("socrates_llm_model", model);
+      localStorage.setItem("socrates_custom_base_url", customBaseUrl.trim());
+      if (provider === "grok") {
+        localStorage.setItem("socrates_grok_api_key", trimmed);
+      } else if (provider === "gemini") {
+        localStorage.setItem("socrates_gemini_api_key", trimmed);
+      }
     }
     onClose();
   };
 
-  const handleTestKey = async () => {
+  const handleClearKey = () => {
+    setInputKey("");
+    setApiKey("");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("socrates_user_api_key");
+      localStorage.removeItem("socrates_gemini_api_key");
+      localStorage.removeItem("socrates_grok_api_key");
+    }
+    setTestStatus("idle");
+  };
+
+  const handleTestConnection = async () => {
     if (!inputKey.trim()) {
       setErrorMessage("Please enter an API key first.");
       setTestStatus("error");
@@ -54,126 +114,137 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
     setErrorMessage("");
 
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${inputKey.trim()}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [{ text: "Hello! Respond with: Socrates AI Ready." }],
-              },
-            ],
-          }),
+      if (provider === "gemini") {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${inputKey.trim()}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: "Respond: OK" }] }],
+            }),
+          }
+        );
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `HTTP ${res.status}: Verification failed`);
         }
-      );
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error?.message || `HTTP ${res.status}: Invalid API Key`);
+      } else {
+        // Groq, OpenRouter, Custom (OpenAI-compatible)
+        const endpoint = `${customBaseUrl.replace(/\/+$/, "")}/chat/completions`;
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${inputKey.trim()}`,
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [{ role: "user", content: "Ping" }],
+            max_tokens: 5,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `HTTP ${res.status}: Verification failed`);
+        }
       }
 
       setTestStatus("success");
       setApiKey(inputKey.trim());
       if (typeof window !== "undefined") {
-        localStorage.setItem("socrates_gemini_api_key", inputKey.trim());
+        localStorage.setItem("socrates_llm_provider", provider);
+        localStorage.setItem("socrates_user_api_key", inputKey.trim());
+        localStorage.setItem("socrates_llm_model", model);
       }
     } catch (err: any) {
       setTestStatus("error");
-      setErrorMessage(err.message || "Could not verify API key.");
+      setErrorMessage(err.message || "Connection failed.");
     } finally {
       setTesting(false);
     }
   };
 
-  const hasKey = !!(apiKey || inputKey.trim());
-
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-      <div className="glass-panel inline-block w-full max-w-lg rounded-3xl border border-gold/30 shadow-2xl bg-[#0e0d0a] text-cream text-left overflow-hidden align-middle">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#090b10] text-zinc-200 text-left overflow-hidden shadow-2xl space-y-0">
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gold/15 flex items-center justify-between bg-gradient-to-r from-gold/10 via-transparent to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gold/20 border border-gold/40 flex items-center justify-center text-gold">
-              <Cpu className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-base text-cream">AI Engine & Gemini API Key</h3>
-              <p className="text-xs text-muted">Power dynamic concept graphs for any project</p>
-            </div>
+        <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/80">
+          <div className="flex items-center gap-2.5">
+            <Settings2 className="w-4 h-4 text-amber-400" />
+            <h3 className="font-semibold text-sm text-zinc-100 font-mono">
+              AI Provider & BYOK Settings (P-3)
+            </h3>
           </div>
-
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-muted hover:text-cream hover:bg-white/5 transition-colors"
+            className="text-zinc-400 hover:text-zinc-200 p-1 rounded hover:bg-zinc-800 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Body */}
-        <div className="p-6 space-y-5">
-          {/* Status Banner */}
-          <div
-            className={`p-3.5 rounded-2xl border flex items-start gap-3 text-xs leading-relaxed ${
-              hasKey
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                : "bg-amber-500/10 border-amber-500/30 text-amber-200"
-            }`}
-          >
-            {hasKey ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-            )}
-            <div>
-              <span className="font-semibold block mb-0.5">
-                {hasKey ? "Live LLM Inference Mode" : "Offline Intelligent Heuristic Mode"}
-              </span>
-              <span>
-                {hasKey
-                  ? "Socrates will use Gemini to dynamically reverse-engineer tailored concept graphs, code tasks, and diagnosis for ANY project goal."
-                  : "Without an API key, Socrates uses built-in templates (Spam Classifier, Digit Recognizer, How ChatGPT Works, Sentiment Analysis) or custom heuristic roadmaps."}
-              </span>
+        <div className="p-5 space-y-4 text-xs">
+          {/* Provider Selector */}
+          <div className="space-y-1.5">
+            <label className="text-zinc-400 font-medium">Select LLM Provider</label>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {(["grok", "gemini", "groq", "openrouter", "custom"] as LLMProviderType[]).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => handleProviderChange(p)}
+                  className={`py-2 px-1.5 rounded-lg border text-center font-mono font-semibold transition-all text-[11px] truncate ${
+                    provider === p
+                      ? "border-amber-500/80 bg-amber-500/10 text-amber-300"
+                      : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  {p === "grok" ? "xAI (Grok)" : p.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Model Selection */}
+          {/* Model input / selector */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-              <span>Model Selection</span>
-            </label>
-            <select
+            <label className="text-zinc-400 font-medium">Model ID</label>
+            <input
+              type="text"
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#14130F] border border-gold/20 text-cream text-xs font-mono focus:outline-none focus:border-gold"
-            >
-              <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended - Fastest & SOTA)</option>
-              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-            </select>
+              placeholder="e.g. grok-2-latest, gemini-2.5-flash, llama-3.3-70b-versatile"
+              className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-zinc-200 focus:outline-none focus:border-amber-500/60 text-xs"
+            />
           </div>
 
-          {/* API Key Input */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <label className="font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-gold" />
-                <span>Google Gemini API Key</span>
-              </label>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noreferrer"
-                className="text-gold hover:underline inline-flex items-center gap-1 text-[11px]"
-              >
-                <span>Get Free Key at Google AI Studio</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+          {/* Custom Base URL if custom or openrouter */}
+          {(provider === "custom" || provider === "openrouter" || provider === "grok") && (
+            <div className="space-y-1.5">
+              <label className="text-zinc-400 font-medium">Endpoint Base URL</label>
+              <input
+                type="text"
+                value={customBaseUrl}
+                onChange={(e) => setCustomBaseUrl(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-zinc-200 focus:outline-none focus:border-amber-500/60 text-xs"
+              />
             </div>
+          )}
 
+          {/* Personal API Key (BYOK) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-zinc-400 font-medium">Personal API Key (BYOK)</label>
+              {inputKey && (
+                <button
+                  type="button"
+                  onClick={handleClearKey}
+                  className="text-[11px] text-zinc-500 hover:text-red-400 font-mono underline"
+                >
+                  Clear Key
+                </button>
+              )}
+            </div>
             <div className="relative">
               <input
                 type="password"
@@ -182,59 +253,71 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose }) => 
                   setInputKey(e.target.value);
                   setTestStatus("idle");
                 }}
-                placeholder="AIzaSy..."
-                className="w-full px-4 py-3 rounded-xl bg-[#14130F] border border-gold/25 text-cream font-mono text-xs placeholder:text-muted/50 focus:outline-none focus:border-gold transition-all"
+                placeholder={
+                  provider === "grok"
+                    ? "xai-..."
+                    : provider === "gemini"
+                    ? "AIzaSy..."
+                    : provider === "groq"
+                    ? "gsk_..."
+                    : "sk-..."
+                }
+                className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-zinc-200 focus:outline-none focus:border-amber-500/60 text-xs"
               />
             </div>
-
-            <p className="text-[11px] text-muted leading-relaxed">
-              Your key stays safely in your browser session or local environment and is sent directly to Google AI Studio.
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
+              Your key stays strictly in your browser (localStorage) and is never saved or logged on any server.
             </p>
           </div>
 
           {/* Test Status feedback */}
           {testStatus === "success" && (
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>Connection Verified! Gemini is ready to teach any project.</span>
+            <div className="p-2.5 rounded bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 font-mono">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>Connection verified successfully with {provider}!</span>
             </div>
           )}
 
           {testStatus === "error" && (
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-ruby/10 border border-ruby/30 text-ruby text-xs">
-              <AlertCircle className="w-4 h-4 text-ruby" />
+            <div className="p-2.5 rounded bg-red-950/40 border border-red-500/40 text-red-300 text-xs flex items-start gap-2 font-mono">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {/* Free Cascade Status note */}
+          {!inputKey && (
+            <div className="p-2.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 text-[11px] flex items-center gap-2 font-mono">
+              <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+              <span>Default mode active: Socrates uses verified offline catalogs and shared free cascades.</span>
             </div>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-gold/15 bg-[#14130F] flex items-center justify-between gap-3">
+        <div className="px-5 py-3.5 border-t border-zinc-800 bg-zinc-950 flex items-center justify-between">
           <button
             type="button"
-            onClick={handleTestKey}
+            onClick={handleTestConnection}
             disabled={testing || !inputKey.trim()}
-            className="px-4 py-2.5 rounded-xl border border-gold/30 hover:border-gold/60 text-xs text-gold font-medium flex items-center gap-2 transition-all disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 font-mono text-xs disabled:opacity-50 transition-colors flex items-center gap-1.5"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${testing ? "animate-spin" : ""}`} />
-            <span>{testing ? "Testing..." : "Verify Key"}</span>
+            {testing ? "Testing..." : "Test Connection"}
           </button>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs text-muted hover:text-cream transition-colors"
+              className="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 text-xs font-mono transition-colors"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold to-amber-500 hover:from-gold-300 hover:to-amber-400 text-zinc-950 font-bold text-xs shadow-lg shadow-gold/20 flex items-center gap-1.5 transition-all"
+              className="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs font-mono transition-colors"
             >
-              <ShieldCheck className="w-4 h-4" />
-              <span>Save & Apply</span>
+              Save Settings
             </button>
           </div>
         </div>

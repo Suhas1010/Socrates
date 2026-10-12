@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateStructuredLLM, PlanOutputSchema } from "@/lib/llm";
+import { generateStructuredLLM, PlanOutputSchema, extractLLMRequestCredentials } from "@/lib/llm";
 import {
   SPAM_CLASSIFIER_CONCEPTS,
   SPAM_CLASSIFIER_EDGES,
@@ -29,10 +29,9 @@ export async function POST(req: NextRequest) {
   let requestedGoal = "Your AI Project";
   try {
     const body = await req.json();
-    const { goal, interests, background, apiKey } = body;
+    const { goal, interests, background } = body;
     if (goal) requestedGoal = goal;
-    const headerKey = req.headers.get("x-gemini-api-key");
-    const activeKey = apiKey || headerKey || undefined;
+    const { apiKey: activeKey, provider: activeProvider } = extractLLMRequestCredentials(req.headers, body);
 
     const lowerGoal = (goal || "").toLowerCase();
     const isPlantOrAgri =
@@ -152,22 +151,38 @@ export async function POST(req: NextRequest) {
     const systemPrompt = `You are Socrates, an expert AI tutor. A learner wants to build: "${goal}".
 Learner coding background: "${background || "beginner"}".
 Learner personal interests: "${interests || "general tech"}".
-Generate a beginner-friendly DAG concept plan (5 to 8 nodes).
 
-CRITICAL RULES (MUST FOLLOW, NO EXCEPTIONS):
-1. DOMAIN-SPECIFIC FEATURES ONLY: Every concept's starterCode and solutionCode must use REAL, named features specific to "${goal}".
-   - If goal is "weather predictor" → use temperature, humidity, pressure, wind_speed, cloud_cover
-   - If goal is "house price predictor" → use sqft, bedrooms, bathrooms, location_score
-   - NEVER use placeholder names like "feature_1", "feature_2", "target_value", "inputs", or any generic names.
-2. REAL TRAINING REQUIRED: The model-building step MUST actually train a model on a real synthetic dataset using sklearn.
-   - Use sklearn.linear_model, sklearn.ensemble, or sklearn.tree based on what is appropriate.
-   - Generate synthetic training data (X_train, y_train) with realistic, domain-specific values.
-   - Call model.fit(X_train, y_train) — do NOT just hand-supply weights to a formula.
-   - Show model.predict() on new unseen examples.
-3. BEGINNER FRIENDLY: Avoid advanced concepts not needed for the project. No abstract math unless essential.
-4. Hook questions must create curiosity gaps, NEVER start with an abstract definition.
-5. Every step has a concrete build task with starterCode in Python and a working testAssertion.
-6. Output MUST strictly match the PlanOutputSchema.`;
+Generate a comprehensive beginner-friendly progressive DAG concept roadmap of 6 to 8 steps tailored SPECIFICALLY to build "${goal}".
+
+CRITICAL REQUIREMENTS:
+1. DOMAIN-SPECIFIC FEATURES: Every concept's starterCode and solutionCode must use REAL, named features and realistic numbers specific to "${goal}". Never use placeholder names like "feature_1" or "inputs".
+2. REAL MACHINE LEARNING: Include dataset construction, normalization or feature extraction, model definition/training with sklearn or custom mathematical formulas, prediction, and evaluation with train/test split.
+3. CONCRETE PYTHON CODE: Each step must have executable Python starterCode (with TODO blanks) and a working solutionCode, plus a testAssertion that verifies the function.
+4. CURIOSITY HOOK: Each step must start with a thought-provoking real-world hook question.
+
+You MUST respond with valid JSON matching this exact structure:
+{
+  "templateId": "${templateId}",
+  "rationale": "High-level rationale explaining how this progressive curriculum takes the learner from fundamentals to a deployed working model.",
+  "startingConceptId": "id-of-first-step",
+  "concepts": [
+    {
+      "id": "kebab-case-step-id",
+      "title": "Clear Conceptual Title",
+      "prereqs": [],
+      "hook": "Compelling hook question?",
+      "buildStep": "What the learner actually builds in this step",
+      "difficulty": 1,
+      "explanationSummary": "Intuitive explanation of the core concept and math.",
+      "starterCode": "def my_function(param):\\n    # TODO\\n    return ___",
+      "solutionCode": "def my_function(param):\\n    return result",
+      "testAssertion": "assert my_function(...) == expected"
+    }
+  ],
+  "edges": [
+    { "from": "id-of-step-1", "to": "id-of-step-2" }
+  ]
+}`;
 
 
     const plan = await generateStructuredLLM({
@@ -176,6 +191,7 @@ CRITICAL RULES (MUST FOLLOW, NO EXCEPTIONS):
       schema: PlanOutputSchema,
       fallbackData,
       apiKeyOverride: activeKey,
+      provider: activeProvider,
     });
 
     return NextResponse.json(plan);

@@ -73,6 +73,7 @@ export interface Concept {
   };
   technicalTerms?: TechnicalTerm[];
   deepMath?: DeepMathWalkthrough;
+  goldenTest?: GoldenValueTest;
 }
 
 export interface ConceptEdge {
@@ -195,12 +196,88 @@ export interface PlanGenerationResult {
   modelContract?: ProjectModelContract;
 }
 
+export type ProjectTier = "A" | "B" | "C";
+
+export interface GoldenValueTest {
+  inputs: Record<string, any> | any;
+  expectedOutput: any;
+  tolerance?: number;
+  description?: string;
+}
+
+export interface ProjectSpec {
+  task: "classification" | "regression";
+  schema: Array<{
+    name: string;
+    type: "float" | "int" | "string" | "boolean";
+    range?: [number, number];
+    options?: string[];
+    description?: string;
+  }>;
+  target: string;
+  metric: string;
+  threshold: number;
+  tier: ProjectTier;
+}
+
+export interface CatalogProjectFunction {
+  name: string;
+  signature: string;
+  dependsOn: string[];
+  docstring?: string;
+}
+
+export interface CatalogProjectStep {
+  id: string;
+  conceptId: string;
+  title: string;
+  function: string;
+  blanksCount: number;
+  starterCode: string;
+  solutionCode: string;
+  goldenValues: GoldenValueTest[];
+  misconceptions: string[];
+}
+
+export interface CatalogProject {
+  id: string;
+  title: string;
+  tier: ProjectTier;
+  domain: string;
+  spec: ProjectSpec;
+  functions: CatalogProjectFunction[];
+  steps: CatalogProjectStep[];
+  dag: {
+    nodes: Concept[];
+    edges: ConceptEdge[];
+  };
+  modelContract: ProjectModelContract;
+  generationLog?: {
+    attempts: number;
+    executorPassed: boolean;
+    timestamp: string;
+  };
+}
+
+export interface RedTeamTestResult {
+  id: string;
+  scenarioName: string;
+  category: "zero_values" | "outliers" | "negative_values" | "nan_missing" | "type_mismatch";
+  inputs: Record<string, any>;
+  learnerOutput?: any;
+  referenceOutput?: any;
+  status: "safe" | "vulnerability_found" | "runtime_error";
+  errorTrace?: string;
+  analysis: string;
+}
+
 export interface SessionState {
   id: string;
   goal: string;
   interests: string;
   background: CodingBackground;
   templateId: string | null;
+  tier?: ProjectTier;
   concepts: Concept[];
   edges: ConceptEdge[];
   mastery: Record<string, number>;
@@ -217,4 +294,5 @@ export interface SessionState {
   pyodideError: string | null;
   modelContract?: ProjectModelContract | null;
 }
+
 

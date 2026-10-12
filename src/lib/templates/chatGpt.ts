@@ -9,6 +9,28 @@ export const CHATGPT_CONCEPTS: Concept[] = [
     hook: "When you ask ChatGPT a question, why doesn't it read letters or whole words, but strange fragments like ' token' and 'ization'?",
     explanationSummary:
       "Language models cannot read strings directly. Byte-Pair Encoding (BPE) breaks raw text into subword token IDs from a fixed vocabulary (~50,000 to 100,000 tokens), handling common words, rare words, code, and typos with equal mathematical efficiency.",
+    predictQuestion: {
+      prompt: "Why do modern LLMs use subword tokenization (like BPE) rather than whole-word tokenization?",
+      options: [
+        "Subword tokenization keeps vocabulary size manageable (~50k-100k) while smoothly handling rare words, prefixes, typos, and code without 'out-of-vocabulary' errors.",
+        "Because computers cannot process words with more than 4 letters.",
+        "Because whole-word tokenization causes GPU memory leaks.",
+        "To scramble words for privacy before sending to the model."
+      ],
+      correctIndex: 0,
+      explanation: "Subwords strike the optimal trade-off between compact vocabulary tables and infinite text coverage."
+    },
+    checkQuestion: {
+      prompt: "If a subword tokenizer encounters a rare compound word like 'unbelievable', how does it represent it?",
+      options: [
+        "It splits the word into known subword chunks like ['un', 'believ', 'able'] and maps each chunk to its integer ID.",
+        "It crashes the server with an out-of-bounds error.",
+        "It replaces the entire sentence with zeros.",
+        "It converts the word into an audio waveform."
+      ],
+      correctIndex: 0,
+      explanation: "Subword tokenizers decompose unknown or complex words into frequent constituent fragments without losing information."
+    },
     buildStep: "Implement a subword tokenizer that encodes a text sentence into an array of integer token IDs.",
     starterCode: `# Step 1: Subword Tokenizer
 VOCAB = {"<pad>": 0, "chat": 1, "gpt": 2, "is": 3, "an": 4, "ai": 5, "robot": 6, "helpful": 7}
@@ -54,6 +76,28 @@ print("Assertion Passed: Tokenizer successfully encoded prompt into subword IDs!
     hook: "How can numbers capture meaning such that adding 'royalty' to 'woman' lands right on the vector for 'queen'?",
     explanationSummary:
       "Token IDs (integers like 42) have no inherent meaning. An embedding matrix maps each token ID to a dense vector of floating-point numbers (e.g., 768 or 4096 dimensions). Words with similar semantic meanings cluster close together in this high-dimensional space.",
+    predictQuestion: {
+      prompt: "What mathematical property makes high-dimensional token embeddings effective for natural language?",
+      options: [
+        "Tokens with similar semantic meaning or syntactic roles are mapped to vectors with high cosine similarity (small angular distance).",
+        "Every token is assigned an integer whose value equals its alphabetical order.",
+        "All embedding vectors must sum to exactly zero.",
+        "Embeddings compress sentences into single 8-bit integers."
+      ],
+      correctIndex: 0,
+      explanation: "Dense vector spaces capture semantic geometry—synonyms and related concepts cluster close together in multi-dimensional space."
+    },
+    checkQuestion: {
+      prompt: "If two token vectors have a cosine similarity of +1.0, what does this indicate geometrically?",
+      options: [
+        "They point in the exact same direction in vector space (perfect angular alignment).",
+        "They are perpendicular at a 90 degree angle.",
+        "They have completely opposite meanings.",
+        "One of the vectors is empty."
+      ],
+      correctIndex: 0,
+      explanation: "Cosine similarity of 1.0 means the angle between the two vectors is 0°, meaning they share identical orientation."
+    },
     buildStep: "Look up high-dimensional dense embedding vectors for input tokens and compute cosine similarity.",
     starterCode: `# Step 2: Embedding Lookup & Vector Dot Product
 import math
@@ -103,6 +147,28 @@ print("Assertion Passed: Embedding vector similarity engine verified!")
     hook: "In the sentence 'The animal didn't cross the street because it was too tired', how does the Transformer know 'it' refers to the animal and not the street?",
     explanationSummary:
       "Self-attention allows every token to look at ('attend to') every other token in the sequence. By computing Query, Key, and Value dot products, tokens dynamically absorb contextual information from relevant surrounding words.",
+    predictQuestion: {
+      prompt: "In the sentence 'The animal didn't cross the street because it was too tired', how does Self-Attention determine that 'it' refers to 'animal'?",
+      options: [
+        "The dot product between Query('it') and Key('animal') is high, assigning strong attention weight to 'animal' into the updated representation of 'it'.",
+        "It queries an external Wikipedia dictionary at runtime.",
+        "It counts how many times the word 'animal' appeared in the first 3 tokens.",
+        "It randomly guesses based on whether the word starts with a vowel."
+      ],
+      correctIndex: 0,
+      explanation: "Self-attention computes dynamic attention weights between every pair of words, allowing words to absorb context from their surrounding sentence."
+    },
+    checkQuestion: {
+      prompt: "Why are attention scores divided by sqrt(d_k) before applying the Softmax?",
+      options: [
+        "To prevent large dot products in high dimensions from pushing Softmax into regions with vanishingly small gradients.",
+        "Because square roots make matrix multiplication run in parallel.",
+        "To convert floating point attention into integer percentages.",
+        "To invert the matrix transpose."
+      ],
+      correctIndex: 0,
+      explanation: "Scaling by 1/sqrt(d_k) keeps the variance of dot products around 1.0, preventing Softmax saturation and vanishing gradients."
+    },
     buildStep: "Compute attention weights between tokens using scaled dot-product attention: softmax(Q · K^T / sqrt(d_k)).",
     starterCode: `# Step 3: Scaled Dot-Product Attention Weights
 import math
@@ -166,6 +232,28 @@ print("Assertion Passed: Self-Attention weights verified!")
     hook: "Why does setting temperature to 0.0 make ChatGPT answer predictably like a calculator, while 1.2 makes it hallucinatory and creative?",
     explanationSummary:
       "The final layer of a language model outputs raw logits across the entire vocabulary. Dividing logits by temperature before softmax flattens or sharpens the distribution, giving the user control over randomness and creativity.",
+    predictQuestion: {
+      prompt: "What happens when you set the sampling temperature T near 0.0 (e.g. T = 0.05) when generating text with an LLM?",
+      options: [
+        "Output becomes almost strictly greedy / deterministic, consistently picking the single most probable next token.",
+        "Output becomes completely random and nonsensical.",
+        "The model refuses to generate any words.",
+        "The vocabulary size increases tenfold."
+      ],
+      correctIndex: 0,
+      explanation: "Dividing logits by a low temperature sharpens the probability distribution toward argmax, resulting in focused, deterministic responses."
+    },
+    checkQuestion: {
+      prompt: "If temperature is increased to T = 2.0, what happens to the probability distribution across vocabulary tokens?",
+      options: [
+        "The distribution becomes flatter / more uniform, increasing diversity and the likelihood of unusual words.",
+        "All probabilities become exactly zero.",
+        "The top token receives 100% of the probability mass.",
+        "The model can only speak in uppercase letters."
+      ],
+      correctIndex: 0,
+      explanation: "Dividing by large T compresses differences between logits, making the Softmax distribution much more uniform and creative."
+    },
     buildStep: "Apply temperature scaling to raw token logits and calculate next-token probability distribution.",
     starterCode: `# Step 4: Temperature-Scaled Softmax
 import math
@@ -215,6 +303,28 @@ print("Assertion Passed: Temperature sampling mechanics verified!")
     hook: "How does ChatGPT write a 1,000-word response when its core model only knows how to predict one single word?",
     explanationSummary:
       "Language models generate text autoregressively: they predict token N, append token N to the prompt, and feed the entire extended text back into the model to predict token N+1, repeating until an End-of-Sequence (<EOS>) token is generated.",
+    predictQuestion: {
+      prompt: "What does 'autoregressive' mean in the context of an LLM generating an entire paragraph?",
+      options: [
+        "The model predicts one next token at a time, appends that new token to its input context, and repeats the cycle until a stopping token is generated.",
+        "The model generates all 500 words simultaneously in a single forward pass.",
+        "The model retrains its weights using reinforcement learning on each user query.",
+        "The model checks grammar rules sequentially from a hardcoded syntax tree."
+      ],
+      correctIndex: 0,
+      explanation: "Autoregressive models generate sequence step-by-step, conditioning each new token on all previously generated tokens."
+    },
+    checkQuestion: {
+      prompt: "What condition causes an autoregressive generation loop to stop producing tokens?",
+      options: [
+        "Generating the special <EOS> (End of Sequence) token or reaching the max_new_tokens limit.",
+        "Whenever a punctuation mark like a period is reached.",
+        "When the user's internet connection disconnects.",
+        "When temperature reaches zero."
+      ],
+      correctIndex: 0,
+      explanation: "Generation terminates cleanly when the model samples the <EOS> token or hits the safety length cap."
+    },
     buildStep: "Build the autoregressive generation loop that iteratively predicts and appends tokens until completion.",
     starterCode: `# Step 5: Autoregressive Text Generation Loop
 def generate_tokens(mock_model_predict_fn, prompt_tokens, max_new_tokens=4, eos_token=99):
@@ -263,6 +373,28 @@ print("Assertion Passed: Autoregressive generation loop functioning!")
     hook: "Raw language models often just complete sentences with random internet text. Why does ChatGPT instead act like a polite, knowledgeable assistant?",
     explanationSummary:
       "Pretraining teaches an LLM the structure of language from internet text. Reinforcement Learning from Human Feedback (RLHF) and Supervised Instruction Tuning (SFT) guide the model to follow prompts, refuse harmful queries, and format helpful answers.",
+    predictQuestion: {
+      prompt: "Why is prompt formatting with clear role tags (<|system|>, <|user|>, <|assistant|>) crucial for instruction-tuned models?",
+      options: [
+        "It prevents conversational turn confusion, clearly delineating system boundaries and developer directives from raw user queries.",
+        "It compiles the dialogue directly into C++ bytecode.",
+        "It makes the LLM run 10x faster on mobile devices.",
+        "Because GPUs can only process text formatted in HTML."
+      ],
+      correctIndex: 0,
+      explanation: "Role delimiters structure conversational history into distinct turns, allowing the model to distinguish instructions from user input."
+    },
+    checkQuestion: {
+      prompt: "What is the primary objective of Reinforcement Learning from Human Feedback (RLHF) in language models?",
+      options: [
+        "Aligning model generation to be helpful, honest, and harmless according to human preferences.",
+        "Teaching the model how to read raw text from the internet for the first time.",
+        "Compacting the model weights so they fit on floppy disks.",
+        "Enforcing that responses are always fewer than 10 words."
+      ],
+      correctIndex: 0,
+      explanation: "RLHF aligns raw next-token prediction toward helpfulness, truthfulness, and safety based on human preference scoring."
+    },
     buildStep: "Implement the prompt formatting template that injects system instructions and separates user dialogue.",
     starterCode: `# Step 6: Chat Prompt Templating & System Formatting
 def format_chat_prompt(system_instruction, user_query):
@@ -385,5 +517,36 @@ export const CHATGPT_DIAGNOSTIC_QUESTIONS: DiagnosticQuestion[] = [
         rationale: "Temperature only scales output logits during sampling."
       }
     ]
+  },
+  {
+    id: "diag-chatgpt-4",
+    targetConceptId: "autoregressive-loop",
+    question: "In autoregressive text generation, how does the model decide when a sentence or answer has finished?",
+    options: [
+      {
+        text: "It emits a learned End-of-Sequence (<EOS>) token that tells the generation loop to stop.",
+        isCorrect: true,
+        errorType: "NONE"
+      },
+      {
+        text: "The user's web browser automatically cuts the power after 10 words.",
+        isCorrect: false,
+        errorType: "CONCEPTUAL_GAP",
+        rationale: "Stopping is governed by <EOS> tokens or max token bounds."
+      },
+      {
+        text: "The model runs until all storage memory on the computer fills up completely.",
+        isCorrect: false,
+        errorType: "OVERCONFIDENT_MISCONCEPTION",
+        rationale: "Inference loops stop deterministically upon encountering <EOS> tokens."
+      },
+      {
+        text: "Human moderators press a physical button for every ChatGPT reply.",
+        isCorrect: false,
+        errorType: "TERMINOLOGY_CONFUSION",
+        rationale: "Text generation is automated using autoregressive token sampling."
+      }
+    ]
   }
 ];
+

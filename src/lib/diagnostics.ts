@@ -108,6 +108,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           },
         ],
       },
+      {
+        id: "diag-emotion-4",
+        targetConceptId: "decision-boundary",
+        question: `Your facial emotion model outputs a confidence score for "Joy" between 0% and 100%. If you set the threshold at 80% instead of 50%, what happens?`,
+        options: [
+          {
+            text: `The model only predicts "Joy" when it is extremely certain, avoiding false happy labels on subtle or neutral faces.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `The webcam stops recording faces.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Thresholding is purely mathematical in software; it does not turn off camera hardware.`,
+          },
+          {
+            text: `The model predicts every face in the world is Joy.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Raising the threshold makes the criteria stricter, resulting in fewer positive predictions, not more.`,
+          },
+          {
+            text: `The accuracy drops to zero immediately.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A stricter threshold increases Precision, filtering out false positives.`,
+          },
+        ],
+      },
     ];
   }
 
@@ -355,6 +385,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           },
         ],
       },
+      {
+        id: "diag-med-4",
+        targetConceptId: "decision-boundary",
+        question: `In clinical diagnostic models, why do doctors deliberately lower the alert threshold (e.g. from 0.50 down to 0.35)?`,
+        options: [
+          {
+            text: `To maximize Sensitivity (Recall), ensuring dangerous true cases are caught even if it causes a few extra false alarm follow-up tests.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Because computers cannot compute numbers greater than 0.35.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Computers can compute any numerical floating point value. The threshold is an intentional clinical safety decision.`,
+          },
+          {
+            text: `To hide the patient test results from the laboratory.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Thresholding changes when an alert is flagged, not data privacy.`,
+          },
+          {
+            text: `Lowering the threshold always makes the model 100% accurate on all diseases.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Lowering the threshold trades off higher recall for lower precision; it does not eliminate all errors.`,
+          },
+        ],
+      },
     ];
   }
 
@@ -455,6 +515,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
             rationale: `Never delete features based on scale. Scale the features to a common range (like 0–1) so the model weighs them fairly.`,
+          },
+        ],
+      },
+      {
+        id: "diag-fin-4",
+        targetConceptId: "decision-boundary",
+        question: `If a bank sets its fraud detection threshold at 0.95 (flagging transactions only if 95% confident), what is the business consequence?`,
+        options: [
+          {
+            text: `Very few false alarms for regular customers, but sneaky fraudsters will slip through undetected.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `All credit card transactions in the world are frozen forever.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `A high threshold reduces alerts, meaning fewer transactions are blocked, not more.`,
+          },
+          {
+            text: `The model stops requiring training data.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Threshold adjustment is post-processing on predictions, completely separate from training data.`,
+          },
+          {
+            text: `The model catches 100% of all fraud cases.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A high threshold misses borderline fraud, lowering Recall.`,
           },
         ],
       },
@@ -560,6 +650,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           },
         ],
       },
+      {
+        id: "diag-churn-4",
+        targetConceptId: "decision-boundary",
+        question: `A telecom company wants to send special discount coupons to customers at risk of churning. If they lower the decision threshold to 0.30, what happens?`,
+        options: [
+          {
+            text: `More borderline customers are flagged for retention discounts, saving more subscribers while spending a bit more on promotional offers.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `The company's servers run out of disk space immediately.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Thresholding changes notification logic; it does not consume extra disk storage.`,
+          },
+          {
+            text: `Every customer cancels their plan instantly.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Proactive retention outreach helps keep customers, not drive them away.`,
+          },
+          {
+            text: `The model stops working because thresholds must always be 0.50.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Thresholds are business control knobs tuned to optimize campaign ROI.`,
+          },
+        ],
+      },
     ];
   }
 
@@ -661,6 +781,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
             isCorrect: false,
             errorType: "OVERCONFIDENT_MISCONCEPTION",
             rationale: `A single global top 10 list fails to cater to niche genres and individual preferences.`,
+          },
+        ],
+      },
+      {
+        id: "diag-rec-4",
+        targetConceptId: "decision-boundary",
+        question: `When recommending items to users, what is the role of a Top-K recommendation ranking threshold?`,
+        options: [
+          {
+            text: `It sorts all catalog items by predicted preference score and surfaces only the highest K items, filtering out weak or irrelevant suggestions.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `It deletes all movies whose titles contain the letter 'K'.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Top-K refers to the top count of ranked items, not alphabetical filtering.`,
+          },
+          {
+            text: `It forces the recommender to show every single movie in the catalog on one screen.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Top-K bounds the output list to prevent cognitive overload.`,
+          },
+          {
+            text: `It guarantees that every user rates every movie 5 stars.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Ranking surfaces high-probability candidates; it does not dictate future user ratings.`,
           },
         ],
       },
@@ -770,6 +920,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           },
         ],
       },
+      {
+        id: "diag-obj-4",
+        targetConceptId: "decision-boundary",
+        question: `For autonomous driving obstacle detection, why is the collision warning threshold tuned to trigger early at greater braking distances?`,
+        options: [
+          {
+            text: `To give the mechanical braking system enough reaction time to stop safely, prioritizing passenger safety over minor false alarms.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Because cars cannot brake if the obstacle is closer than 100 meters.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Cars can brake at any distance, but stopping requires distance proportional to velocity.`,
+          },
+          {
+            text: `To turn off the vehicle's engine automatically when parked.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Collision thresholds govern real-time driving safety, not parking operations.`,
+          },
+          {
+            text: `Earlier alerts guarantee zero false positives.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Earlier alerts accept slightly more false positives to eliminate catastrophic false negatives.`,
+          },
+        ],
+      },
     ];
   }
 
@@ -871,6 +1051,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
             isCorrect: false,
             errorType: "CONCEPTUAL_GAP",
             rationale: `Failed password attempts is a critical security signal. Always scale, never discard valuable signals.`,
+          },
+        ],
+      },
+      {
+        id: "diag-cyber-4",
+        targetConceptId: "decision-boundary",
+        question: `Why does a security operations team calibrate its intrusion alert threshold rather than sticking to a default 0.50 score?`,
+        options: [
+          {
+            text: `To balance security triage: setting it too sensitive floods analysts with false alerts, while setting it too loose misses real cyberattacks.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Because firewalls can only parse whole integers, not decimals like 0.50.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Firewall rules parse arbitrary floating point score thresholds.`,
+          },
+          {
+            text: `Threshold tuning disconnects the computer from the power grid.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Thresholding adjusts alert sensitivity without affecting physical power.`,
+          },
+          {
+            text: `All cyber threats have exactly the same identical risk score.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Threat scores span a continuous spectrum depending on payload and frequency anomalies.`,
           },
         ],
       },
@@ -977,6 +1187,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           },
         ],
       },
+      {
+        id: "diag-fake-4",
+        targetConceptId: "threshold-tuning",
+        question: `If a social media platform lowers its misinformation detection threshold from 0.70 down to 0.40, what is the trade-off?`,
+        options: [
+          {
+            text: `It catches and flags significantly more misleading articles, but may occasionally flag legitimate opinion pieces for human review.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `It stops the internet from loading articles.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Thresholding adjusts moderation triage, not network connectivity.`,
+          },
+          {
+            text: `Every article ever written is deleted from the world.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Content moderation flags posts for review rather than destroying documents.`,
+          },
+          {
+            text: `The model's training accuracy becomes 0%.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `Threshold tuning does not alter the underlying model's weights or training accuracy.`,
+          },
+        ],
+      },
     ];
   }
 
@@ -1080,6 +1320,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           },
         ],
       },
+      {
+        id: "diag-audio-4",
+        targetConceptId: "decision-boundary",
+        question: `A voice assistant must decide whether you said "Hey Siri" or if you just made a background throat sound. Why use a high confidence threshold (e.g. 0.85)?`,
+        options: [
+          {
+            text: `To prevent annoying accidental activations when someone is having a casual conversation nearby.`,
+            isCorrect: true,
+            errorType: "NONE",
+          },
+          {
+            text: `Because computers cannot process audio if confidence is under 85%.`,
+            isCorrect: false,
+            errorType: "TERMINOLOGY_CONFUSION",
+            rationale: `Audio pipelines process continuous streams regardless of score.`,
+          },
+          {
+            text: `To turn the speaker volume to maximum.`,
+            isCorrect: false,
+            errorType: "CONCEPTUAL_GAP",
+            rationale: `Thresholding dictates trigger activation, not playback volume.`,
+          },
+          {
+            text: `Setting a high threshold guarantees the speaker never makes mistakes.`,
+            isCorrect: false,
+            errorType: "OVERCONFIDENT_MISCONCEPTION",
+            rationale: `A high threshold prevents false triggers, but may occasionally require the user to repeat the command louder.`,
+          },
+        ],
+      },
     ];
   }
 
@@ -1172,6 +1442,36 @@ export function generateDiagnosticQuestionsForGoal(goal: string): DiagnosticQues
           isCorrect: false,
           errorType: "CONCEPTUAL_GAP",
           rationale: `Models never delete data. The problem is evaluating on examples the model already memorised.`,
+        },
+      ],
+    },
+    {
+      id: "diag-custom-4",
+      targetConceptId: "threshold-tuning",
+      question: `Once your model is trained, why would you adjust its operating decision threshold rather than using the default 0.50 cutoff?`,
+      options: [
+        {
+          text: `To control the tradeoff between false positives and false negatives based on what is more costly in your real-world domain.`,
+          isCorrect: true,
+          errorType: "NONE",
+        },
+        {
+          text: `Because 0.50 is an invalid number in machine learning libraries.`,
+          isCorrect: false,
+          errorType: "TERMINOLOGY_CONFUSION",
+          rationale: `0.50 is the standard mathematical default; adjusting it is a design choice.`,
+        },
+        {
+          text: `To erase mistakes from the model's memory.`,
+          isCorrect: false,
+          errorType: "CONCEPTUAL_GAP",
+          rationale: `Thresholding changes output decision criteria, not model weights.`,
+        },
+        {
+          text: `Threshold adjustment makes the model run 1,000 times faster.`,
+          isCorrect: false,
+          errorType: "OVERCONFIDENT_MISCONCEPTION",
+          rationale: `Threshold comparison is a simple > check; it doesn't change computational speed.`,
         },
       ],
     },
@@ -1524,6 +1824,148 @@ print("Assertion Passed: Full facial emotion inference engine verified operation
           ],
           correctIndex: 0,
           explanation: "The Model Tester tab lets you interactively adjust action unit sliders, test expression presets, and observe the live SVG facial avatar update in real time.",
+        },
+      },
+      {
+        id: "decision-boundary",
+        title: `Evaluate on Held-Out Test Expressions: ${safeGoal}`,
+        prereqs: ["softmax-activation"],
+        difficulty: 3,
+        hook: `How do we verify that our emotion model generalizes to unseen test expressions without memorizing? We evaluate classification accuracy and confusion matrix on held-out expressions.`,
+        explanationSummary: `We test the emotion classifier against a validation dataset of unseen facial configurations to verify that dominant emotion predictions match ground truth labels.`,
+        corePrinciple: `🎓 Evaluation: Measuring accuracy = (correct predictions) / (total test faces). Testing on unseen data confirms generalization across varying facial shapes.`,
+        whyItMatters: `A face analyzer that only works on training photos fails in production. Held-out test evaluation measures real-world accuracy.`,
+        buildStep: `Implement evaluate_emotion_accuracy to measure classification accuracy across a test dataset of facial action units.`,
+        starterCode: `# Step 5: Test Expression Evaluation for ${safeGoal}
+test_faces = [
+    # (smile, brow, eyes, jaw, true_emotion)
+    (0.85, 0.10, 0.60, 0.15, "Joy"),
+    (0.05, 0.15, 0.95, 0.85, "Surprise"),
+    (-0.50, 0.90, 0.40, 0.10, "Anger"),
+]
+
+def evaluate_emotion_accuracy(dataset):
+    correct = 0
+    for smile, brow, eyes, jaw, true_emotion in dataset:
+        pred = predict_face_emotion(smile, brow, eyes, jaw)
+        # TODO: Check if pred["dominant_emotion"] matches true_emotion
+        if pred["dominant_emotion"] == ___:
+            correct += 1
+    return correct / len(dataset)
+
+print("Emotion Test Accuracy:", evaluate_emotion_accuracy(test_faces))
+`,
+        solutionCode: `test_faces = [
+    (0.85, 0.10, 0.60, 0.15, "Joy"),
+    (0.05, 0.15, 0.95, 0.85, "Surprise"),
+    (-0.50, 0.90, 0.40, 0.10, "Anger"),
+]
+
+def evaluate_emotion_accuracy(dataset):
+    correct = 0
+    for smile, brow, eyes, jaw, true_emotion in dataset:
+        pred = predict_face_emotion(smile, brow, eyes, jaw)
+        if pred["dominant_emotion"] == true_emotion:
+            correct += 1
+    return correct / len(dataset)
+`,
+        testAssertion: `acc = evaluate_emotion_accuracy(test_faces)
+assert acc == 1.0, f"Expected 1.0 accuracy on test expressions, got {acc}"
+print("✅ Emotion test accuracy verified!")
+`,
+        predictQuestion: {
+          prompt: `Why evaluate facial emotion models across multiple distinct test expressions?`,
+          options: [
+            `To confirm the model generalizes to distinct emotional facial configurations without overfitting.`,
+            `Because computers cannot test a single photo.`,
+            `To reset the webcam.`,
+            `Evaluating multiple expressions decreases model accuracy.`,
+          ],
+          correctIndex: 0,
+          explanation: `Multi-expression testing proves that learned emotion weights distinguish conflicting facial movements (e.g. smile vs brow furrow).`,
+        },
+        checkQuestion: {
+          prompt: `If a face has high smile (+0.85) and high brow furrow (+0.80), what determines the dominant emotion?`,
+          options: [
+            `The relative magnitudes of learned positive and negative emotion weights for smile vs brow furrow.`,
+            `The computer always picks Joy alphabetically.`,
+            `The browser picks randomly.`,
+            `Both emotions become 100%.`,
+          ],
+          correctIndex: 0,
+          explanation: `Learned weight coefficients penalize contradictory movements, allowing the strongest net logit to dominate the Softmax distribution.`,
+        },
+      },
+      {
+        id: "live-inference",
+        title: `Deploy Real-Time Facial Emotion Inference Endpoint: ${safeGoal}`,
+        prereqs: ["decision-boundary"],
+        difficulty: 4,
+        hook: `Package the full facial emotion pipeline into an atomic inference function ready to power webcam overlays, robotics, and interactive apps.`,
+        explanationSummary: `Real-time computer vision encapsulates landmark inference into an atomic endpoint: validate action units → compute softmax probabilities → emit dominant emotion and confidence.`,
+        corePrinciple: `🎓 Production Vision API: A single robust function that processes live facial action unit dictionaries and returns validated emotional state predictions.`,
+        whyItMatters: `Production webcams and user interfaces need a clean, structured dictionary response with confidence levels and probabilities.`,
+        buildStep: `Implement run_emotion_inference_pipeline to process live action units and return structured classification status.`,
+        starterCode: `# Step 6: Real-Time Emotion Inference Endpoint for ${safeGoal}
+def run_emotion_inference_pipeline(action_units_dict: dict) -> dict:
+    smile = action_units_dict.get("smile", 0.0)
+    brow = action_units_dict.get("brow", 0.0)
+    eyes = action_units_dict.get("eyes", 0.0)
+    jaw = action_units_dict.get("jaw", 0.0)
+    
+    # Run prediction
+    result = predict_face_emotion(smile, brow, eyes, jaw)
+    
+    # TODO: Return formatted dictionary with dominant_emotion and confidence
+    return {
+        "status": "TRACKING_ACTIVE",
+        "dominant_emotion": result["dominant_emotion"],
+        "confidence_pct": result["confidence"],
+        "probabilities": result["probabilities"]
+    }
+
+live_frame = {"smile": 0.88, "brow": 0.05, "eyes": 0.60, "jaw": 0.20}
+print("Live Inference Result:", run_emotion_inference_pipeline(live_frame))
+`,
+        solutionCode: `def run_emotion_inference_pipeline(action_units_dict: dict) -> dict:
+    smile = action_units_dict.get("smile", 0.0)
+    brow = action_units_dict.get("brow", 0.0)
+    eyes = action_units_dict.get("eyes", 0.0)
+    jaw = action_units_dict.get("jaw", 0.0)
+    result = predict_face_emotion(smile, brow, eyes, jaw)
+    return {
+        "status": "TRACKING_ACTIVE",
+        "dominant_emotion": result["dominant_emotion"],
+        "confidence_pct": result["confidence"],
+        "probabilities": result["probabilities"]
+    }
+`,
+        testAssertion: `live_res = run_emotion_inference_pipeline({"smile": 0.88, "brow": 0.05, "eyes": 0.60, "jaw": 0.20})
+assert live_res["dominant_emotion"] == "Joy"
+assert live_res["confidence_pct"] > 50.0
+print(f"✅ Real-time facial emotion pipeline operational for ${safeGoal}!")
+`,
+        predictQuestion: {
+          prompt: `What is the primary role of an inference pipeline function in a computer vision app?`,
+          options: [
+            `It ingests raw tracked landmark action units and returns structured classification results for the user interface.`,
+            `It deletes old webcam photos.`,
+            `It turns the screen brightness up.`,
+            `It makes the video stream run backwards.`,
+          ],
+          correctIndex: 0,
+          explanation: `Inference pipelines wrap model execution and formatting into a reliable endpoint for UI rendering and avatar animation.`,
+        },
+        checkQuestion: {
+          prompt: `Why include confidence_pct alongside dominant_emotion in the output dictionary?`,
+          options: [
+            `To allow user interfaces to only trigger actions when confidence exceeds a certainty threshold.`,
+            `Because computers cannot read string labels.`,
+            `scikit-learn crashes without percentages.`,
+            `Confidence is always 100%.`,
+          ],
+          correctIndex: 0,
+          explanation: `Confidence percentages enable applications to discard low-certainty predictions or ambiguous expressions.`,
         },
       },
     ];
@@ -2636,6 +3078,151 @@ print(f"✅ Evaluated on {len(y_test)} unseen test examples")
           explanation: `Overfitting = memorisation without generalisation. High training accuracy + low test accuracy reveals the model cannot generalise to new real-world inputs.`,
         },
       },
+      {
+        id: "triage-threshold",
+        title: `Calibrate Decision Threshold & Triage Sensitivity: ${safeGoal}`,
+        prereqs: ["decision-boundary"],
+        difficulty: 4,
+        hook: `In healthcare and safety-critical ML, missing a true positive (False Negative) is catastrophic. How do we calibrate the decision cutoff threshold to catch ≥ 95% of high-risk cases?`,
+        explanationSummary: `Default ML models use a rigid 0.50 cutoff. In clinical settings, we calibrate a clinical triage threshold (e.g. θ = 0.35). Lowering the cutoff threshold increases Sensitivity (Recall), catching dangerous true positive cases that would otherwise be missed.`,
+        corePrinciple: `🎓 Clinical Principle: A false alarm (False Positive) causes an extra checkup. A missed diagnosis (False Negative) causes harm. Medical models prioritize Sensitivity to protect patients.`,
+        whyItMatters: `Standard accuracy treats all errors equally. Calibrating the decision threshold aligns model decisions with medical safety standards.`,
+        buildStep: `Implement triage_assessment to compare predictions against a calibrated clinical threshold.`,
+        starterCode: `# Step 5: Calibrate Decision Threshold for ${safeGoal}
+# Compare model prediction against a safety-critical threshold:
+# Default threshold: ${isRegression ? "70.0" : "0.35"}
+
+def triage_assessment(prediction: float, threshold: float = ${isRegression ? "70.0" : "0.35"}) -> dict:
+    is_alert = prediction >= ___      # TODO: compare prediction against threshold
+    return {
+        "prediction": round(float(prediction), 2),
+        "threshold": threshold,
+        "alert": is_alert,
+        "status": "${isRegression ? "Elevated Reading" : "High Risk Priority"}" if is_alert else "Normal Baseline"
+    }
+
+print("High reading test:", triage_assessment(${isRegression ? "85.0" : "0.45"}, threshold=${isRegression ? "70.0" : "0.35"}))
+print("Low reading test:", triage_assessment(${isRegression ? "55.0" : "0.15"}, threshold=${isRegression ? "70.0" : "0.35"}))
+`,
+        solutionCode: `def triage_assessment(prediction: float, threshold: float = ${isRegression ? "70.0" : "0.35"}) -> dict:
+    is_alert = prediction >= threshold
+    return {
+        "prediction": round(float(prediction), 2),
+        "threshold": threshold,
+        "alert": is_alert,
+        "status": "${isRegression ? "Elevated Reading" : "High Risk Priority"}" if is_alert else "Normal Baseline"
+    }
+
+print("High reading test:", triage_assessment(${isRegression ? "85.0" : "0.45"}, threshold=${isRegression ? "70.0" : "0.35"}))
+print("Low reading test:", triage_assessment(${isRegression ? "55.0" : "0.15"}, threshold=${isRegression ? "70.0" : "0.35"}))
+`,
+        testAssertion: `res_high = triage_assessment(${isRegression ? "85.0" : "0.45"}, threshold=${isRegression ? "70.0" : "0.35"})
+assert res_high["alert"] is True, "High reading must trigger alert status"
+res_low = triage_assessment(${isRegression ? "55.0" : "0.15"}, threshold=${isRegression ? "70.0" : "0.35"})
+assert res_low["alert"] is False, "Low reading must not trigger alert status"
+print("✅ Triage decision threshold verified!")
+`,
+        predictQuestion: {
+          prompt: `Why do clinical models lower the decision threshold below the standard 0.50 default?`,
+          options: [
+            `To minimize False Negatives, ensuring sick patients are not missed.`,
+            `Because computers cannot store numbers greater than 0.35.`,
+            `To make training finish 10 times faster.`,
+            `Threshold tuning deletes old patient files.`,
+          ],
+          correctIndex: 0,
+          explanation: `In medicine, false negatives are dangerous. Lowering the decision threshold trades off extra follow-ups for catching virtually all true cases.`,
+        },
+        checkQuestion: {
+          prompt: `When you lower the decision threshold, what happens to model Sensitivity (Recall)?`,
+          options: [
+            `Sensitivity increases — more positive cases are flagged, catching more true disease cases.`,
+            `Sensitivity drops to zero.`,
+            `Sensitivity never changes regardless of threshold.`,
+            `The computer restarts automatically.`,
+          ],
+          correctIndex: 0,
+          explanation: `Lowering the cutoff makes the classifier more sensitive, capturing more true positive cases at the expense of a few extra false alarms.`,
+        },
+      },
+      {
+        id: "live-inference",
+        title: `Deploy Clinical Inference Pipeline: ${safeGoal}`,
+        prereqs: ["triage-threshold"],
+        difficulty: 4,
+        hook: `You have trained, evaluated, and calibrated the model. Now package the entire end-to-end inference workflow into a production-ready function ready for clinical deployment.`,
+        explanationSummary: `Real-world ML engineering encapsulates model execution: validate incoming feature counts → execute trained model → format structured assessment.`,
+        corePrinciple: `🎓 Production Pipeline: A single reliable Python function that accepts raw patient measurements and outputs validated predictions without throwing unexpected errors.`,
+        whyItMatters: `Web applications and clinical software require reliable function contracts that guard against invalid inputs and return structured results.`,
+        buildStep: `Implement run_clinical_inference to accept new patient measurements, validate feature length, and return structured predictions.`,
+        starterCode: `# Step 6: End-to-End Clinical Inference Pipeline for ${safeGoal}
+${medSampleRows}
+${medSklearnModel}
+
+def run_clinical_inference(patient_features: list) -> dict:
+    # 1. Validate feature dimension: must have exactly ${medFeatures.length} values
+    if len(patient_features) != ___:       # TODO: ${medFeatures.length}
+        raise ValueError(f"Expected ${medFeatures.length} features, got {len(patient_features)}")
+    
+    # 2. Predict on patient feature vector
+    prediction = model.predict([patient_features])[0]
+    
+    return {
+        "features": patient_features,
+        "prediction": round(float(prediction), 2) if isinstance(prediction, (int, float)) else prediction,
+        "target": "${medTarget}"
+    }
+
+${medTestSamples}
+print("Pipeline Test 1:", run_clinical_inference(${medPredictVarName}[0]))
+print("Pipeline Test 2:", run_clinical_inference(${medPredictVarName}[1]))
+`,
+        solutionCode: `${medSampleRows}
+${medSklearnModel}
+
+def run_clinical_inference(patient_features: list) -> dict:
+    if len(patient_features) != ${medFeatures.length}:
+        raise ValueError(f"Expected ${medFeatures.length} features, got {len(patient_features)}")
+    prediction = model.predict([patient_features])[0]
+    return {
+        "features": patient_features,
+        "prediction": round(float(prediction), 2) if isinstance(prediction, (int, float)) else prediction,
+        "target": "${medTarget}"
+    }
+
+${medTestSamples}
+print("Pipeline Test 1:", run_clinical_inference(${medPredictVarName}[0]))
+print("Pipeline Test 2:", run_clinical_inference(${medPredictVarName}[1]))
+`,
+        testAssertion: `res = run_clinical_inference(${medPredictVarName}[0])
+assert isinstance(res, dict), "run_clinical_inference must return a dict"
+assert "prediction" in res and "target" in res
+assert len(res["features"]) == ${medFeatures.length}
+print(f"✅ Full inference pipeline verified operational for ${safeGoal}!")
+`,
+        predictQuestion: {
+          prompt: `What is the primary role of an inference pipeline function in machine learning?`,
+          options: [
+            `It validates inputs, runs the trained model, and formats structured output for applications.`,
+            `It deletes training data from disk.`,
+            `It rewrites the algorithm in assembly code.`,
+            `It replaces all numbers with zero.`,
+          ],
+          correctIndex: 0,
+          explanation: `Inference pipelines wrap preprocessing, model prediction, and post-processing into an atomic production endpoint.`,
+        },
+        checkQuestion: {
+          prompt: `Why must the inference pipeline check feature vector length before calling model.predict()?`,
+          options: [
+            `To prevent silent shape mismatch crashes if an incomplete measurement vector is passed.`,
+            `scikit-learn requires all arrays to have length 1.`,
+            `Python only supports lists of length 10.`,
+            `Validation makes the model 100% accurate.`,
+          ],
+          correctIndex: 0,
+          explanation: `scikit-learn models require the exact number of features they were trained on. Checking input length prevents runtime matrix shape errors.`,
+        },
+      },
     ];
   }
   // General Custom Machine Learning Project
@@ -3227,6 +3814,146 @@ print(f"Assertion Passed: Model evaluated on {len(y_test)} unseen examples. Corr
         ],
         correctIndex: 0,
         explanation: `Overfitting = model learned the training data by heart, not the underlying patterns. It fails to generalise to new unseen examples.`,
+      },
+    },
+    {
+      id: "threshold-tuning",
+      title: `Calibrate Decision Threshold & Performance: ${safeGoal}`,
+      prereqs: ["decision-boundary"],
+      difficulty: 4,
+      hook: `How do you control whether your model is conservative or aggressive? By tuning its operating decision threshold.`,
+      explanationSummary: `A classification model outputs confidence scores. The decision threshold θ dictates when to trigger positive action. Raising θ increases precision; lowering θ increases recall.`,
+      corePrinciple: `🎓 Threshold Tuning: ŷ = 1 if confidence ≥ θ else 0. Aligning θ with domain cost matrices optimizes real-world outcomes.`,
+      whyItMatters: `Standard accuracy ignores real-world false-positive vs false-negative costs. Tuning the threshold ensures optimal operational utility.`,
+      buildStep: `Implement apply_decision_threshold to categorize confidence scores based on operating threshold.`,
+      starterCode: `# Step 5: Decision Threshold Calibration for ${safeGoal}
+# Compare confidence scores against the operating threshold (default = 0.50)
+
+def apply_decision_threshold(confidence_score: float, threshold: float = 0.50) -> dict:
+    is_positive = confidence_score >= ___     # TODO: compare against threshold
+    return {
+        "score": round(float(confidence_score), 3),
+        "threshold": threshold,
+        "is_positive": is_positive
+    }
+
+print("High confidence (0.82):", apply_decision_threshold(0.82, threshold=0.50))
+print("Low confidence (0.24):", apply_decision_threshold(0.24, threshold=0.50))
+`,
+      solutionCode: `def apply_decision_threshold(confidence_score: float, threshold: float = 0.50) -> dict:
+    is_positive = confidence_score >= threshold
+    return {
+        "score": round(float(confidence_score), 3),
+        "threshold": threshold,
+        "is_positive": is_positive
+    }
+
+print("High confidence (0.82):", apply_decision_threshold(0.82, threshold=0.50))
+print("Low confidence (0.24):", apply_decision_threshold(0.24, threshold=0.50))
+`,
+      testAssertion: `res1 = apply_decision_threshold(0.82, threshold=0.50)
+assert res1["is_positive"] is True, "0.82 should exceed 0.50 threshold"
+res2 = apply_decision_threshold(0.24, threshold=0.50)
+assert res2["is_positive"] is False, "0.24 should not exceed 0.50 threshold"
+print("✅ Decision threshold tuning verified!")
+`,
+      predictQuestion: {
+        prompt: `What happens when you increase the decision threshold from 0.50 to 0.80?`,
+        options: [
+          `The model becomes more conservative, reducing false alarms (higher Precision).`,
+          `The model becomes slower to compute.`,
+          `The model outputs negative numbers.`,
+          `Training data is erased.`,
+        ],
+        correctIndex: 0,
+        explanation: `A higher threshold demands stronger confidence before predicting positive, reducing false alarms.`,
+      },
+      checkQuestion: {
+        prompt: `Why calibrate thresholds rather than sticking to the default 0.50?`,
+        options: [
+          `Because real-world applications have asymmetric error costs (e.g. false alarms vs missed alerts).`,
+          `scikit-learn cannot use 0.50.`,
+          `Default models only run once.`,
+          `All thresholds give identical results.`,
+        ],
+        correctIndex: 0,
+        explanation: `Threshold calibration aligns model behavior with real-world business and safety requirements.`,
+      },
+    },
+    {
+      id: "live-inference",
+      title: `Deploy End-to-End Inference Pipeline: ${safeGoal}`,
+      prereqs: ["threshold-tuning"],
+      difficulty: 4,
+      hook: `Package all previous steps into an end-to-end production inference pipeline ready to serve predictions on new unseen data.`,
+      explanationSummary: `An end-to-end inference pipeline provides a safe, reusable API: it validates input dimension, runs the trained model, and formats clean output predictions.`,
+      corePrinciple: `🎓 Production Encapsulation: A clean function interface f(new_features) -> formatted_prediction ready for user-facing applications.`,
+      whyItMatters: `Without clean packaging, models remain script experiments. Pipelines make models deployable and useful in real software.`,
+      buildStep: `Implement run_project_pipeline to validate input length and output predictions using the trained model.`,
+      starterCode: `# Step 6: Production Pipeline for ${safeGoal}
+${sampleRows}
+${sklearnModel}
+
+def run_project_pipeline(input_features: list) -> dict:
+    # 1. Validate feature vector dimension
+    if len(input_features) != ___:       # TODO: ${domainFeatures.length}
+        raise ValueError(f"Expected ${domainFeatures.length} features, got {len(input_features)}")
+    
+    # 2. Predict on features
+    prediction = model.predict([input_features])[0]
+    
+    return {
+        "inputs": input_features,
+        "prediction": round(float(prediction), 2) if isinstance(prediction, (int, float)) else prediction,
+        "target": "${targetName}"
+    }
+
+${testSamples}
+print("Pipeline Test:", run_project_pipeline(${testVarName}[0]))
+`,
+      solutionCode: `${sampleRows}
+${sklearnModel}
+
+def run_project_pipeline(input_features: list) -> dict:
+    if len(input_features) != ${domainFeatures.length}:
+        raise ValueError(f"Expected ${domainFeatures.length} features, got {len(input_features)}")
+    prediction = model.predict([input_features])[0]
+    return {
+        "inputs": input_features,
+        "prediction": round(float(prediction), 2) if isinstance(prediction, (int, float)) else prediction,
+        "target": "${targetName}"
+    }
+
+${testSamples}
+print("Pipeline Test:", run_project_pipeline(${testVarName}[0]))
+`,
+      testAssertion: `res = run_project_pipeline(${testVarName}[0])
+assert isinstance(res, dict), "run_project_pipeline must return a dict"
+assert "prediction" in res and "target" in res
+assert len(res["inputs"]) == ${domainFeatures.length}
+print(f"✅ Production inference pipeline operational for ${safeGoal}!")
+`,
+      predictQuestion: {
+        prompt: `What is the benefit of packaging the inference pipeline into a single function?`,
+        options: [
+          `It creates a reliable, callable interface that protects against invalid inputs and formats outputs.`,
+          `It deletes the model parameters from memory.`,
+          `It turns Python code into HTML.`,
+          `It allows the model to predict without inputs.`,
+        ],
+        correctIndex: 0,
+        explanation: `Inference pipelines provide a clean contract for web, mobile, and backend integrations.`,
+      },
+      checkQuestion: {
+        prompt: `Why validate input feature vector length inside the pipeline function?`,
+        options: [
+          `To catch dimensional mismatch bugs immediately before calling model.predict().`,
+          `Because scikit-learn only accepts 1-length inputs.`,
+          `Python lists cannot exceed 5 items.`,
+          `Validation is purely optional.`,
+        ],
+        correctIndex: 0,
+        explanation: `Shape mismatch errors can crash applications or produce corrupt results. Validation guarantees integrity.`,
       },
     },
   ];

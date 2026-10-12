@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateStructuredLLM, EvaluateOutputSchema } from "@/lib/llm";
+import { generateStructuredLLM, EvaluateOutputSchema, extractLLMRequestCredentials } from "@/lib/llm";
 import { SEEDED_MISCONCEPTIONS } from "@/lib/seededMisconceptions";
 import { ErrorType, ExplanationStrategy } from "@/lib/types";
 
@@ -176,11 +176,15 @@ Classify the learner's answer into one error type:
 Return ONLY valid JSON matching EvaluateOutputSchema.
 Keep diagnosis to ONE crisp, human-readable sentence.`;
 
+    const { apiKey: activeKey, provider: activeProvider } = extractLLMRequestCredentials(req.headers, body);
+
     const result = await generateStructuredLLM({
       systemPrompt,
       userPrompt: `Learner's response: "${userText}".`,
       schema: EvaluateOutputSchema,
       fallbackData,
+      apiKeyOverride: activeKey,
+      provider: activeProvider,
     });
 
     return NextResponse.json(result);

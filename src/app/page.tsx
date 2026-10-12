@@ -16,65 +16,77 @@ export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [urlScreen, setUrlScreen] = useState<string | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const q = params.get("screen");
-      if (q) setUrlScreen(q);
+      if (q) {
+        useSessionStore.setState({ screen: q as any, activeStage: q as any });
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, "", cleanUrl);
+      }
     }
   }, []);
 
-  // Strict Auth Gate: Restrict app access unless authenticated via main account or guest account
+  // Strict Auth Gate: Zero access to the main page without logging in or signing up
   useEffect(() => {
-    if (mounted && !authLoading && !user) {
+    if (mounted && !authLoading && (!user || user.isGuest)) {
       router.replace("/login");
     }
   }, [mounted, authLoading, user, router]);
 
-  if (!mounted || authLoading || !user) {
-    return (
-      <div className="min-h-screen bg-[#0b0a08] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-amber-400 font-mono text-sm">
-          <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-          <span className="text-zinc-400 text-xs">
-            {!user && !authLoading ? "Redirecting to login..." : "Initializing Socrates AI Tutor..."}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   // Derive current screen smoothly
-  const currentScreen = (urlScreen as any) || screen || (
+  const currentScreen = screen || (
     activeStage === "plan_review" ? "plan" :
     activeStage === "learning" ? "learn" :
     activeStage === "completed" ? "complete" :
     activeStage
   );
 
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [currentScreen]);
+
+  if (!mounted || authLoading || !user || user.isGuest) {
+    return (
+      <div className="min-h-screen bg-[#070A10] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-amber-400 font-mono text-sm">
+          <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+          <span className="text-zinc-400 text-xs">
+            {!user && !authLoading ? "Redirecting to sign in..." : "Initializing Socrates..."}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="h-screen w-screen flex flex-col bg-[#0b0a08] text-cream overflow-hidden">
-      <Navbar />
+    <div className="h-screen w-full flex flex-col bg-[#0a0a0a] text-neutral-100 overflow-hidden chai-ambient-glow">
+      <Navbar currentScreenOverride={currentScreen} />
 
       <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
         {currentScreen === "learn" ? (
           <LessonView />
         ) : (
-          <div className="flex-1 overflow-y-auto flex flex-col justify-between min-h-0">
-            <div className="flex-1 flex flex-col">
-              {currentScreen === "landing" && <LandingView />}
-              {currentScreen === "diagnostic" && <DiagnosticView />}
-              {currentScreen === "plan" && <PlanReviewView />}
-              {currentScreen === "complete" && <ProjectSummaryModal />}
+          <div id="main-scroll-container" ref={scrollContainerRef} className="flex-1 overflow-y-auto min-h-0">
+            <div className="min-h-full flex flex-col justify-between">
+              <div className="flex-1">
+                {currentScreen === "landing" && <LandingView />}
+                {currentScreen === "diagnostic" && <DiagnosticView />}
+                {currentScreen === "plan" && <PlanReviewView />}
+                {currentScreen === "complete" && <ProjectSummaryModal />}
+              </div>
+              {currentScreen !== "landing" && (
+                <footer className="w-full border-t border-white/5 py-4 pb-6 text-center text-xs text-neutral-500 font-mono flex-shrink-0">
+                  Socrates: Project-First AI Tutor (AI Build Challenge 2026)
+                </footer>
+              )}
             </div>
-            {currentScreen !== "landing" && (
-              <footer className="w-full border-t border-zinc-800/80 py-4 pb-6 text-center text-xs text-zinc-500 font-mono flex-shrink-0">
-                Socrates · Project-First AI Tutor · BFWAI / AI Build Challenge 2026
-              </footer>
-            )}
           </div>
         )}
       </main>
