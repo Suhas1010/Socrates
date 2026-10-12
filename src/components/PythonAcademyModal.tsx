@@ -20,6 +20,10 @@ import {
   Layers,
   HelpCircle,
   Copy,
+  Columns,
+  Rows,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useSessionStore } from "@/lib/store";
 import { PYTHON_TRACK_CONCEPTS } from "@/lib/templates/pythonTrack";
@@ -52,6 +56,8 @@ export const PythonAcademyModal: React.FC = () => {
   const [code, setCode] = useState(sanitizeCode(activeConcept.starterCode || ""));
   const [showDrawer, setShowDrawer] = useState(false);
   const [drawerTab, setDrawerTab] = useState<"hints" | "solution">("hints");
+  const [drawerLayout, setDrawerLayout] = useState<"split" | "stacked">("split");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [copiedSolution, setCopiedSolution] = useState(false);
   const [solutionLoaded, setSolutionLoaded] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -210,7 +216,6 @@ export const PythonAcademyModal: React.FC = () => {
     setCode(sanitizeCode(activeConcept.starterCode || ""));
     setExecResult(null);
     setAssertionPassed(false);
-    setShowDrawer(false);
   };
 
   const masteredCount = pythonMasteredModules.length;
@@ -265,6 +270,26 @@ export const PythonAcademyModal: React.FC = () => {
               </div>
             </div>
 
+            {/* Toggle Curriculum Sidebar */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700 text-xs sm:text-sm font-semibold transition-all shadow-sm cursor-pointer"
+              title={isSidebarOpen ? "Collapse curriculum sidebar" : "Show curriculum sidebar"}
+            >
+              {isSidebarOpen ? (
+                <>
+                  <PanelLeftClose className="w-4 h-4 text-amber-400" />
+                  <span className="hidden xl:inline">Hide Modules</span>
+                </>
+              ) : (
+                <>
+                  <PanelLeftOpen className="w-4 h-4 text-amber-400" />
+                  <span>Show Modules</span>
+                </>
+              )}
+            </button>
+
             <button
               type="button"
               onClick={closePythonAcademy}
@@ -284,94 +309,109 @@ export const PythonAcademyModal: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. Main Two-Column Layout */}
+        {/* 2. Main Layout */}
         <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
           {/* Left Column: Module Navigation Index */}
-          <div className="lg:w-80 xl:w-96 flex flex-col border-b lg:border-b-0 lg:border-r border-zinc-800 bg-[#070b13] p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-shrink-0">
-            <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800">
-              <span className="text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">
-                Curriculum Modules
-              </span>
-              <span className="text-xs text-amber-400 font-mono font-bold px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/20">
-                6 Core Modules
-              </span>
-            </div>
+          {isSidebarOpen && (
+            <div className="w-full lg:w-80 xl:w-96 flex flex-col border-b lg:border-b-0 lg:border-r border-zinc-800 bg-[#070b13] p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-shrink-0 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between pb-2.5 border-b border-zinc-800">
+                <span className="text-xs font-mono uppercase text-zinc-400 font-bold tracking-wider">
+                  Curriculum Modules
+                </span>
+                <span className="text-xs text-amber-400 font-mono font-bold px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/20">
+                  6 Core Modules
+                </span>
+              </div>
 
-            <div className="space-y-2">
-              {PYTHON_TRACK_CONCEPTS.map((concept, idx) => {
-                const isSelected = idx === selectedModuleIndex;
-                const isMastered = pythonMasteredModules.includes(concept.id);
+              <div className="space-y-2">
+                {PYTHON_TRACK_CONCEPTS.map((concept, idx) => {
+                  const isSelected = idx === selectedModuleIndex;
+                  const isMastered = pythonMasteredModules.includes(concept.id);
 
-                return (
-                  <button
-                    key={concept.id}
-                    type="button"
-                    onClick={() => setSelectedModuleIndex(idx)}
-                    className={`w-full text-left p-3.5 rounded-xl transition-all border flex items-start gap-3 ${
-                      isSelected
-                        ? "bg-amber-500/15 border-amber-500/40 shadow-sm ring-1 ring-amber-500/20"
-                        : "bg-zinc-950/60 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700"
-                    }`}
-                  >
-                    <div
-                      className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold flex-shrink-0 mt-0.5 ${
-                        isMastered
-                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                          : isSelected
-                          ? "bg-amber-400 text-zinc-950 shadow-sm shadow-amber-400/20"
-                          : "bg-zinc-800/90 text-zinc-400 border border-zinc-700/60"
+                  return (
+                    <button
+                      key={concept.id}
+                      type="button"
+                      onClick={() => setSelectedModuleIndex(idx)}
+                      className={`w-full text-left p-3.5 rounded-xl transition-all border flex items-start gap-3 cursor-pointer ${
+                        isSelected
+                          ? "bg-amber-500/15 border-amber-500/40 shadow-sm ring-1 ring-amber-500/20"
+                          : "bg-zinc-950/60 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700"
                       }`}
                     >
-                      {isMastered ? <Check className="w-4 h-4 text-emerald-400" /> : idx + 1}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-xs font-mono text-zinc-400 font-medium">
-                          Module {idx + 1}
-                        </span>
-                        {isMastered && (
-                          <span className="text-xs font-mono text-emerald-400 font-bold flex items-center gap-1">
-                            Mastered ✓
-                          </span>
-                        )}
-                      </div>
-                      <h4
-                        className={`text-sm font-semibold truncate mt-1 ${
-                          isSelected ? "text-amber-200" : "text-zinc-200"
+                      <div
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold flex-shrink-0 mt-0.5 ${
+                          isMastered
+                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                            : isSelected
+                            ? "bg-amber-400 text-zinc-950 shadow-sm shadow-amber-400/20"
+                            : "bg-zinc-800/90 text-zinc-400 border border-zinc-700/60"
                         }`}
                       >
-                        {concept.title.replace(/^\d+\.\s*/, "")}
-                      </h4>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                        {isMastered ? <Check className="w-4 h-4 text-emerald-400" /> : idx + 1}
+                      </div>
 
-            {/* Quick Tips Box */}
-            <div className="mt-auto p-4 rounded-xl bg-zinc-900/70 border border-zinc-800 space-y-2 text-xs text-zinc-300">
-              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
-                <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Zero Setup In-Browser</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-xs font-mono text-zinc-400 font-medium">
+                            Module {idx + 1}
+                          </span>
+                          {isMastered && (
+                            <span className="text-xs font-mono text-emerald-400 font-bold flex items-center gap-1">
+                              Mastered ✓
+                            </span>
+                          )}
+                        </div>
+                        <h4
+                          className={`text-sm font-semibold truncate mt-1 ${
+                            isSelected ? "text-amber-200" : "text-zinc-200"
+                          }`}
+                        >
+                          {concept.title.replace(/^\d+\.\s*/, "")}
+                        </h4>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed font-normal">
-                All Python code executes directly in your browser using Pyodide (WebAssembly). No terminal configuration or local Python install needed!
-              </p>
+
+              {/* Quick Tips Box */}
+              <div className="mt-auto p-4 rounded-xl bg-zinc-900/70 border border-zinc-800 space-y-2 text-xs text-zinc-300">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                  <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <span>Zero Setup In-Browser</span>
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                  All Python code executes directly in your browser using Pyodide (WebAssembly). No terminal configuration or local Python install needed!
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Right Column: Active Module Workspace */}
           <div className="flex-1 min-h-0 flex flex-col bg-[#070b13] overflow-hidden">
             {/* Module Sub-Header & Tabs */}
-            <div className="px-6 py-3.5 bg-[#0b0f19] border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
-              <div>
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider block">
-                  MODULE {selectedModuleIndex + 1} OF 6
-                </span>
-                <h3 className="text-base sm:text-xl font-bold text-white mt-0.5">
-                  {activeConcept.title}
-                </h3>
+            <div className="px-5 sm:px-6 py-3.5 bg-[#0b0f19] border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                {!isSidebarOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 text-xs font-mono transition-colors cursor-pointer"
+                    title="Expand curriculum modules"
+                  >
+                    <PanelLeftOpen className="w-3.5 h-3.5" />
+                    <span>Modules</span>
+                  </button>
+                )}
+                <div>
+                  <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider block">
+                    MODULE {selectedModuleIndex + 1} OF 6
+                  </span>
+                  <h3 className="text-base sm:text-xl font-bold text-white mt-0.5">
+                    {activeConcept.title}
+                  </h3>
+                </div>
               </div>
 
               {/* View Tabs */}
@@ -624,110 +664,119 @@ export const PythonAcademyModal: React.FC = () => {
 
             {/* Tab 2: Practice Code Sandbox */}
             {activeTab === "code" && (
-              <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 space-y-4 overflow-hidden">
+              <div className="flex-1 min-h-0 flex flex-col p-3 sm:p-5 md:p-6 space-y-4 overflow-y-auto">
                 {/* Build prompt banner */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm flex-shrink-0">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm flex-shrink-0">
                   <div className="space-y-1">
-                    <span className="text-xs font-mono uppercase text-amber-400 font-bold block tracking-wider">
-                      Practice Objective
-                    </span>
-                    <p className="text-sm sm:text-base text-zinc-100 font-medium leading-relaxed">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono uppercase text-amber-400 font-bold tracking-wider">
+                        Practice Objective
+                      </span>
+                      {assertionPassed && (
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono font-bold text-xs flex items-center gap-1 shadow-sm">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Module Mastered ✓</span>
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs sm:text-sm text-zinc-100 font-medium leading-relaxed">
                       {activeConcept.buildStep}
                     </p>
                   </div>
-                  {assertionPassed && (
-                    <div className="px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-mono font-bold text-xs sm:text-sm flex items-center gap-2 flex-shrink-0 shadow-sm">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Module Mastered ✓</span>
-                    </div>
+
+                  {!showDrawer && activeConcept.solutionCode && (
+                    <button
+                      type="button"
+                      onClick={() => setShowDrawer(true)}
+                      className="text-xs font-bold transition-all flex items-center gap-2 px-3.5 py-1.5 rounded-xl border cursor-pointer bg-amber-500/15 text-amber-300 hover:text-amber-200 border-amber-500/40 hover:bg-amber-500/25 shadow-sm self-start sm:self-auto flex-shrink-0"
+                    >
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Hints &amp; Solution</span>
+                    </button>
                   )}
                 </div>
 
-                {/* Code Editor Container */}
-                <div className="flex-1 min-h-0 flex flex-col rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 shadow-md">
-                  {/* Editor Header */}
-                  <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 bg-[#0b0f19] border-b border-zinc-800 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                      <Terminal className="w-4 h-4 text-amber-400" />
-                      <span className="text-xs sm:text-sm font-mono font-semibold text-zinc-200">
-                        {activeConcept.id}.py
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5">
-                      {activeConcept.solutionCode && (
-                        <button
-                          type="button"
-                          onClick={() => setShowDrawer(!showDrawer)}
-                          className={`text-xs sm:text-sm font-bold transition-all flex items-center gap-2 px-3.5 py-1.5 rounded-xl border cursor-pointer ${
-                            showDrawer
-                              ? "bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-sm"
-                              : "bg-zinc-900 text-zinc-200 hover:text-white border-zinc-700/80 hover:bg-zinc-800"
-                          }`}
-                        >
-                          <Lightbulb className="w-4 h-4 text-amber-400" />
-                          <span>{showDrawer ? "Hide Assistant" : "Hints & Solution"}</span>
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleResetCode}
-                        title="Reset code"
-                        className="text-xs text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Comprehensive Hints & Solution Drawer */}
+                {/* Sandbox Main Work Area */}
+                <div
+                  className={`flex-1 min-h-0 ${
+                    showDrawer
+                      ? drawerLayout === "split"
+                        ? "grid grid-cols-1 lg:grid-cols-2 gap-4"
+                        : "flex flex-col space-y-4"
+                      : "flex flex-col"
+                  }`}
+                >
+                  {/* Assistant / Solution Panel (when showDrawer is true) */}
                   {showDrawer && (
-                    <div className="bg-[#0b0f19] border-b border-zinc-800 p-4 sm:p-5 space-y-4 animate-in fade-in duration-150 flex-shrink-0">
-                      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+                    <div className="flex flex-col rounded-2xl border border-amber-500/30 bg-zinc-950 shadow-xl overflow-hidden flex-1 min-h-[460px] lg:min-h-[500px]">
+                      {/* Assistant Header */}
+                      <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 bg-[#0b0f19] border-b border-zinc-800 flex-shrink-0">
                         {/* Tabs */}
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
                           <button
                             type="button"
                             onClick={() => setDrawerTab("hints")}
-                            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-colors cursor-pointer ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                               drawerTab === "hints"
-                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
                                 : "text-zinc-400 hover:text-zinc-200"
                             }`}
                           >
-                            <Lightbulb className="w-4 h-4 text-amber-400" />
+                            <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
                             <span>Step Hints ({extractedHints.length})</span>
                           </button>
                           {activeConcept.solutionCode && (
                             <button
                               type="button"
                               onClick={() => setDrawerTab("solution")}
-                              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-colors cursor-pointer ${
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                                 drawerTab === "solution"
-                                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/40 shadow-sm"
                                   : "text-zinc-400 hover:text-zinc-200"
                               }`}
                             >
-                              <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
                               <span>Complete Solution</span>
                             </button>
                           )}
                         </div>
 
-                        {/* Close button */}
-                        <button
-                          type="button"
-                          onClick={() => setShowDrawer(false)}
-                          className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
-                          title="Close drawer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        {/* Controls: Layout Switcher + Close Button */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setDrawerLayout(drawerLayout === "split" ? "stacked" : "split")}
+                            className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer"
+                            title={drawerLayout === "split" ? "Switch to Stacked view" : "Switch to Side-by-Side split view"}
+                          >
+                            {drawerLayout === "split" ? (
+                              <>
+                                <Rows className="w-3.5 h-3.5" />
+                                <span className="text-[11px] font-mono">Stacked</span>
+                              </>
+                            ) : (
+                              <>
+                                <Columns className="w-3.5 h-3.5" />
+                                <span className="text-[11px] font-mono">Side-by-Side</span>
+                              </>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowDrawer(false)}
+                            className="text-zinc-400 hover:text-zinc-200 p-1.5 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
+                            title="Hide Assistant"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
 
+                      {/* Assistant Body */}
                       {drawerTab === "hints" ? (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between text-xs sm:text-sm text-zinc-400">
+                        <div className="flex-1 min-h-0 flex flex-col p-4 space-y-3 bg-[#070b13]">
+                          <div className="flex items-center justify-between text-xs text-zinc-400 flex-shrink-0">
                             <span className="font-bold text-zinc-200">Guided Walkthrough for Blanks:</span>
                             {activeConcept.solutionCode && (
                               <button
@@ -735,16 +784,16 @@ export const PythonAcademyModal: React.FC = () => {
                                 onClick={() => setDrawerTab("solution")}
                                 className="text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1 cursor-pointer"
                               >
-                                Need complete code? View Solution &rarr;
+                                Need full solution? View Solution &rarr;
                               </button>
                             )}
                           </div>
 
-                          <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                          <div className="flex-1 min-h-0 overflow-y-auto space-y-2.5 pr-1 max-h-[460px] lg:max-h-none">
                             {extractedHints.map((hint, idx) => (
                               <div
                                 key={idx}
-                                className="flex items-start gap-3 p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs sm:text-sm text-zinc-200"
+                                className="flex items-start gap-3 p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs sm:text-sm text-zinc-200"
                               >
                                 <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-300 font-bold flex items-center justify-center flex-shrink-0 text-xs border border-amber-500/30">
                                   {idx + 1}
@@ -758,25 +807,28 @@ export const PythonAcademyModal: React.FC = () => {
                         </div>
                       ) : (
                         activeConcept.solutionCode && (
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs sm:text-sm text-zinc-300 font-semibold">
-                                Verified working reference solution (never truncated):
-                              </span>
-                              <div className="flex items-center gap-2">
+                          <div className="flex-1 min-h-0 flex flex-col p-3.5 sm:p-4 space-y-3 bg-[#070b13]">
+                            <div className="flex items-center justify-between gap-2 flex-shrink-0">
+                              <div className="flex items-center gap-1.5 text-xs text-zinc-300 font-semibold">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                                <span className="truncate">Verified Working Reference Solution</span>
+                              </div>
+
+                              <div className="flex items-center gap-2 flex-shrink-0">
                                 <button
                                   type="button"
                                   onClick={handleCopySolution}
-                                  className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-colors border border-zinc-700 cursor-pointer"
+                                  className="px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-zinc-700 cursor-pointer shadow-sm"
+                                  title="Copy solution code"
                                 >
                                   {copiedSolution ? (
                                     <>
-                                      <Check className="w-4 h-4 text-emerald-400" />
+                                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                                       <span>Copied!</span>
                                     </>
                                   ) : (
                                     <>
-                                      <Copy className="w-4 h-4 text-zinc-400" />
+                                      <Copy className="w-3.5 h-3.5 text-zinc-400" />
                                       <span>Copy Code</span>
                                     </>
                                   )}
@@ -784,106 +836,154 @@ export const PythonAcademyModal: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={handleUseSolution}
-                                  className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                                  className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                                  title="Load solution directly into code editor"
                                 >
                                   {solutionLoaded ? (
                                     <>
-                                      <Check className="w-4 h-4" />
-                                      <span>Loaded into Editor!</span>
+                                      <Check className="w-3.5 h-3.5" />
+                                      <span>Loaded!</span>
                                     </>
                                   ) : (
-                                    <span>Load Solution into Editor</span>
+                                    <span>Load into Editor</span>
                                   )}
                                 </button>
                               </div>
                             </div>
 
-                            <pre className="font-mono text-xs sm:text-sm text-zinc-200 bg-[#06090e] p-4 rounded-xl border border-zinc-800 max-h-52 overflow-y-auto whitespace-pre leading-relaxed select-text">
-                              {sanitizeCode(activeConcept.solutionCode)}
-                            </pre>
+                            {/* Reference Solution Code Viewer with ample room and dedicated scrolling */}
+                            <div className="flex-1 min-h-[280px] lg:min-h-0 rounded-xl border border-zinc-800 bg-[#04070e] overflow-hidden flex flex-col shadow-inner">
+                              <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0f1d] border-b border-zinc-800/80 text-[11px] font-mono text-zinc-400 flex-shrink-0">
+                                <span>reference_solution.py</span>
+                                <span className="text-emerald-400 font-bold">100% Tested · Ready to Learn</span>
+                              </div>
+                              <pre className="flex-1 min-h-0 p-4 font-mono text-xs sm:text-sm text-zinc-200 overflow-y-auto overflow-x-auto whitespace-pre leading-relaxed select-text">
+                                {sanitizeCode(activeConcept.solutionCode)}
+                              </pre>
+                            </div>
                           </div>
                         )
                       )}
                     </div>
                   )}
 
-                  {/* Code Textarea */}
-                  <div className="flex-1 min-h-[180px] bg-[#070A10] overflow-hidden">
-                    <textarea
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      spellCheck={false}
-                      className="w-full h-full p-4 sm:p-5 bg-transparent font-mono text-xs sm:text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none resize-none leading-relaxed selection:bg-amber-500/20"
-                      placeholder="# Write your Python code here..."
-                    />
-                  </div>
+                  {/* Code Editor & Execution Terminal Card */}
+                  <div className="flex-1 min-h-[460px] lg:min-h-[500px] flex flex-col rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-950 shadow-md">
+                    {/* Editor Header */}
+                    <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 bg-[#0b0f19] border-b border-zinc-800 flex-shrink-0">
+                      <div className="flex items-center gap-2">
+                        <Terminal className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs sm:text-sm font-mono font-semibold text-zinc-200">
+                          {activeConcept.id}.py
+                        </span>
+                        {showDrawer && (
+                          <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded-md hidden sm:inline">
+                            Your Editor
+                          </span>
+                        )}
+                      </div>
 
-                  {/* Terminal Execution Console */}
-                  <div className="h-40 border-t border-zinc-800 bg-[#04070e] p-3.5 sm:p-4 font-mono text-xs sm:text-sm overflow-y-auto flex-shrink-0">
-                    <div className="flex items-center justify-between text-zinc-400 text-xs uppercase mb-2 font-bold tracking-wider">
-                      <span>Pyodide Sandbox Output</span>
-                      {execResult?.success && (
-                        <span className="text-emerald-400 font-bold">Assertions Passed ✓</span>
+                      <div className="flex items-center gap-2.5">
+                        {activeConcept.solutionCode && !showDrawer && (
+                          <button
+                            type="button"
+                            onClick={() => setShowDrawer(true)}
+                            className="text-xs sm:text-sm font-bold transition-all flex items-center gap-2 px-3.5 py-1.5 rounded-xl border cursor-pointer bg-zinc-900 text-zinc-200 hover:text-white border-zinc-700/80 hover:bg-zinc-800 shadow-sm"
+                          >
+                            <Lightbulb className="w-4 h-4 text-amber-400" />
+                            <span>Hints &amp; Solution</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleResetCode}
+                          title="Reset code"
+                          className="text-xs text-zinc-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer flex items-center gap-1.5 border border-zinc-800"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span className="text-xs">Reset</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Code Textarea */}
+                    <div className="flex-1 min-h-[220px] bg-[#070A10]">
+                      <textarea
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        spellCheck={false}
+                        className="w-full h-full p-4 sm:p-5 bg-transparent font-mono text-xs sm:text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none resize-none leading-relaxed selection:bg-amber-500/20"
+                        placeholder="# Write your Python code here..."
+                      />
+                    </div>
+
+                    {/* Terminal Execution Console */}
+                    <div className="h-36 sm:h-40 border-t border-zinc-800 bg-[#04070e] p-3.5 sm:p-4 font-mono text-xs sm:text-sm overflow-y-auto flex-shrink-0">
+                      <div className="flex items-center justify-between text-zinc-400 text-xs uppercase mb-2 font-bold tracking-wider">
+                        <span>Pyodide Sandbox Output</span>
+                        {execResult?.success && (
+                          <span className="text-emerald-400 font-bold">Assertions Passed ✓</span>
+                        )}
+                      </div>
+
+                      {isRunning ? (
+                        <div className="text-amber-400 animate-pulse flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+                          Executing Python code in Pyodide...
+                        </div>
+                      ) : execResult ? (
+                        <div className="space-y-1.5">
+                          {execResult.stdout && (
+                            <pre className="text-emerald-400 whitespace-pre-wrap leading-relaxed">
+                              {execResult.stdout}
+                            </pre>
+                          )}
+                          {execResult.stderr && (
+                            <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed">
+                              {execResult.stderr}
+                            </pre>
+                          )}
+                          {execResult.error && (
+                            <div className="text-rose-400 font-semibold">{execResult.error}</div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-zinc-500 text-xs sm:text-sm">
+                          Fill in the blanks (<code className="text-amber-400 font-bold">___</code>) and click &quot;Run &amp; Test Code&quot; below.
+                        </span>
                       )}
                     </div>
 
-                    {isRunning ? (
-                      <div className="text-amber-400 animate-pulse flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
-                        Executing Python code in Pyodide...
-                      </div>
-                    ) : execResult ? (
-                      <div className="space-y-1.5">
-                        {execResult.stdout && (
-                          <pre className="text-emerald-400 whitespace-pre-wrap leading-relaxed">
-                            {execResult.stdout}
-                          </pre>
-                        )}
-                        {execResult.stderr && (
-                          <pre className="text-rose-400 whitespace-pre-wrap leading-relaxed">
-                            {execResult.stderr}
-                          </pre>
-                        )}
-                        {execResult.error && (
-                          <div className="text-rose-400 font-semibold">{execResult.error}</div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-zinc-500 text-xs sm:text-sm">
-                        Fill in the blanks (<code className="text-amber-400 font-bold">___</code>) and click &quot;Run &amp; Test Code&quot; below.
+                    {/* Editor Footer Actions */}
+                    <div className="p-3.5 sm:p-4 bg-[#0b0f19] border-t border-zinc-800 flex items-center justify-between gap-3 flex-shrink-0">
+                      <span className="text-xs sm:text-sm text-zinc-400 hidden xl:inline">
+                        Fill in the blanks (<code className="text-amber-400 font-bold">___</code>) and run assertions.
                       </span>
-                    )}
-                  </div>
 
-                  {/* Editor Footer Actions */}
-                  <div className="p-3.5 sm:p-4 bg-[#0b0f19] border-t border-zinc-800 flex items-center justify-between gap-3 flex-shrink-0">
-                    <span className="text-xs sm:text-sm text-zinc-400 hidden sm:inline">
-                      Fill in the blanks (<code className="text-amber-400 font-bold">___</code>) and run assertions.
-                    </span>
-
-                    <div className="flex items-center gap-3 ml-auto">
-                      <button
-                        type="button"
-                        disabled={isRunning}
-                        onClick={handleRunAndValidate}
-                        className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs sm:text-sm transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
-                      >
-                        <Play className="w-4 h-4 fill-current" />
-                        <span>{isRunning ? "Running..." : "Run & Test Code"}</span>
-                      </button>
-
-                      {assertionPassed && selectedModuleIndex < PYTHON_TRACK_CONCEPTS.length - 1 && (
+                      <div className="flex items-center gap-3 ml-auto">
                         <button
                           type="button"
-                          onClick={() => {
-                            setSelectedModuleIndex(selectedModuleIndex + 1);
-                            setActiveTab("learn");
-                          }}
-                          className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs sm:text-sm transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+                          disabled={isRunning}
+                          onClick={handleRunAndValidate}
+                          className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs sm:text-sm transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
                         >
-                          <span>Next Module &rarr;</span>
+                          <Play className="w-4 h-4 fill-current" />
+                          <span>{isRunning ? "Running..." : "Run & Test Code"}</span>
                         </button>
-                      )}
+
+                        {assertionPassed && selectedModuleIndex < PYTHON_TRACK_CONCEPTS.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedModuleIndex(selectedModuleIndex + 1);
+                              setActiveTab("learn");
+                            }}
+                            className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs sm:text-sm transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+                          >
+                            <span>Next Module &rarr;</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -892,7 +992,7 @@ export const PythonAcademyModal: React.FC = () => {
 
             {/* Tab 3: Free-Form Python Scratchpad */}
             {activeTab === "playground" && (
-              <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 space-y-4 overflow-hidden">
+              <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 space-y-4 overflow-y-auto">
                 <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-between gap-3 shadow-sm flex-shrink-0">
                   <div className="flex items-center gap-2.5 text-zinc-200 text-xs sm:text-sm font-semibold">
                     <Terminal className="w-4 h-4 text-cyan-400" />
